@@ -1,0 +1,63 @@
+.login-content {
+    --background: #f5f5f5;
+    height: 100vh; /* Full viewport height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px; /* Prevent cropping */
+    box-sizing: border-box; /* Include padding in width/height calculations */
+}
+
+.auth-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    max-width: 500px; /* Prevent overflow */
+    width: 100%; /* Responsive width */
+    box-sizing: border-box;
+    margin: auto; /* Ensure centering within flex container */
+}
+
+
+
+.separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0; /* Add spacing around the separator */
+    position: relative;
+  }
+  
+  .separator::before,
+  .separator::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #ccc; /* Line color */
+  }
+  
+  .separator span {
+    padding: 0 10px; /* Space around the text */
+    background: #fff; /* Background to cover the line */
+    color: #666; /* Text color */
+    font-size: 14px; /* Adjust text size */
+    font-weight: bold; /* Make text bold */
+  }
+
+  
+
+@media (max-width: 576px) {
+    .auth-card {
+        padding: 20px; /* Reduce padding on smaller screens */
+        border-radius: 12px;
+        margin: 0 auto;
+        box-shadow: none;
+        border: 1px solid #eee;
+    }
+    
+    .login-content {
+        --background: white;
+        padding: 8px; /* Adjust padding for small screens */
+    }
+}

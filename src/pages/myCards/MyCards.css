@@ -1,0 +1,64 @@
+
+.profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    margin-top: 2rem; /* Adjust this value to move the card closer to the toolbar */
+  }
+  
+  /* Limit the width of the card */
+  .profile-card {
+    max-width: 600px;
+    width: 100%;
+  }
+  
+  /* Header image styling */
+  .profile-header-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  /* Title styling */
+  .profile-title {
+    color: #ff385c;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .profile-card-title {
+    text-align: left;
+    font-weight: bold;
+    font-size: 24px;
+  }
+
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+  }
+  
+  .profile-name h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-top: 10px;
+  }
+  
+  .profile-email p {
+    font-size: 1rem;
+    color: #666;
+  }
+  
+  .profile-details {
+    margin-top: 20px;
+  }
+  
+  .profile-details ion-item {
+    --padding-start: 20px;
+    --inner-padding-end: 20px;
+    font-size: 1rem;
+  }
+  

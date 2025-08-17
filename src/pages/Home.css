@@ -1,0 +1,196 @@
+
+.hero-section {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 30px;
+  }
+  
+  .hero-section h1 {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .hero-section p {
+    font-size: 1.2em;
+    color: #666;
+  }
+  
+  .search-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .search-grid {
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-row {
+    width: 100%;
+  }
+  
+  .search-col {
+    display: flex;
+    align-items: center;
+    border-right: 1px solid #e0e0e0;
+    padding: 0 10px;
+  }
+  
+  .search-col:last-child {
+    border-right: none;
+  }
+  
+  .search-field {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .search-icon {
+    margin-right: 10px;
+    color: #666;
+  }
+  
+  .custom-searchbar {
+    --background: transparent;
+    --border-radius: 0;
+    --box-shadow: none;
+    padding: 0;
+  }
+  
+  .search-button-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-right: none;
+  }
+  
+  .search-button {
+    height: 50px;
+    font-weight: bold;
+    border-radius: 25px;
+  }
+
+  .menu-header {
+    font-size: 1rem;
+    background-color: #f8f8f8;
+    padding: 2rem;
+  }
+  
+  .menu-user-info {
+    margin-top: 1rem; 
+    display: flex;
+    flex-direction: column;
+    margin-left: 1rem;
+  }
+  
+  .menu-welcome {
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  
+  .menu-follow-info {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  
+  .menu-follow-item {
+    text-align: left;
+  }
+  
+  .menu-follow-count {
+    font-weight: italic;
+    font-size: 1rem;
+    margin-top: 0.2rem; /* Adds spacing between the label and count */
+  }
+  .menu-follow-label {
+    font-size: 0.9rem;
+    color: #888;
+    display: block; /* Ensures the label is displayed above or below the count */
+  }
+  
+  /* Responsive adjustments for smaller screens */
+  @media (max-width: 768px) {
+    .search-col {
+      border-right: none;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 10px 0;
+    }
+  
+    .search-col:last-child {
+      border-bottom: none;
+    }
+  
+    .search-button {
+      margin-top: 10px;
+    }
+  
+    .hero-section h1 {
+      font-size: 1.8em;
+    }
+  
+    .hero-section p {
+      font-size: 1em;
+    }
+  }
+
+  .card-section {
+    padding: 16px 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  
+  .helper-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    width: 100%;
+    margin-top: 12px;
+  }
+  
+  .helper-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #5f5b5b;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    min-width: 0; /* prevents overflow in grid */
+  }
+  
+  .helper-card:hover {
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15) !important;
+  }
+  
+  .card-img {
+    margin-bottom: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  }
+  
+  .card-body {
+    text-align: left;
+    padding: 0 12px;
+  }
+  
+  .card-body h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+  }
+  
+  .card-body p {
+    color: #555;
+    font-size: 0.98rem;
+  }
+
+  
+    
