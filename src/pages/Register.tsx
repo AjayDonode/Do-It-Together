@@ -53,7 +53,7 @@ const Register = () => {
       newErrors.confirmPassword = 'Passwords do not match.';
     }
 
-    setErrors(newErrors);
+    setErrors(newErrors); //TODO check 
     return Object.keys(newErrors).length === 0;
   };
 

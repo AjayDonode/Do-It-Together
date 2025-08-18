@@ -12,7 +12,8 @@ import {
     IonCardContent,
     IonList,
     IonContent,
-    IonIcon
+    IonIcon,
+    IonTitle
 } from '@ionic/react';
 import './ModalHelperDetails.css';
 
@@ -35,7 +36,16 @@ const ModalHelperDetails: React.FC<ModalHelperDetailsProps> = ({
 
     return (
         <IonModal isOpen={isOpen} onDidDismiss={onDidDismiss} className="no-padding-modal">
-           
+               <IonHeader>
+                   <IonToolbar>
+                     <IonTitle style={{ color: '#ff385c', fontWeight: 'bold' }}>Helper Profile</IonTitle>
+                     <IonButtons slot="end">
+                       <IonButton onClick={onDidDismiss}>
+                         <IonIcon icon={close} />
+                       </IonButton>
+                     </IonButtons>
+                   </IonToolbar>
+                 </IonHeader>
             <IonContent className="no-padding-content">
                 <IonCard className="no-padding-card">
                     <div className="banner-avatar-container">
@@ -47,17 +57,6 @@ const ModalHelperDetails: React.FC<ModalHelperDetailsProps> = ({
                         <IonAvatar className="modal-avatar">
                             <img src={helper.avatar} alt="Avatar" />
                         </IonAvatar>
-
-                        <IonButton
-                            onClick={onDidDismiss}
-                            shape="round"
-                            color="light"
-                            fill="solid"
-                            className="close-btn"
-                        >
-                            <IonIcon icon={close} />
-                        </IonButton>
-                        
                     </div>
                     <IonCardContent className="no-padding-card-content">
                         <div style={{ textAlign: 'center', marginTop: 48 }}>
