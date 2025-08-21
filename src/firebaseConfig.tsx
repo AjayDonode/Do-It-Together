@@ -18,22 +18,20 @@ import {
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCrIb09irO0bDgjNtrDBYawa1bTOUYsZD0",
-  authDomain: "woodlandgardens-eca8f.firebaseapp.com",
-  databaseURL: "https://woodlandgardens-eca8f-default-rtdb.firebaseio.com",
-  projectId: "woodlandgardens-eca8f",
-  storageBucket: "woodlandgardens-eca8f.firebasestorage.app",
-  messagingSenderId: "440336977215",
-  appId: "1:440336977215:web:2f66a3827a476b1b67d78a",
-  measurementId: "G-PDN9THS8NT"
+  apiKey: "AIzaSyCwaAJS8ptpoe3dZFrk1kid48G5mhgodQU",
+  authDomain: "doitto-fdce8.firebaseapp.com",
+  projectId: "doitto-fdce8",
+  storageBucket: "doitto-fdce8.firebasestorage.app",
+  messagingSenderId: "669070473282",
+  appId: "1:669070473282:web:57ed4ad15f04b841ab55db",
+  measurementId: "G-H40YXZSW21"
 };
 
-// Initialize Firebase
+
 
 const firebase = initializeApp(firebaseConfig); 
 const storage = getStorage(firebase);  
 const db = getFirestore(firebase); 
 
 export const auth = getAuth(firebase);
-
 export { db , storage};

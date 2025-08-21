@@ -16,39 +16,39 @@ import './MyCards.css';
 import { useAuth } from '../../context/AuthContext';
 import { useHistory } from 'react-router';
 import { add, arrowBackOutline, checkmark } from 'ionicons/icons';
+import { Helper } from '../../models/Helper';
 
 // Define a type for the helper
-interface Helper {
-  id: number;
-  name: string;
-  info: string;
-  avatar: string;
-}
+
 
 const MyCards: React.FC = () => {
   const { currentUser } = useAuth(); // Access user data from AuthContext
   const history = useHistory(); // React Router's useHistory hook for navigation
 
-  const [items, setItems] = useState<string[]>(['Recent', 'Plumbers', 'Handyman', 'Electricians']); // Specify type for items
-  const [newItem, setNewItem] = useState<string>(''); // Specify type for newItem
-  const [isEditing, setIsEditing] = useState<boolean>(false); // Specify type for isEditing
-  const [displayedHelpers, setDisplayedHelpers] = useState<Helper[]>([]); // Specify type for displayedHelpers
-  const [selectedHelper, setSelectedHelper] = useState<Helper | null>(null); // Specify type for selectedHelper
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Specify type for modal state
+  const [items, setItems] = useState<string[]>(['Recent', 'Plumbers', 'Handyman', 'Electricians']);
+  const [newItem, setNewItem] = useState<string>('');
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [helpers, setDisplayedHelpers] = useState<Helper[]>([]);
+  const [selectedHelper, setSelectedHelper] = useState<Helper | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedLabel, setSelectedLabel] = useState<string>('Recent');
 
-  /** Sample Data */
-  const initialHelpers: Helper[] = [
-    { id: 1, name: 'John Doe', info: 'Expert plumber with 10 years of experience.', avatar: 'link_to_avatar1' },
-    { id: 2, name: 'Jane Smith', info: 'Professional handyman for all your needs.', avatar: 'link_to_avatar2' },
-  ];
+  // Function to fetch helpers based on the label
+  const fetchHelpers = async (label: string) => {
+    try {
+      // Simulate a service call (replace with your actual API call)
+      const response = await fetch(`https://api.example.com/helpers?type=${label}`); // Adjust the URL as needed
+      const data: Helper[] = await response.json();
+      setDisplayedHelpers(data); // Update the state with fetched helpers
+    } catch (error) {
+      console.error("Error fetching helpers:", error);
+    }
+  };
 
-  const additionalHelpers: Helper[] = [
-    { id: 3, name: 'Mike Johnson', info: 'Electrician specializing in residential work.', avatar: 'link_to_avatar3' },
-    { id: 4, name: 'Emily Davis', info: 'Skilled carpenter with a focus on custom furniture.', avatar: 'link_to_avatar4' },
-  ];
-
-  const handleButtonClick = () => {
-    setDisplayedHelpers(additionalHelpers); // Change to the new dataset
+  const handleDisplayHelper = (label: string) => {
+    console.log("Selected button is " + label);
+    setSelectedLabel(label); // Update the selected label
+    fetchHelpers(label); // Fetch helpers based on the selected label
   };
 
   const handleBackToHome = () => {
@@ -63,6 +63,9 @@ const MyCards: React.FC = () => {
     }
   };
 
+  function handleAddHelperClick(event: MouseEvent<HTMLIonCardElement, MouseEvent>): void {
+    throw new Error('Function not implemented.');
+  }
   return (
     <IonPage>
       <IonHeader>
@@ -77,50 +80,83 @@ const MyCards: React.FC = () => {
       </IonHeader>
 
       <IonContent fullscreen className="ion-padding">
-        <div style={{ paddingLeft: '20px', display: 'flex', alignItems: 'center' }}>
-          {items.map((item, index) => (
-            <span key={index} style={{ marginRight: '15px', cursor: 'pointer' }}>
-              <IonButton onClick={handleButtonClick} fill="clear"> {item}</IonButton>
-            </span>
-          ))}
-          {isEditing ? (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="text"
-                value={newItem}
-                onChange={(e) => setNewItem(e.target.value)}
-                placeholder="New list name"
-              />
-              <IonButton onClick={handleAddItem} fill="clear">
-                <IonIcon icon={checkmark} />
+        <div style={{ paddingLeft: '20px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {items.map((item, index) => (
+              <span key={index} style={{ marginRight: '15px', cursor: 'pointer' }}>
+                <IonButton onClick={() => handleDisplayHelper(item)} fill="clear"
+                  style={{
+                    fontSize: '10px', // Smaller font size
+                    textDecoration: 'underline', // Makes it look like a link
+                    padding: '0', // Removes extra padding
+                    height: 'auto', // Adjusts height
+                    lineHeight: 'normal', // Normalizes line height
+                  }}
+                > {item}</IonButton>
+              </span>
+            ))}
+            {isEditing ? (
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={newItem}
+                  onChange={(e) => setNewItem(e.target.value)}
+                  placeholder="New list name"
+                />
+                <IonButton onClick={handleAddItem} fill="clear">
+                  <IonIcon icon={checkmark} />
+                </IonButton>
+              </div>
+            ) : (
+              <IonButton onClick={() => setIsEditing(true)} fill="clear">
+                <IonIcon icon={add} />
               </IonButton>
-            </div>
-          ) : (
-            <IonButton onClick={() => setIsEditing(true)} fill="clear">
-              <IonIcon icon={add} />
-            </IonButton>
-          )}
-        </div>
-        <div className="helper-grid">
-          {(displayedHelpers.length > 0 ? displayedHelpers : initialHelpers).map((helper) => (
-            <IonCard
-              className="helper-card"
-              key={helper.id}
-              button
-              onClick={() => {
-                setSelectedHelper(helper);
-                setIsModalOpen(true);
-              }}
-            >
-              <IonImg src={helper.avatar} alt="Helper" className="card-img" />
-              <IonCardContent className="card-body">
-                <h3>{helper.name}</h3>
-                <p>{helper.info.slice(0, 40)}...</p>
-              </IonCardContent>
-            </IonCard>
-          ))}
+            )}
+          </div>
+
+          {/* Selected Label */}
+          <h2 style={{ marginLeft: '20px', marginTop: '10px' }}>{selectedLabel}</h2> {/* Align with the buttons */}
         </div>
 
+        <div className="card-section">
+          <div className="helper-grid">
+            {helpers.map((helper) => (
+              <IonCard
+                className="helper-card"
+                key={helper.id}
+                button
+                onClick={() => {
+                  setSelectedHelper(helper);
+                  setIsModalOpen(true);
+                }}
+              >
+                <IonImg src={helper.avatar} alt="Helper" className="card-img" />
+                <IonCardContent className="card-body">
+                  <h3>{helper.name}</h3>
+                  <p>{helper.info.slice(0, 40)}...</p>
+                </IonCardContent>
+              </IonCard>
+            ))}
+
+            <IonCard
+              className="helper-card"
+              button
+              onClick={handleAddHelperClick}
+              style={{
+                display: helpers.length === 0 ? 'block' : 'flex',
+                margin: '0 auto', // Center the card horizontally
+                textAlign: 'center', // Center the text inside the card
+                maxWidth: '400px', // Optional: Set a max width
+                padding: '20px', // Add padding for a larger touch area
+              }} // Show if helpers are empty
+            >
+              <IonIcon icon={add} style={{ fontSize: '100px', margin: 'auto' }} />
+              <IonCardContent className="card-body" style={{ textAlign: 'center' }}>
+                <h3>Add Helper to List</h3>
+              </IonCardContent>
+            </IonCard>
+          </div>
+        </div>
         <IonModal isOpen={isModalOpen} onDidDismiss={() => setIsModalOpen(false)}>
           <IonHeader>
             <IonToolbar>
