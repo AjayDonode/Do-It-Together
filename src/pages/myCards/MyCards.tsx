@@ -17,6 +17,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useHistory } from 'react-router';
 import { add, arrowBackOutline, checkmark } from 'ionicons/icons';
 import { Helper } from '../../models/Helper';
+import AddHelperModal from './Modal/AddHelperModal';
 
 // Define a type for the helper
 
@@ -30,7 +31,7 @@ const MyCards: React.FC = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [helpers, setDisplayedHelpers] = useState<Helper[]>([]);
   const [selectedHelper, setSelectedHelper] = useState<Helper | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState<string>('Recent');
 
   // Function to fetch helpers based on the label
@@ -63,9 +64,13 @@ const MyCards: React.FC = () => {
     }
   };
 
-  function handleAddHelperClick(event: MouseEvent<HTMLIonCardElement, MouseEvent>): void {
-    throw new Error('Function not implemented.');
-  }
+   const handleAddHelper = (helper: Helper) => {
+    setDisplayedHelpers([...helpers, helper]);
+  };
+
+  // function handleAddHelperClick(event: MouseEvent<HTMLIonCardElement, MouseEvent>): void {
+  //   throw new Error('Function not implemented.');
+  // }
   return (
     <IonPage>
       <IonHeader>
@@ -141,7 +146,7 @@ const MyCards: React.FC = () => {
             <IonCard
               className="helper-card"
               button
-              onClick={handleAddHelperClick}
+              onClick={() => setIsModalOpen(true)}
               style={{
                 display: helpers.length === 0 ? 'block' : 'flex',
                 margin: '0 auto', // Center the card horizontally
@@ -157,24 +162,11 @@ const MyCards: React.FC = () => {
             </IonCard>
           </div>
         </div>
-        <IonModal isOpen={isModalOpen} onDidDismiss={() => setIsModalOpen(false)}>
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle>{selectedHelper?.name}</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            {selectedHelper && (
-              <IonCard>
-                <IonImg src={selectedHelper.avatar} alt="Selected Helper" />
-                <IonCardContent>
-                  <h3>{selectedHelper.name}</h3>
-                  <p>{selectedHelper.info}</p>
-                </IonCardContent>
-              </IonCard>
-            )}
-          </IonContent>
-        </IonModal>
+        <AddHelperModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          onAddHelper={handleAddHelper} 
+        />
       </IonContent>
     </IonPage>
   );

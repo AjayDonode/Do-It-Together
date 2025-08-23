@@ -1,18 +1,20 @@
 import { Firestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { Helper } from '../models/Helper';
-
+import { db } from '../firebaseConfig'; // Import your Firebase configuration
+import { storage } from '../firebaseConfig'; // Adjust the import as needed
 class HelperService {
-  private db: Firestore;
-  private collectionName: string = 'helpers'; // Firestore collection name
+  
+  private helperCollection: any // Firestore collection name
 
-  constructor(db: Firestore) {
-    this.db = db;
+  constructor() {
+    // this.db = db;
+    this.helperCollection = collection(db, 'helpers'); // Assuming 'cards' is your Firestore collection name
   }
 
   // Create a new helper
   async createHelper(helper: Helper): Promise<void> {
     try {
-      await addDoc(collection(this.db, this.collectionName), helper);
+      await addDoc(this.helperCollection, helper);
       console.log('Helper added successfully');
     } catch (error) {
       console.error('Error adding helper:', error);
@@ -23,7 +25,7 @@ class HelperService {
   async getHelpers(): Promise<Helper[]> {
     const helpers: Helper[] = [];
     try {
-      const querySnapshot = await getDocs(collection(this.db, this.collectionName));
+      const querySnapshot = await getDocs(this.helperCollection);
       querySnapshot.forEach((doc) => {
         const data = doc.data() as Helper;
         helpers.push({ ...data, id: doc.id }); // Include Firestore document ID
@@ -37,7 +39,7 @@ class HelperService {
   // Update a helper by ID
   async updateHelper(id: string, updatedHelper: Partial<Helper>): Promise<void> {
     try {
-      const helperRef = doc(this.db, this.collectionName, id);
+      const helperRef = doc(this.helperCollection, id);
       await updateDoc(helperRef, updatedHelper);
       console.log('Helper updated successfully');
     } catch (error) {
@@ -48,7 +50,7 @@ class HelperService {
   // Delete a helper by ID
   async deleteHelper(id: string): Promise<void> {
     try {
-      const helperRef = doc(this.db, this.collectionName, id);
+      const helperRef = doc(this.helperCollection, id);
       await deleteDoc(helperRef);
       console.log('Helper deleted successfully');
     } catch (error) {
@@ -56,3 +58,6 @@ class HelperService {
     }
   }
 }
+
+
+export default HelperService;
