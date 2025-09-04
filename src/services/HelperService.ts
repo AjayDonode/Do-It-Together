@@ -1,7 +1,7 @@
 import { Firestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { Helper } from '../models/Helper';
 import { db } from '../firebaseConfig'; // Import your Firebase configuration
-import { storage } from '../firebaseConfig'; // Adjust the import as needed
+
 class HelperService {
   
   private helperCollection: any // Firestore collection name

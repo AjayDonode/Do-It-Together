@@ -5,4 +5,5 @@ export interface Helper {
   avatar: string;
   banner: string;
   category: string; // Added category property
+  rating:Number;
 }
