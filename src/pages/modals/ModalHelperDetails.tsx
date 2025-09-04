@@ -68,14 +68,23 @@ const ModalHelperDetails: React.FC<ModalHelperDetailsProps> = ({
                         <div className="modal-reviews">
                             <h3 style={{ marginTop: 0 }}>Reviews</h3>
                             <IonList>
-                                {helper.reviews.map((review: any, idx: number) => (
+                                { helper.reviews && helper.reviews.length > 0 ? (
+                                    helper.reviews.map((review: any, idx: number) => (
                                     <IonCard key={idx} className="review-card" style={{ marginBottom: 8 }}>
                                         <IonCardContent>
                                             <strong>{review.user}:</strong> {review.comment}
                                             <span style={{ color: '#ffb400', marginLeft: 8 }}>★ {review.rating}</span>
                                         </IonCardContent>
                                     </IonCard>
-                                ))}
+                                ))
+                            )  : (
+        <IonCard className="review-card" style={{ marginBottom: 8, textAlign: 'center' }}>
+          <IonCardContent>
+            <p>No reviews yet. Be the first to add a review!</p>
+            <IonButton onClick={() => console.log("Add review ")}>Add Review</IonButton>
+          </IonCardContent>
+        </IonCard>
+      )}
                             </IonList>
                         </div>
                     </IonCardContent>

@@ -18,6 +18,7 @@ import { useHistory } from 'react-router';
 import { add, arrowBackOutline, checkmark } from 'ionicons/icons';
 import { Helper } from '../../models/Helper';
 import AddHelperModal from './Modal/AddHelperModal';
+import ModalHelperDetails from '../modals/ModalHelperDetails';
 
 // Define a type for the helper
 
@@ -32,6 +33,7 @@ const MyCards: React.FC = () => {
   const [helpers, setDisplayedHelpers] = useState<Helper[]>([]);
   const [selectedHelper, setSelectedHelper] = useState<Helper | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isHelperModalOpen, setIsHelperModalOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState<string>('Recent');
 
   // Function to fetch helpers based on the label
@@ -64,7 +66,7 @@ const MyCards: React.FC = () => {
     }
   };
 
-   const handleAddHelper = (helper: Helper) => {
+  const handleAddHelper = (helper: Helper) => {
     setDisplayedHelpers([...helpers, helper]);
   };
 
@@ -132,7 +134,7 @@ const MyCards: React.FC = () => {
                 button
                 onClick={() => {
                   setSelectedHelper(helper);
-                  setIsModalOpen(true);
+                  setIsHelperModalOpen(true);
                 }}
               >
                 <IonImg src={helper.avatar} alt="Helper" className="card-img" />
@@ -162,10 +164,15 @@ const MyCards: React.FC = () => {
             </IonCard>
           </div>
         </div>
-        <AddHelperModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-          onAddHelper={handleAddHelper} 
+        <AddHelperModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onAddHelper={handleAddHelper} />
+
+        <ModalHelperDetails
+          isOpen={isHelperModalOpen}
+          onDidDismiss={() => setIsHelperModalOpen(false)}
+          helper={selectedHelper}
         />
       </IonContent>
     </IonPage>
