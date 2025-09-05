@@ -16,40 +16,40 @@
 }
 
 .container h2{
-  color: rgb(41, 255, 255);
+  color: rgb(106, 107, 107);
   padding-left: 15px;
 }
 
-.container .swiper-button-prev,
-.container .swiper-button-next {
+.swiper-button-prev,
+.swiper-button-next {
   position: absolute;
   top: 10px; /* Adjust vertical position */
   right: 10px; /* Adjust horizontal position */
   background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
-  border-radius: 50%; /* Make buttons circular */
-  width: 40px; /* Set width */
-  height: 40px; /* Set height */
+  border-radius: 100%; /* Make buttons circular */
+  width: 35px; /* Set width */
+  height: 35px; /* Set height */
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none; /* Remove border */
+  border: 1px solid gray; 
   cursor: pointer; /* Change cursor on hover */
   z-index: 10; /* Ensure buttons are above other elements */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle shadow for depth */
 }
 
-.container .swiper-button-prev {
-  right: 60px; /* Position left button slightly to the left */
+ .swiper-button-prev {
+  right: 50px; /* Position left button slightly to the left */
 }
 
-.container .swiper-button-next {
+ .swiper-button-next {
   right: 10px; /* Position right button */
 }
 
 /* Optional: Add hover effect for better visibility */
-.container .swiper-button-prev:hover,
-.container .swiper-button-next:hover {
-  background-color: rgba(255, 255, 255, 0.8); /* Change background on hover */
+.swiper-button-prev:hover,
+.swiper-button-next:hover {
+  background-color: rgba(182, 178, 178, 0.8); /* Change background on hover */
 }
 
 .header-container h2 {

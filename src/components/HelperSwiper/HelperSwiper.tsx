@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import '@ionic/react/css/ionic-swiper.css';
-import { IonCard, IonCardContent, IonImg, IonButton } from '@ionic/react';
+import { IonCard, IonCardContent, IonImg, IonButton, IonButtons } from '@ionic/react';
 import './HelperSwiper.css'; // Import the CSS file
 import { Helper } from '../../models/Helper';
 
@@ -30,13 +30,17 @@ const HelperSwiper: React.FC<HelperSwiperProps> = ({ header, helpers, onHelperCl
 
     return (
         <div className="container">
-            <h2>{header}</h2>
-            <IonButton onClick={handlePrev} className="swiper-button-prev">
+            <h2>{header} ▶ </h2>
+            {/* <IonButtons > */}
+            <div>
+            <IonButton fill='clear' onClick={handlePrev} className="swiper-button-prev">
                 ◀ {/* Left Arrow */}
             </IonButton>
-            <IonButton onClick={handleNext} className="swiper-button-next">
+            <IonButton fill='clear' onClick={handleNext} className="swiper-button-next">
                 ▶ {/* Right Arrow */}
             </IonButton>
+            {/* </IonButtons> */}
+            </div>
             <div className="swiper-container">
                 <Swiper
                     ref={swiperRef} // Attach the ref to the Swiper
