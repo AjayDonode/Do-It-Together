@@ -1,0 +1,83 @@
+.helper-card {
+ display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack children vertically */
+  align-items: flex-start; /* Align items to the start */
+  justify-content: flex-start; /* Align items at the top */
+  height: 200px; /* Set a fixed height for all cards */
+  min-width: 200px; /* Set a fixed width for all cards */
+  margin: 0 auto; /* Center the cards horizontally */
+  text-align: left;
+}
+
+
+/* src/components/HelperSwiper.css */
+.container {
+  position: relative;
+}
+
+.container h2{
+  color: rgb(41, 255, 255);
+  padding-left: 15px;
+}
+
+.container .swiper-button-prev,
+.container .swiper-button-next {
+  position: absolute;
+  top: 10px; /* Adjust vertical position */
+  right: 10px; /* Adjust horizontal position */
+  background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
+  border-radius: 50%; /* Make buttons circular */
+  width: 40px; /* Set width */
+  height: 40px; /* Set height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none; /* Remove border */
+  cursor: pointer; /* Change cursor on hover */
+  z-index: 10; /* Ensure buttons are above other elements */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle shadow for depth */
+}
+
+.container .swiper-button-prev {
+  right: 60px; /* Position left button slightly to the left */
+}
+
+.container .swiper-button-next {
+  right: 10px; /* Position right button */
+}
+
+/* Optional: Add hover effect for better visibility */
+.container .swiper-button-prev:hover,
+.container .swiper-button-next:hover {
+  background-color: rgba(255, 255, 255, 0.8); /* Change background on hover */
+}
+
+.header-container h2 {
+  font-size: 3;
+  font-weight: bold;
+  color: gray;
+  padding-left: 15px;
+}
+
+.card-img {
+  flex: 1; /* Allow the image to grow and take available space */
+  object-fit: cover; /* Cover the card area without distortion */
+  width: 100%; /* Make image take the full width */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.card-body {
+  padding: 5px; /* Add padding to the content */
+}
+
+.helper-card h3 {
+  font-size: 10px; /* Adjust the size of the name */
+  font-weight: bold; /* Make the name bold */
+  margin: 0; /* Remove default margin */
+}
+
+.helper-card p {
+  font-size: 10px;/* Adjust the size of the info text */
+  margin: 5px 0 0; /* Add some margin for spacing */
+}
+

@@ -24,7 +24,6 @@ import {
 } from '@ionic/react';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Helper } from '../../../models/Helper';
-import { Firestore } from 'firebase/firestore';
 import HelperService from '../../../services/HelperService'; // Adjust the path as necessary
 import { add, close, pencilOutline } from 'ionicons/icons';
 import './AddHelperModal.css'; // Import your CSS file
@@ -124,13 +123,17 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
   const handleAddNewHelper = async () => {
     if (newHelperName.trim() !== '') {
       const newHelper: Helper = {
-        id: Date.now(),
+        id: "" + Date.now(),
         name: newHelperName,
         avatar: newHelperAvatar,
         info: newHelperInfo,
         banner: newHelperBanner,
         category: newHelperCategory,
         rating: newHelperRating,
+        title: '',
+        description: '',
+        ratingCount: 0,
+        reviews: []
       };
 
       try {
@@ -256,7 +259,8 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
                       setNewHelperAvatar(helper.avatar);
                       setNewHelperInfo(helper.info);
                       setNewHelperBanner(helper.banner);
-                      setNewHelperCategory(helper.category);
+                      // if(helper.category)
+                        setNewHelperCategory(helper.category);
                       setShowInputForm(true); // Switch to edit mode
                     }}
                   >

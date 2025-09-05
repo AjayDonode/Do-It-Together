@@ -3,6 +3,7 @@ import { Helper } from '../models/Helper';
 import { db } from '../firebaseConfig'; // Import your Firebase configuration
 
 class HelperService {
+ 
   
   private helperCollection: any // Firestore collection name
 
@@ -28,7 +29,7 @@ class HelperService {
       const querySnapshot = await getDocs(this.helperCollection);
       querySnapshot.forEach((doc) => {
         const data = doc.data() as Helper;
-        helpers.push({ ...data, id: doc.id }); // Include Firestore document ID
+        helpers.push({ ...data}); // Include Firestore document ID
       });
     } catch (error) {
       console.error('Error fetching helpers:', error);
