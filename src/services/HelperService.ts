@@ -1,15 +1,12 @@
-import { Firestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { Firestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
 import { Helper } from '../models/Helper';
 import { db } from '../firebaseConfig'; // Import your Firebase configuration
 
 class HelperService {
- 
-  
   private helperCollection: any // Firestore collection name
 
   constructor() {
-    // this.db = db;
-    this.helperCollection = collection(db, 'helpers'); // Assuming 'cards' is your Firestore collection name
+    this.helperCollection = collection(db, 'helpers');
   }
 
   // Create a new helper
@@ -29,10 +26,33 @@ class HelperService {
       const querySnapshot = await getDocs(this.helperCollection);
       querySnapshot.forEach((doc) => {
         const data = doc.data() as Helper;
-        helpers.push({ ...data}); // Include Firestore document ID
+        helpers.push({ ...data }); // Include Firestore document ID
       });
     } catch (error) {
       console.error('Error fetching helpers:', error);
+    }
+    return helpers;
+  }
+
+  async searchHelpers(queryString: string, zipcode: string): Promise<Helper[]> {
+    const helpers: Helper[] = [];
+    try {
+      let q: any = null;
+      if (!queryString) {
+        q = query(this.helperCollection,
+          where('zipcodes', 'array-contains', zipcode));
+      } else {
+        q = query(this.helperCollection,
+          where('category', '==', queryString),
+          where('zipcodes', 'array-contains', zipcode)); // Adjust the field and operator as needed
+      }
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        const data = doc.data() as Helper;
+        helpers.push({ ...data, id: doc.id }); // Include Firestore document ID
+      });
+    } catch (error) {
+      console.error('Error searching helpers:', error);
     }
     return helpers;
   }
@@ -59,6 +79,4 @@ class HelperService {
     }
   }
 }
-
-
 export default HelperService;

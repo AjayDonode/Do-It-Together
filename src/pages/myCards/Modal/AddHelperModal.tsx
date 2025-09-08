@@ -52,7 +52,7 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
   const bannerFileInputRef = useRef<HTMLInputElement>(null);
   const [filteredCategories, setFilteredCategories] = useState<{ value: string; label: string }[]>([]); // Specify type for filteredCategories
-
+  const [zipcodes, setZipCodes] = useState<string[]>(['']); // State for area codes
   const storage = getStorage(); // Initialize Firebase Storage
 
   const defaultImages = [
@@ -133,7 +133,8 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
         title: '',
         description: '',
         ratingCount: 0,
-        reviews: []
+        reviews: [],
+        zipcodes: zipcodes 
       };
 
       try {
@@ -147,6 +148,7 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
         setNewHelperCategory('');
         setNewHelperRating(0);
         setShowInputForm(false); // Hide the input form after adding
+        setZipCodes(['']); // Reset area codes
         onClose();
       } catch (error) {
         console.error('Error adding new helper:', error);
@@ -216,6 +218,23 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
     setFilteredCategories([]); // Clear suggestions
   };
 
+  const handleZipCodeChange = (index: number, value: string) => {
+    const newAreaCodes = [...zipcodes]; // Create a copy of the current area codes
+    newAreaCodes[index] = value; // Update the area code at the specified index
+    setZipCodes(newAreaCodes); // Update the state with the new area codes
+};
+
+// Function to remove an area code from the list
+const removeZipCode = (index: number) => {
+    const newAreaCodes = zipcodes.filter((_, i) => i !== index); // Remove the area code at the specified index
+    setZipCodes(newAreaCodes); // Update the state with the new area codes
+};
+
+// Function to add a new area code input field
+const addZipCode = () => {
+    setZipCodes([...zipcodes, '']); // Add an empty string for a new area code
+};
+
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onClose}>
       <IonHeader>
@@ -259,8 +278,8 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
                       setNewHelperAvatar(helper.avatar);
                       setNewHelperInfo(helper.info);
                       setNewHelperBanner(helper.banner);
-                      // if(helper.category)
-                        setNewHelperCategory(helper.category);
+                      setZipCodes(['']); // Reset area codes
+                      setNewHelperCategory(helper.category);
                       setShowInputForm(true); // Switch to edit mode
                     }}
                   >
@@ -338,6 +357,24 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
               onIonChange={(e) => setContactmail(e.detail.value!)}
               className="form-input"
             />
+
+             <IonLabel>Area Codes</IonLabel>
+            {zipcodes.map((code, index) => (
+              <IonItem key={index}>
+                <IonInput
+                  value={code}
+                  placeholder="Enter area code"
+                  onIonChange={(e) => handleZipCodeChange(index, e.detail.value!)}
+                />
+                <IonButton onClick={() => removeZipCode(index)} color="danger">
+                  Remove
+                </IonButton>
+              </IonItem>
+            ))}
+            <IonButton onClick={addZipCode} expand="full">
+              Add Area Code
+            </IonButton>
+
             <IonItem>
               <IonSelect label="Select Category" labelPlacement="floating">
                 {categories.map((category) => (
@@ -347,7 +384,7 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
                 ))}
               </IonSelect>
             </IonItem>
-
+            //Add zip input here 
             <IonTextarea
               value={newHelperInfo}
               labelPlacement="floating"

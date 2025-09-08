@@ -19,8 +19,9 @@ import {
   IonAvatar,
   IonMenuToggle,
   IonMenuButton,
+  IonInput,
 } from '@ionic/react';
-import { personOutline } from 'ionicons/icons';
+import { personOutline, pin } from 'ionicons/icons';
 import './Home.css';
 import { useHistory } from 'react-router';
 import ModalHelperDetails from './modals/ModalHelperDetails';
@@ -38,13 +39,21 @@ const Home: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [helpers, setHelpers] = useState<Helper[]>([]);
 
+  const [searchString, setSearchString] = useState('');
+  const [zipcode, setZipcode] = useState('');
+
+  const handleSearch = async (searchString: string, zipcode: string) => {
+    // Implement your search logic here
+    console.log('Looking for %s in area %s', searchString, zipcode);
+    const results = await helperService.searchHelpers(searchString, zipcode);
+     setHelpers(results);
+  };
+
   useEffect(() => {
     const fetchHelpers = async () => {
       try {
-        console.log("Pulling helpers info");
         const helpList = await helperService.getHelpers();
         setHelpers(helpList);
-        console.log(helpList);
       } catch (error) {
         console.error('Error fetching helpers:', error);
       }
@@ -156,12 +165,26 @@ const Home: React.FC = () => {
               <IonRow className="search-row">
                 <IonCol size="12" className="search-col">
                   <div className="search-field">
-                    <IonIcon icon={personOutline} className="search-icon" />
                     <IonSearchbar
-                      placeholder="Write us about your project, expected timings with your zipcode"
+                      placeholder="Describe your project"
                       className="custom-searchbar extended-searchbar"
+                      value={searchString}
+                      onIonInput={(e) => setSearchString(e.target.value || '')}
                     />
-                    <IonButton color="danger" className="search-button">
+                    <div className="zipcode-container">
+                      <IonIcon icon={pin} className="zipcode-icon" />
+                      <IonInput
+                        placeholder="Zipcode"
+                        className="zipcode-input"
+                        value={zipcode}
+                        onIonInput={(e) => setZipcode(String(e.target.value))} // Default to empty string
+                      />
+                    </div>
+                    <IonButton
+                      color="danger"
+                      className="search-button"
+                      onClick={() => handleSearch(searchString, zipcode)}
+                    >
                       Search
                     </IonButton>
                   </div>

@@ -9,6 +9,45 @@
   text-align: left;
 }
 
+.profile-content {
+  /*background: var(--ion-color-secondary); */
+  background:rgb(211, 209, 209);
+  border-radius: 5px;
+  padding-bottom: 18vh;
+  height: 100px; /* Set a fixed height for all cards */
+  width: 150px;
+}
+
+.image{
+  transform: translateY(1vh);
+  align-content: center;
+  ion-avatar{
+    width: 15vh;
+    height: 15vh;
+    border: 1px solid rgb(157, 156, 156);
+    padding: 0.2vh;
+    margin-bottom: 6vh;
+  }
+}
+
+.profile {
+    text-align: left; /* Center text in the profile item */
+    background: transparent;
+}
+
+.profile-name{
+    font-size: 12px; /* Smaller font for the helper's name */
+    font-weight: bold;
+    color: gray;
+    background: transparent;
+}
+
+.profile-content p {
+    font-size: 12px; /* Even smaller font for the rating/info */
+    margin: 0; /* Remove default margin */
+    background: transparent;
+}
+
 
 /* src/components/HelperSwiper.css */
 .container {
@@ -63,7 +102,7 @@
   flex: 1; /* Allow the image to grow and take available space */
   object-fit: cover; /* Cover the card area without distortion */
   width: 100%; /* Make image take the full width */
-  height: auto; /* Maintain aspect ratio */
+  height: 40%; /* Maintain aspect ratio */
 }
 
 .card-body {

@@ -11,7 +11,7 @@ export interface Helper {
   rating: number; // Average rating (e.g., 4.5)
   ratingCount: number; // Number of ratings received
   reviews: Review[]; // Array of reviews
-  location?: string; // Optional location field
+  zipcodes?: string[]; // Optional location field
   category:string;
   // specialties?: string[]; // Optional array of specialties or skills
 }

@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import '@ionic/react/css/ionic-swiper.css';
-import { IonCard, IonCardContent, IonImg, IonButton, IonButtons } from '@ionic/react';
+import { IonCard, IonCardContent, IonImg, IonButton, IonButtons, IonAvatar, IonItem, IonLabel, IonText } from '@ionic/react';
 import './HelperSwiper.css'; // Import the CSS file
 import { Helper } from '../../models/Helper';
 
@@ -44,38 +44,54 @@ const HelperSwiper: React.FC<HelperSwiperProps> = ({ header, helpers, onHelperCl
             <div className="swiper-container">
                 <Swiper
                     ref={swiperRef} // Attach the ref to the Swiper
-                    spaceBetween={5}
+                    spaceBetween={1}
                     slidesPerView={2.5} // Default for small screens
                     breakpoints={{
                         640: {
                             slidesPerView: 4, // For medium screens
-                            spaceBetween: 5,
+                            spaceBetween: 1,
                         },
                         768: {
                             slidesPerView: 5, // For larger screens
-                            spaceBetween: 5,
+                            spaceBetween: 1,
                         },
                         1024: {
                             slidesPerView: 8, // For very large screens
-                            spaceBetween: 5,
+                            spaceBetween: 1,
                         },
                     }}
                 >
                     {helpers.map((helper) => (
                         <SwiperSlide key={helper.id}>
                             <IonCard
-                                className="helper-card"
+                                className="profile-content"
                                 onClick={() => onHelperClick(helper)} // Call the click handler from props
                             >
-                                <IonImg src={helper.avatar} alt="Helper" className="card-img" />
-                                <IonCardContent>
+                                 <div className="image">
+                                 <IonAvatar> 
+                                    <img src={helper.avatar} alt={helper.name} className="card-img" />
+                                 </IonAvatar>    
+                                </div>
+                                <IonItem lines='none' className='profile'>
+                                    <IonLabel class='ion-text-center'>
+                                        <IonText className='profile-name'>{helper.name}</IonText>
+                                        <p>
+                                            <IonText>{helper.rating > 0
+                                            ? `Rating: ${helper.rating} *`
+                                            : 'No rating yet'} <br></br>
+                                        {helper.info.slice(0, 40)}</IonText>
+                                       </p>
+                                    </IonLabel>
+
+                                </IonItem>
+                                {/* <IonCardContent>
                                     <h3>{helper.name}</h3>
                                     <p>
                                         {helper.rating > 0
                                             ? `Rating: ${helper.rating} *`
                                             : 'No rating yet'} <br></br>
                                         {helper.info.slice(0, 40)}...</p>
-                                </IonCardContent>
+                                </IonCardContent> */}
                             </IonCard>
                         </SwiperSlide>
                     ))}
