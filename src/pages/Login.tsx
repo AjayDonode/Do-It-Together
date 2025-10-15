@@ -116,6 +116,11 @@ const Login = () => {
                         <span>OR</span>
                     </div>
 
+                    <div >
+                       By clicking Continue with Facebook, Google, or Apple, you agree to the Terms of Use and Privacy Policy. We'll keep you logged in.
+                    </div>
+
+
                     <div className="social-buttons">
                         <IonButton
                             expand="block"

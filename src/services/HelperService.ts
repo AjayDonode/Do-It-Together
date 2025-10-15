@@ -1,9 +1,9 @@
-import { Firestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, getDoc } from 'firebase/firestore';
 import { Helper } from '../models/Helper';
-import { db } from '../firebaseConfig'; // Import your Firebase configuration
+import { db } from '../firebaseConfig';
 
 class HelperService {
-  private helperCollection: any // Firestore collection name
+  private helperCollection: any;
 
   constructor() {
     this.helperCollection = collection(db, 'helpers');
@@ -19,14 +19,34 @@ class HelperService {
     }
   }
 
-  // Read all helpers
+  // Get a single helper by ID
+  async getHelperById(id: string): Promise<Helper | null> {
+    try {
+      const helperRef = doc(this.helperCollection, id);
+      const helperDoc = await getDoc(helperRef);
+      
+      if (helperDoc.exists()) {
+        const data = helperDoc.data() as Helper;
+        return { ...data, id: helperDoc.id }; // Correctly include ID
+      } else {
+        console.log('No such helper document!');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching helper:', error);
+      return null;
+    }
+  }
+
+  // Read all helpers - FIXED: Include document ID
   async getHelpers(): Promise<Helper[]> {
     const helpers: Helper[] = [];
     try {
       const querySnapshot = await getDocs(this.helperCollection);
       querySnapshot.forEach((doc) => {
         const data = doc.data() as Helper;
-        helpers.push({ ...data }); // Include Firestore document ID
+        console.log("Data " + data.name);
+        helpers.push({ ...data, id: doc.id }); // FIXED: Include Firestore document ID
       });
     } catch (error) {
       console.error('Error fetching helpers:', error);
@@ -44,12 +64,12 @@ class HelperService {
       } else {
         q = query(this.helperCollection,
           where('category', '==', queryString),
-          where('zipcodes', 'array-contains', zipcode)); // Adjust the field and operator as needed
+          where('zipcodes', 'array-contains', zipcode));
       }
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
         const data = doc.data() as Helper;
-        helpers.push({ ...data, id: doc.id }); // Include Firestore document ID
+        helpers.push({ ...data, id: doc.id }); // Correct
       });
     } catch (error) {
       console.error('Error searching helpers:', error);
@@ -79,4 +99,5 @@ class HelperService {
     }
   }
 }
+
 export default HelperService;

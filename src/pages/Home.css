@@ -72,6 +72,11 @@
 }
 
 
+  .title {
+    color: #ff385c;
+    font-weight: bold;
+    text-align: left;
+  }
 
 .zipcode-container {
   display: flex;

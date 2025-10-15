@@ -1,0 +1,499 @@
+.freelancer-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  margin: 16px;
+}
+
+.card-header-container {
+  position: relative;
+  height: 120px;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.avatar-container {
+  position: absolute;
+  bottom: -30px;
+  left: 20px;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profile-avatar img {
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.name-action-row {
+  display: flex;
+  justify-content: left;
+  align-items: flex-start;
+  padding: 35px 20px 20px 20px;
+
+}
+
+.name-section {
+  flex: 1;
+  text-align: left;
+}
+
+.name {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  color: #2c2c2c;
+  margin-bottom: 6px;
+}
+
+.designation {
+  display: block;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+
+
+.stats-desc {
+  text-align: left;
+  margin: 16px 0;
+  padding: 0;
+  font-size: 8px; /* Smaller font size */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.stats-desc p.truncate-3-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  /* Fallback for non-webkit browsers */
+  max-height: calc(3 * 1.5em); /* 3 lines * line-height */
+}
+
+/* Hover effect to show full text */
+
+
+/* For emphasized text */
+.stats-desc p.important {
+  font-size: 10px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .stats-desc p {
+    font-size: 10px;
+    line-height: 1.5;
+  }
+}
+
+
+.rating-badge {
+  display: flex;
+  align-items: center;
+  background: rgba(249, 99, 2, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(249, 99, 2, 0.2);
+}
+
+.star-icon {
+  color: #F96302;
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+.rating-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #F96302;
+}
+
+.rating-badge:hover {
+  background: rgba(249, 99, 2, 0.15);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/*----START---*/
+/* Add this new CSS for the header rating badge */
+.header-rating-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  background: rgba(249, 99, 2, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(249, 99, 2, 0.2);
+  z-index: 10;
+  backdrop-filter: blur(5px);
+}
+
+.header-rating-badge:hover {
+  background: rgba(249, 99, 2, 0.15);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Ensure the card-header-container has proper positioning context */
+.card-header-container {
+  position: relative;
+  height: 120px;
+}
+/*----END---*/
+/* Contact section with buttons aligned left and right */
+.contact-section {
+  padding: 0 20px 25px 20px;
+  margin-top: 10px;
+}
+
+.contact-buttons-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* This pushes items to left and right edges */
+  gap: 12px;
+}
+
+.action-buttons-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-button {
+  --border-radius: 25px;
+  --background: #F96302;
+  --background-activated: #e55a00;
+  --background-hover: #ff7300;
+  --color: white;
+  --font-weight: 600;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  text-transform: none;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  min-width: 140px;
+}
+
+.contact-button:hover {
+  transform: scale(1.05);
+}
+
+/* Like and add button styles */
+.share-button,
+.add-button {
+  --border-radius: 50%;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  --background: rgba(249, 99, 2, 0.1);
+  --color: #F96302;
+  width: 35px;
+  height: 35px;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  transform-origin: center;
+}
+
+.share-button:hover,
+.add-button:hover {
+  --background: rgba(249, 99, 2, 0.2);
+  transform: scale(1.15);
+  animation: elasticPulse 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.share-button.shared,
+.add-button.added {
+  --background: rgba(249, 99, 2, 0.3);
+  --color: #ff3b30;
+  transform: scale(1.1);
+}
+
+/* Remove old action-buttons styles from name-action-row */
+.name-action-row .action-buttons {
+  display: none;
+}
+
+.name-section {
+  text-align: left;
+}
+
+/* Elastic pulse animation */
+@keyframes elasticPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1.25); }
+}
+
+
+.stats-content {
+  padding: 0 20px 25px 20px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 15px;
+  background: rgba(249, 99, 2, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(249, 99, 2, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+}
+
+.stat-value {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #F96302;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.contact-section {
+  padding: 0 20px 25px 20px;
+  margin-top: 10px;
+}
+
+.contact-button {
+  --border-radius: 25px;
+  --background: #F96302;
+  --background-activated: #e55a00;
+  --background-hover: #ff7300;
+  --color: white;
+  --font-weight: 600;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  text-transform: none;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.contact-button:hover {
+  transform: scale(1.05);
+}
+
+/* iOS-like glass morphism effect */
+.freelancer-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  backdrop-filter: blur(15px);
+  z-index: -1;
+  border-radius: 20px;
+}
+
+/* Hover effects */
+.freelancer-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+
+/* Scrollable content area */
+.scrollable-content {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 16px;
+  border-top: 1px solid #eee;
+  margin-top: 8px;
+}
+
+/* Additional sections styling */
+.additional-section {
+  margin-bottom: 20px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-icon {
+  margin-right: 8px;
+  color: #3880ff;
+  font-size: 18px;
+}
+
+.section-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+
+/* Skills grid */
+.skills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-chip {
+  margin: 2px;
+  font-size: 12px;
+}
+
+/* Experience and Education lists */
+.experience-list,
+.education-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.experience-item,
+.education-item {
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.exp-role,
+.edu-degree {
+  font-weight: 600;
+  display: block;
+  font-size: 14px;
+}
+
+.exp-company,
+.edu-institution {
+  display: block;
+  font-size: 12px;
+  color: #666;
+}
+
+.exp-duration,
+.edu-year {
+  display: block;
+  font-size: 11px;
+  color: #888;
+}
+
+/* Languages list */
+.languages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.language-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.lang-name {
+  font-size: 14px;
+}
+
+.lang-level {
+  font-size: 11px;
+}
+
+/* Reviews styling */
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-item {
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.reviewer-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.review-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.small-star {
+  font-size: 14px;
+  color: #ffc409;
+}
+
+.review-text {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Scrollbar styling */
+.scrollable-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

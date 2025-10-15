@@ -1,12 +1,23 @@
 .helper-card {
- display: flex; /* Use flexbox for layout */
+  display: flex; /* Use flexbox for layout */
   flex-direction: column; /* Stack children vertically */
-  align-items: flex-start; /* Align items to the start */
+  align-items: center; /* Center items horizontally */
   justify-content: flex-start; /* Align items at the top */
-  height: 200px; /* Set a fixed height for all cards */
-  min-width: 200px; /* Set a fixed width for all cards */
+  height: 200px; /* Fixed height for all cards */
+  min-width: 200px; /* Fixed width for all cards */
   margin: 0 auto; /* Center the cards horizontally */
-  text-align: left;
+  text-align: center; /* Center text alignment */
+  box-sizing: border-box; /* Include padding/border in height/width */
+}
+
+.swiper-container {
+  padding: 16px 0;
+}
+
+.image {
+  transform: translateY(1vh);
+  display: flex;
+  justify-content: center; /* Center the avatar horizontally */
 }
 
 .profile-content {
@@ -16,17 +27,26 @@
   padding-bottom: 18vh;
   height: 100px; /* Set a fixed height for all cards */
   width: 150px;
+  flex-direction: column;
+  align-items: center; /* Changed: Center content horizontally */
 }
+
+
 
 .image{
   transform: translateY(1vh);
-  align-content: center;
+  display: flex;
+  justify-content: center; /* Added: Center the avatar horizontally */
+
   ion-avatar{
     width: 15vh;
     height: 15vh;
     border: 1px solid rgb(157, 156, 156);
-    padding: 0.2vh;
-    margin-bottom: 6vh;
+    padding: 0.5vh;
+    margin-bottom: 2vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 
@@ -42,19 +62,30 @@
     background: transparent;
 }
 
-.profile-content p {
-    font-size: 12px; /* Even smaller font for the rating/info */
-    margin: 0; /* Remove default margin */
-    background: transparent;
+.profile-content {
+  /* background: var(--ion-color-secondary); */
+  background: rgb(211, 209, 209);
+  border-radius: 5px;
+  padding-bottom: 18vh; /* Retained, but ensure it doesn't exceed height */
+  height: 200px; /* Updated: Match fixed height for uniformity */
+  width: 150px; /* Retained, but consider matching min-width if needed */
+  display: flex; /* Added: Use flex for internal layout */
+  flex-direction: column;
+  align-items: center; /* Center content horizontally */
+  justify-content: flex-start; /* Align content from top */
+  box-sizing: border-box; /* Include padding in height */
+  overflow: hidden; /* Prevent content overflow */
 }
 
-
+Aug2025one!
+ hyb
 /* src/components/HelperSwiper.css */
-.container {
-  position: relative;
+.sm-container {
+  display: flow;
+  position: left;
 }
 
-.container h2{
+.sm-container h2{
   color: rgb(106, 107, 107);
   padding-left: 15px;
 }
@@ -62,14 +93,12 @@
 .swiper-button-prev,
 .swiper-button-next {
   position: absolute;
-  top: 10px; /* Adjust vertical position */
-  right: 10px; /* Adjust horizontal position */
   background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
   border-radius: 100%; /* Make buttons circular */
   width: 35px; /* Set width */
   height: 35px; /* Set height */
   display: flex;
-  align-items: center;
+  align-items: top;
   justify-content: center;
   border: 1px solid gray; 
   cursor: pointer; /* Change cursor on hover */
@@ -89,6 +118,12 @@
 .swiper-button-prev:hover,
 .swiper-button-next:hover {
   background-color: rgba(182, 178, 178, 0.8); /* Change background on hover */
+}
+
+.swiper-slide {
+  height: 200px; /* Fixed height for all slides to ensure uniformity */
+  display: flex; /* Use flex to center content vertically if needed */
+  align-items: stretch; /* Stretch cards to fill slide height */
 }
 
 .header-container h2 {

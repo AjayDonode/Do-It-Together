@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { useHistory, useLocation } from 'react-router-dom';
 import Profile from './pages/profile/Profile';
 import MyCards from './pages/myCards/MyCards';
+import HelperProfilePage from './pages/helperprofile/HelperProfilePage';
 
 setupIonicReact();
 
@@ -41,6 +42,7 @@ const App: React.FC = () => {
             <Route exact path="/home" component={Home} />
             <Route exact path="/profile" component={Profile} />
             <Route exact path="/mycards" component={MyCards} />
+            <Route path="/helper-profile/:id" component={HelperProfilePage} />
           </IonRouterOutlet>
         </IonReactRouter>
       </AuthProvider>

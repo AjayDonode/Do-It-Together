@@ -1,3 +1,4 @@
+// src/components/HelperSwiper.tsx (Updated for uniform card heights)
 import React, { useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
@@ -5,12 +6,12 @@ import '@ionic/react/css/ionic-swiper.css';
 import { IonCard, IonCardContent, IonImg, IonButton, IonButtons, IonAvatar, IonItem, IonLabel, IonText } from '@ionic/react';
 import './HelperSwiper.css'; // Import the CSS file
 import { Helper } from '../../models/Helper';
-
+import MiniCard from '../mini-card/mini-card';
 
 interface HelperSwiperProps {
     header: string;
     helpers: Helper[];
-    onHelperClick: (helper: Helper) => void; // Add a prop for click event
+    onHelperClick: (helper: Helper) => void; 
 }
 
 const HelperSwiper: React.FC<HelperSwiperProps> = ({ header, helpers, onHelperClick }) => {
@@ -28,49 +29,49 @@ const HelperSwiper: React.FC<HelperSwiperProps> = ({ header, helpers, onHelperCl
         }
     };
 
+    const handleCardClick = (helper: Helper) => {
+        console.log('Clicked helper:=>', helper);
+    };
+
     return (
-        <div className="container">
-            <h2>{header} ▶ </h2>
-            {/* <IonButtons > */}
-            <div>
-            <IonButton fill='clear' onClick={handlePrev} className="swiper-button-prev">
-                ◀ {/* Left Arrow */}
-            </IonButton>
-            <IonButton fill='clear' onClick={handleNext} className="swiper-button-next">
-                ▶ {/* Right Arrow */}
-            </IonButton>
-            {/* </IonButtons> */}
+        <div className="sm-container">
+            {/* Header with buttons on same row */}
+            <div className="header-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 15px' }}>
+                <h2>{header} ▶</h2>
             </div>
+
             <div className="swiper-container">
                 <Swiper
                     ref={swiperRef} // Attach the ref to the Swiper
-                    spaceBetween={1}
+                    spaceBetween={0}
                     slidesPerView={2.5} // Default for small screens
+                    navigation={true} // Add navigation arrows
+                    pagination={{ clickable: true }} // Add pagination dots
                     breakpoints={{
                         640: {
-                            slidesPerView: 4, // For medium screens
-                            spaceBetween: 1,
+                            slidesPerView: 2.5, // For medium screens
+                            spaceBetween: 0,
                         },
                         768: {
-                            slidesPerView: 5, // For larger screens
-                            spaceBetween: 1,
+                            slidesPerView: 4.5, // For larger screens
+                            spaceBetween: 0,
                         },
                         1024: {
-                            slidesPerView: 8, // For very large screens
+                            slidesPerView: 8.5, // For very large screens
                             spaceBetween: 1,
                         },
                     }}
                 >
                     {helpers.map((helper) => (
                         <SwiperSlide key={helper.id}>
-                            <IonCard
+                            {/* <IonCard
                                 className="profile-content"
                                 onClick={() => onHelperClick(helper)} // Call the click handler from props
                             >
-                                 <div className="image">
-                                 <IonAvatar> 
-                                    <img src={helper.avatar} alt={helper.name} className="card-img" />
-                                 </IonAvatar>    
+                                <div className="image">
+                                    <IonAvatar> 
+                                        <img src={helper.avatar} alt={helper.name} className="card-img" />
+                                    </IonAvatar>    
                                 </div>
                                 <IonItem lines='none' className='profile'>
                                     <IonLabel class='ion-text-center'>
@@ -82,21 +83,16 @@ const HelperSwiper: React.FC<HelperSwiperProps> = ({ header, helpers, onHelperCl
                                         {helper.info.slice(0, 40)}</IonText>
                                        </p>
                                     </IonLabel>
-
                                 </IonItem>
-                                {/* <IonCardContent>
-                                    <h3>{helper.name}</h3>
-                                    <p>
-                                        {helper.rating > 0
-                                            ? `Rating: ${helper.rating} *`
-                                            : 'No rating yet'} <br></br>
-                                        {helper.info.slice(0, 40)}...</p>
-                                </IonCardContent> */}
-                            </IonCard>
+                            </IonCard> */}
+                            
+                            <MiniCard helper={helper} onClick={() => onHelperClick(helper)} ></MiniCard>
+                           
                         </SwiperSlide>
                     ))}
                 </Swiper>
             </div>
+
         </div>
     );
 };

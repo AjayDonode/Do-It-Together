@@ -1,9 +1,11 @@
 // ProfileService.ts
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import {db} from '../firebaseConfig';
+import { CustomUserProfile } from '../models/CustomUserProfile';
+
 
 class UserProfileService {
-  static async saveProfile(userId: string, profileData: { address: string; phoneNumber: string }) {
+  static async saveProfile(userId: string, profileData: CustomUserProfile) {
     try {
       const userDocRef = doc(db, 'users', userId); // Reference to the user's document
       await setDoc(userDocRef, profileData, { merge: true }); // Merge existing data

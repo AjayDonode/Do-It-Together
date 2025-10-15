@@ -20,8 +20,9 @@ import {
   IonMenuToggle,
   IonMenuButton,
   IonInput,
+  useIonRouter,
 } from '@ionic/react';
-import { personOutline, pin } from 'ionicons/icons';
+import { pin } from 'ionicons/icons';
 import './Home.css';
 import { useHistory } from 'react-router';
 import ModalHelperDetails from './modals/ModalHelperDetails';
@@ -30,18 +31,24 @@ import { getAuth, signOut } from 'firebase/auth';
 import HelperService from '../services/HelperService'; // Import your HelperService
 import HelperSwiper from '../components/HelperSwiper/HelperSwiper';
 import { Helper } from '../models/Helper';
+import ShareModal from '../components/sharemodal/ShareModal';
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
   const history = useHistory();
   const helperService = new HelperService();
-  const [selectedHelper, setSelectedHelper] = useState<Helper | null>(null);
+  // const [selectedHelper, setSelectedHelper] = useState<Helper | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [helpers, setHelpers] = useState<Helper[]>([]);
 
   const [searchString, setSearchString] = useState('');
   const [zipcode, setZipcode] = useState('');
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [helperToShare, setHelperToShare] = useState<Helper | null>(null);
 
+
+
+  const router = useIonRouter();
   const handleSearch = async (searchString: string, zipcode: string) => {
     // Implement your search logic here
     console.log('Looking for %s in area %s', searchString, zipcode);
@@ -67,8 +74,11 @@ const Home: React.FC = () => {
 
   const handleHelperClick = (helper: Helper) => {
     console.log('Clicked helper:', helper);
-    setSelectedHelper(helper);
-    setIsModalOpen(true);
+    // setSelectedHelper(helper);
+    // setIsModalOpen(true);
+    console.log("Id is "+helper.id);
+    router.push(`/helper-profile/${helper.id}`);
+        
   };
 
   const handleLogout = async () => {
@@ -80,6 +90,12 @@ const Home: React.FC = () => {
       console.error('Error during logout:', error);
     }
   };
+
+
+const handleShareClick = (helper: Helper) => {
+  setHelperToShare(helper);
+  setIsShareModalOpen(true);
+};
 
   return (
     <>
@@ -192,16 +208,20 @@ const Home: React.FC = () => {
               </IonRow>
             </IonGrid>
           </div>
-
           <div>
             <HelperSwiper header="Featured Helpers" helpers={helpers} onHelperClick={handleHelperClick} />
           </div>
 
-          <ModalHelperDetails
+          {/* <ModalHelperDetails
             isOpen={isModalOpen}
             onDidDismiss={() => setIsModalOpen(false)}
-            helper={selectedHelper}
-          />
+            helper={selectedHelper} 
+            
+/> */}
+<ShareModal
+  isOpen={isShareModalOpen}
+  onClose={() => setIsShareModalOpen(false)}
+  helper={helperToShare}/>
         </IonContent>
       </IonPage>
     </>

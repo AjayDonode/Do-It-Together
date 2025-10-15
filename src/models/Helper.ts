@@ -13,5 +13,6 @@ export interface Helper {
   reviews: Review[]; // Array of reviews
   zipcodes?: string[]; // Optional location field
   category:string;
+  tags:string[];
   // specialties?: string[]; // Optional array of specialties or skills
 }

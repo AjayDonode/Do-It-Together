@@ -1,64 +1,102 @@
-
+/* src/pages/Profile.css (Updated for new layout) */
+:root {
+  --spacing: 20px;
+}
+/* Container for centering on smaller screens if needed */
 .profile-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    margin-top: 2rem; /* Adjust this value to move the card closer to the toolbar */
-  }
-  
-  /* Limit the width of the card */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  margin-top: 2rem; /* Adjust this value to move the card closer to the toolbar */
+}
+
+/* Limit the width of the left profile card (optional, adjust as needed) */
+.profile-card {
+  max-width: 600px; /* Kept for left card; adjust or remove for full expansion */
+  width: 100%;
+}
+
+/* New: Style for the right section card */
+.right-section-card {
+  height: 100%; /* Make it fill the available height */
+  /* width: 100%; */
+}
+
+/* Header image styling */
+.profile-header-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+/* Title styling */
+.title {
+  color: #ff385c;
+  font-weight: bold;
+  text-align: left;
+}
+
+.banner-avatar-container {
+  position: relative; /* Allows absolute positioning for the avatar */
+  width: 100%; /* Full width for responsiveness */
+  height: 200px; /* Sets the container height */
+  /* Removed overflow: hidden to allow avatar to protrude without clipping */
+}
+
+.modal-banner {
+  height: 100%; /* Fills the container's height */
+  width: 100%; /* Fills the container's width */
+  object-fit: cover; /* Scales and crops the image to fit without distortion */
+  display: block; /* Removes any inline spacing */
+}
+
+.modal-avatar {
+  position: absolute; /* Positions over the banner */
+  bottom: -30px; /* Adjust this negative value to make it "hover" below the banner; increase for more overhang */
+  left: 50%; /* Centers horizontally */
+  transform: translateX(-50%); /* Fine-tunes centering */
+  width: 80px; /* Adjust size as needed (assuming a circular avatar) */
+  height: 80px; /* Match width for circular shape */
+  border-radius: 50%; /* Makes it circular */
+  border: 2px solid white; /* Optional: Border for visibility */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: Shadow for a "hovering" effect */
+  overflow: visible; /* Ensures the avatar itself doesn't clip its image (though unlikely) */
+}
+
+/* Optional: If using Ionic's IonAvatar, override any default clipping */
+.modal-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the avatar image fits nicely */
+  border-radius: 50%; /* Keeps it circular */
+}
+
+.profile-name h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-top: 10px;
+}
+
+.profile-email p {
+  font-size: 1rem;
+  color: #666;
+}
+
+.profile-details {
+  margin-top: 20px;
+}
+
+.profile-details ion-item {
+  --padding-start: 20px;
+  --inner-padding-end: 20px;
+  font-size: 1rem;
+}
+
+/* Media query adjustments (optional, for fine-tuning) */
+@media (min-width: 768px) {
   .profile-card {
-    max-width: 600px;
-    width: 100%;
+    max-width: none; /* Allow full 1/3 width on larger screens */
   }
-  
-  /* Header image styling */
-  .profile-header-img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-  }
-  
-  /* Title styling */
-  .profile-title {
-    color: #ff385c;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  .profile-card-title {
-    text-align: left;
-    font-weight: bold;
-    font-size: 24px;
-  }
-
-
-.profile-avatar {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto;
-  }
-  
-  .profile-name h1 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #333;
-    margin-top: 10px;
-  }
-  
-  .profile-email p {
-    font-size: 1rem;
-    color: #666;
-  }
-  
-  .profile-details {
-    margin-top: 20px;
-  }
-  
-  .profile-details ion-item {
-    --padding-start: 20px;
-    --inner-padding-end: 20px;
-    font-size: 1rem;
-  }
-  
+}

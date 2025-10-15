@@ -1,0 +1,58 @@
+ion-modal {
+  --width: 100%; /* Full width on phones/small screens */
+  --max-width: 800px; /* Max width on laptops to prevent it from being too wide */
+  --height: 80%; /* Auto height to fit content */
+  --border-radius: 8px; /* Soften edges */
+  --border-width: 1px; /* Add border width */
+  --border-style: solid; /* Solid border style */
+  --border-color: rgb(184, 184, 184); /* Gray border color */
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+  
+}
+
+
+/* Removed .container as it's only used in null guard and flex isn't needed there; simplified to basic centering if required */
+
+/* Removed .title as it's not used (inline styles are applied instead) */
+
+.form-input {
+  width: 100%; /* Full width of parent */
+  box-sizing: border-box; /* Include padding/borders in width */
+  margin: 0; /* Remove any extra margins */
+}
+
+/* Optional: Add no-padding-content if needed (assuming it removes padding) */
+.no-padding-content {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+.container {
+  display: flex;
+  border-radius: 20px;
+  border: 1px solid rgb(184, 184, 184);
+  /* Changed to add a gray border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  width: 80%;
+  margin: 0 auto;
+}
+
+ .title {
+    color: #ff385c;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .form-input {
+  width: 100%; /* Full width of parent */
+  box-sizing: border-box; /* Include padding/borders in width */
+  margin: 0; /* Remove any extra margins */
+}
+
+.state-dropdown {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}

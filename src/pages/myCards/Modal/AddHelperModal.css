@@ -8,13 +8,21 @@
 
 .search-container {
   display: flex;
-  align-items: center;
-  margin-bottom: 20px; /* Spacing */
+  border-radius: 20px;
+  border: 1px solid rgb(184, 184, 184);
+  /* Changed to add a gray border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  width: 80%;
+  margin: 0 auto;
 }
 
 .search-bar {
+  border:none;
   flex: 1;
   margin-right: 10px;
+   box-shadow: none; /* Remove any shadow */
+  outline: none; /* Remove outline on focus */
 }
 
 .primary-title {
