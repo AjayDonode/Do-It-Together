@@ -21,8 +21,6 @@ import AddHelperModal from './Modal/AddHelperModal';
 import ModalHelperDetails from '../modals/ModalHelperDetails';
 
 // Define a type for the helper
-
-
 const MyCards: React.FC = () => {
   const { currentUser } = useAuth(); // Access user data from AuthContext
   const history = useHistory(); // React Router's useHistory hook for navigation

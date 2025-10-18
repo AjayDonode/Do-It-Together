@@ -227,7 +227,7 @@ const ShareCard: React.FC<ShareCardProps> = ({ helper, onCardGenerated, classNam
           fontSize: '16px',
           opacity: '0.7',
         }}>
-          Shared via HelperPlatform
+          Shared via Helper Platform
         </div>
       </div>
 

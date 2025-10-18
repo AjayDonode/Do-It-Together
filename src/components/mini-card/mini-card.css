@@ -2,7 +2,8 @@
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   border-radius: 16px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
   margin: 12px;
@@ -40,12 +41,12 @@
   border-radius: 50%;
 }
 
-/* UPDATED: Name section moved to left side */
-.name-action-row {
+
+.m-action-row {
   display: flex;
   justify-content: left;
   align-items: flex-start;
-  padding: 35px 20px 20px 20px;
+  padding: 0px 0px 0px 15px
 }
 
 .name-section {
@@ -81,21 +82,26 @@
 
 }
 
-.header-rating-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
+.m-rating-badge-container {
+  margin-top: 8px; /* space between designation and badge */
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column; /* stack vertically */
+  align-items: flex-start; /* align left */
+}
+
+.m-rating-badge {
   display: flex;
   align-items: center;
   background: rgba(249, 99, 2, 0.1);
   padding: 5px 10px;
   border-radius: 16px;
   border: 1px solid rgba(249, 99, 2, 0.2);
-  z-index: 10;
   backdrop-filter: blur(5px);
+  margin-top: 4px; /* Space from designation */
 }
 
-.header-rating-badge:hover {
+.m-rating-badge:hover {
   background: rgba(249, 99, 2, 0.15);
   transform: translateY(-1px);
   transition: all 0.2s ease;
@@ -113,7 +119,22 @@
   color: #F96302;
 }
 
+.m-content {
+  text-align: left;
+  font-size: 10px;
+  color: #4a4a4a;
+  margin: 0 0 0 0;
+  line-height: 1.4;
+}
 
+  .m-name {
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .m-designation {
+    font-size: 10px;
+  }
 
 .mini-card:hover {
   transform: translateY(-2px);
@@ -154,11 +175,6 @@
     margin-left: 74px; /* Adjusted for smaller avatar */
   }
   
-  .name {
-    font-size: 16px;
-  }
+
   
-  .designation {
-    font-size: 12px;
-  }
 }

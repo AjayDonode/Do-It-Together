@@ -54,13 +54,27 @@
 
 .name {
   display: block;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   color: #2c2c2c;
   margin-bottom: 6px;
 }
 
 .designation {
+  display: block;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+.email {
+  display: block;
+  font-size: 14px;
+  color: #F96302;
+  font-weight: 500;
+}
+
+.contact {
   display: block;
   font-size: 14px;
   color: #666;

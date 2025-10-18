@@ -3,10 +3,11 @@ import React, { useRef } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import '@ionic/react/css/ionic-swiper.css';
-import { IonCard, IonCardContent, IonImg, IonButton, IonButtons, IonAvatar, IonItem, IonLabel, IonText } from '@ionic/react';
+import { IonCard, IonCardContent, IonImg, IonButton, IonButtons, IonAvatar, IonItem, IonLabel, IonText, IonIcon } from '@ionic/react';
 import './HelperSwiper.css'; // Import the CSS file
 import { Helper } from '../../models/Helper';
 import MiniCard from '../mini-card/mini-card';
+import { star } from 'ionicons/icons';
 
 interface HelperSwiperProps {
     header: string;
@@ -64,27 +65,7 @@ const HelperSwiper: React.FC<HelperSwiperProps> = ({ header, helpers, onHelperCl
                 >
                     {helpers.map((helper) => (
                         <SwiperSlide key={helper.id}>
-                            {/* <IonCard
-                                className="profile-content"
-                                onClick={() => onHelperClick(helper)} // Call the click handler from props
-                            >
-                                <div className="image">
-                                    <IonAvatar> 
-                                        <img src={helper.avatar} alt={helper.name} className="card-img" />
-                                    </IonAvatar>    
-                                </div>
-                                <IonItem lines='none' className='profile'>
-                                    <IonLabel class='ion-text-center'>
-                                        <IonText className='profile-name'>{helper.name}</IonText>
-                                        <p>
-                                            <IonText>{helper.rating > 0
-                                            ? `Rating: ${helper.rating} *`
-                                            : 'No rating yet'} <br></br>
-                                        {helper.info.slice(0, 40)}</IonText>
-                                       </p>
-                                    </IonLabel>
-                                </IonItem>
-                            </IonCard> */}
+                           
                             
                             <MiniCard helper={helper} onClick={() => onHelperClick(helper)} ></MiniCard>
                            

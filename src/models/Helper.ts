@@ -4,6 +4,8 @@ export interface Helper {
   avatar: string;
   banner:string;
   name: string ;
+  email: string;
+  contact: string;
   info: string;
   id: string;
   title: string;

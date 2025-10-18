@@ -80,7 +80,7 @@ const Profile: React.FC = () => {
         <IonGrid>
           <IonRow>
             {/* Left Section: Profile Card (1/3 on md+, full width on mobile) */}
-            <IonCol size="12" size-md="4">
+            <IonCol size="12" size-md="4" >
               <IonCard className="profile-card no-padding-card">
                 <div className="banner-avatar-container">
                   <img

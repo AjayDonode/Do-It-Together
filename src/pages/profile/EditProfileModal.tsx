@@ -10,19 +10,20 @@ import {
   IonItem,
   IonLabel,
   IonInput,
-  IonSelect,
-  IonSelectOption,
   IonRow,
   IonCol,
   IonGrid,
   IonFooter,
   IonText, // For displaying error messages
-  IonList, // For state suggestions dropdown
+  IonList,
+  IonIcon, // For state suggestions dropdown
 } from '@ionic/react';
 import { User } from 'firebase/auth'; // Import Firebase User type
 import { CustomUserProfile, Address } from '../../models/CustomUserProfile'; // Your custom types (NOTE: Update Address to have zip as string if possible)
 import { usStates } from '../../common/AppConstant'; // Moved to common constants file
 import './EditProfileModal.css';
+import { closeOutline } from 'ionicons/icons';
+import { arrowBackOutline, createOutline } from 'ionicons/icons';
 
 // Updated Props Interface: Make currentUser nullable
 export interface EditProfileModalProps {
@@ -158,8 +159,13 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       <IonModal isOpen={isOpen} onDidDismiss={onClose}>
         <IonHeader>
           <IonToolbar>
+            
             <IonTitle>Edit Profile</IonTitle>
+            <IonButton slot="start" fill="clear" onClick={onClose} >
+                        <IonIcon icon={closeOutline} style={{ fontSize: '20px', marginRight: '8px' }} />
+                      </IonButton>
           </IonToolbar>
+          
         </IonHeader>
         <IonContent> 
           <p style={{ textAlign: 'center', margin: '20px' }}>Please log in to edit your profile.</p>
@@ -178,6 +184,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       <IonHeader>
         <IonToolbar>
           <IonTitle className="ion-text-left" style={{ color: '#ff385c', fontWeight: 'bold' }} >Edit Profile</IonTitle>
+          <IonButton slot="end" fill="clear" onClick={onClose}>
+                        <IonIcon icon={closeOutline} style={{ fontSize: '20px', marginRight: '8px' }} />
+                      </IonButton>
         </IonToolbar>
       </IonHeader>
       <IonContent className="no-padding-content">

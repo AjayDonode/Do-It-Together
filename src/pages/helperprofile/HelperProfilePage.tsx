@@ -1,10 +1,9 @@
 import { useHistory, useParams } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonText, IonSpinner, IonIcon, IonAvatar, IonButton, IonChip, IonButtons, IonToast } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard,IonCardContent, IonText, IonSpinner, IonIcon, IonAvatar, IonButton, IonChip, IonButtons, IonToast } from '@ionic/react';
 import { Helper } from '../../models/Helper';
 import HelperService from '../../services/HelperService';
-import { addOutline, arrowBack, briefcase, chatbubble, globe, school, shareOutline, star, time } from 'ionicons/icons';
-import html2canvas from 'html2canvas';
+import { addOutline, arrowBack, briefcase, chatbubble, shareOutline, star, time } from 'ionicons/icons';
 
 const HelperProfilePage = () => {
    const { id } = useParams<{ id: string }>();
@@ -100,6 +99,10 @@ const HelperProfilePage = () => {
   window.open(shareUrl, '_blank', 'width=600,height=400');
 };
 
+
+const handleAddHelper = async () => {
+  if (!helper) return;
+}
 // Enhanced Web Share API function with better content
 const handleShareHelper = async () => {
   if (!helper) return;
@@ -107,15 +110,15 @@ const handleShareHelper = async () => {
   try {
     const shareData = {
       title: `${helper.name} - ${helper.title}`,
-      text: `${helper.description}\n\n⭐ Rating: ${helper.rating}\n💼 Hourly Rate: $45/hr\n\nCheck out this amazing helper profile!`,
+      text: `${helper.description}\n\n⭐ Rating: ${helper.rating}\n💼 ${helper.contact}`,
       url: window.location.href,
+      
     };
-
     // Try to include files (images) if supported
     if (navigator.share && navigator.canShare) {
       try {
-        // Try to share with image file if possible
         const imageResponse = await fetch(helper.avatar);
+         console.log('Share data b:'+ imageResponse);
         const blob = await imageResponse.blob();
         const filesArray = [new File([blob], `${helper.name}-avatar.jpg`, { type: 'image/jpeg' })];
         
@@ -127,6 +130,7 @@ const handleShareHelper = async () => {
           return;
         }
       } catch (imageError) {
+        console.error('Error fetching or sharing image:', imageError);
         console.log('Image sharing not supported, falling back to text sharing');
       }
     }
@@ -153,6 +157,11 @@ const handleShareHelper = async () => {
     setShowToast(true);
   }
 };
+
+
+function copyToClipboardFallback(arg0: string) {
+  throw new Error('Function not implemented.');
+}
 
 // Enhanced meta tags generation for better social sharing previews
 const generateMetaTags = () => {
@@ -268,7 +277,7 @@ const generateShareCard = async (): Promise<string> => {
               <IonIcon icon={arrowBack} />
             </IonButton>
           </IonButtons>
-          <IonTitle>{helper.name}'s Profile</IonTitle>
+          <IonTitle>{helper.name}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -280,13 +289,7 @@ const generateShareCard = async (): Promise<string> => {
                   alt={helper.name}
                   className="banner-image"
                 />
-                
-                {/* Rating badge in top right corner */}
-                <div className="header-rating-badge">
-                  <IonIcon icon={star} className="star-icon" />
-                  <span className="rating-text">{helper.rating}</span>
-                </div>
-                
+              
                 <div className="avatar-container">
                   <IonAvatar className="profile-avatar">
                     <img 
@@ -302,6 +305,13 @@ const generateShareCard = async (): Promise<string> => {
                 <div className="name-section">
                   <IonText className="name">{helper.name}</IonText>
                   <IonText className="designation">{helper.title}</IonText>
+                  <IonText className="email">{helper.email}</IonText>
+                  <IonText className="contact">{helper.contact}</IonText>
+                </div>
+                  {/* Rating badge in top right corner */}
+                <div className="header-rating-badge">
+                  <IonIcon icon={star} className="star-icon" />
+                  <span className="rating-text">{helper.rating}</span>
                 </div>
               </div>
         
@@ -357,52 +367,7 @@ const generateShareCard = async (): Promise<string> => {
                     ))}
                   </div>
                 </div>
-        
-                {/* Experience Section */}
-                <div className="additional-section">
-                  <div className="section-header">
-                    <IonIcon icon={time} className="section-icon" />
-                    <IonText className="section-title">Experience</IonText>
-                  </div>
-                  <div className="experience-list">
-                    {helper.tags?.slice(0, 3).map((tag, index) => (
-                      <div key={index} className="experience-item">
-                        <IonText className="exp-role">A</IonText>
-                        <IonText className="exp-company">B</IonText>
-                        <IonText className="exp-duration">C</IonText>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-        
-                {/* Education Section */}
-                <div className="additional-section">
-                  <div className="section-header">
-                    <IonIcon icon={school} className="section-icon" />
-                    <IonText className="section-title">Education</IonText>
-                  </div>
-                  <div className="education-list">
-                    Education
-                  </div>
-                </div>
-        
-                {/* Languages Section */}
-                <div className="additional-section">
-                  <div className="section-header">
-                    <IonIcon icon={globe} className="section-icon" />
-                    <IonText className="section-title">Languages</IonText>
-                  </div>
-                  <div className="languages-list">
-                    {/* {helper.languages?.map((lang, index) => (
-                      <div key={index} className="language-item">
-                        <IonText className="lang-name">{lang.name}</IonText>
-                        <IonBadge className="lang-level">{lang.level}</IonBadge>
-                      </div>
-                    ))} */}
-                  </div>
-                </div>
-        
-       
+           
                 {/* Recent Reviews Section */}
                 <div className="additional-section">
                   <div className="section-header">
@@ -428,7 +393,7 @@ const generateShareCard = async (): Promise<string> => {
                   <div className="contact-buttons-row">
                   
                   <div className="action-buttons-right">
-                    <IonButton fill="clear" className="add-button" onClick={handleShareHelper}>
+                    <IonButton fill="clear" className="add-button" onClick={handleAddHelper}>
                       <IonIcon icon={addOutline} />
                     </IonButton>
                     <IonButton fill="clear" className="share-button" onClick={handleShareHelper}>
@@ -441,7 +406,7 @@ const generateShareCard = async (): Promise<string> => {
             </IonCard>
 
             {/* Social sharing options (optional - can be shown in a modal or dropdown) */}
-        <div className="social-sharing-options" style={{ marginTop: '16px', textAlign: 'center' }}>
+        {/* <div className="social-sharing-options" style={{ marginTop: '16px', textAlign: 'center' }}>
           <IonButton size="small" onClick={() => shareOnPlatform('facebook')}>
             Facebook
           </IonButton>
@@ -454,7 +419,7 @@ const generateShareCard = async (): Promise<string> => {
           <IonButton size="small" onClick={() => shareOnPlatform('whatsapp')}>
             WhatsApp
           </IonButton>
-        </div>
+        </div> */}
 
       </IonContent>
       <IonToast
@@ -469,7 +434,5 @@ const generateShareCard = async (): Promise<string> => {
 };
 
 export default HelperProfilePage;
-function copyToClipboardFallback(arg0: string) {
-  throw new Error('Function not implemented.');
-}
+
 

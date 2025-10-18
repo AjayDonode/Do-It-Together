@@ -45,8 +45,7 @@ class HelperService {
       const querySnapshot = await getDocs(this.helperCollection);
       querySnapshot.forEach((doc) => {
         const data = doc.data() as Helper;
-        console.log("Data " + data.name);
-        helpers.push({ ...data, id: doc.id }); // FIXED: Include Firestore document ID
+        helpers.push({ ...data, id: doc.id }); 
       });
     } catch (error) {
       console.error('Error fetching helpers:', error);

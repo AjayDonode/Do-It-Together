@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-  IonCard, 
-  IonCardContent, 
-  IonAvatar, 
+import {
+  IonCard,
+  IonCardContent,
+  IonAvatar,
 
-  IonIcon, 
-  IonText 
+  IonIcon,
+  IonText
 } from '@ionic/react';
 import { heartOutline, addOutline, star } from 'ionicons/icons';
 import './mini-card.css';
@@ -13,28 +13,25 @@ import { Helper } from '../../models/Helper';
 
 
 interface CardProps {
-    // cardItem: Object;
-    helper: Helper
-    onClick: (helper: Helper) => void; // Add a prop for click event
+  // cardItem: Object;
+  helper: Helper
+  onClick: (helper: Helper) => void; // Add a prop for click event
 }
 
-const MiniCard: React.FC<CardProps> = ({helper , onClick}) => {
+const MiniCard: React.FC<CardProps> = ({ helper, onClick }) => {
   return (
     <IonCard className="mini-card" onClick={() => onClick(helper)}>
       {/* Header with curved banner */}
       <div className="card-header-container">
-        <img 
+        <img
           src={helper.avatar}
-          alt="banner" 
+          alt="banner"
           className="banner-image"
         />
-        
+
         {/* Rating badge in top right corner */}
-        <div className="header-rating-badge">
-          <IonIcon icon={star} className="star-icon" />
-          <span className="rating-text">Jitter Expert +6</span>
-        </div>
-        
+
+
         {/* <div className="avatar-container">
           <IonAvatar className="profile-avatar">
             <img 
@@ -46,16 +43,24 @@ const MiniCard: React.FC<CardProps> = ({helper , onClick}) => {
       </div>
 
       {/* Name section only */}
-      <div className="name-action-row">
+      <div className="m-action-row">
         <div className="name-section">
-          <IonText className="name">{helper.name}</IonText>
-          <IonText className="designation">{helper.title}</IonText>
+          <IonText className="m-name">{helper.name}</IonText>
+          <IonText className="m-designation">{helper.title}</IonText>
+          {/* Wrap rating badge in a container */}
+          <div className="m-rating-badge-container">
+            <div className="m-rating-badge">
+              <IonIcon icon={star} className="star-icon" />
+              <span className="rating-text">4</span>
+            </div>
+          </div>
         </div>
+
       </div>
 
       {/* Stats section - description removed */}
-      <IonCardContent className="stats-content">
-          test content here 
+      <IonCardContent className="m-content">
+        test content here
       </IonCardContent>
     </IonCard>
   );

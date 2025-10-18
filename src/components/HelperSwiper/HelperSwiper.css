@@ -11,7 +11,8 @@
 }
 
 .swiper-container {
-  padding: 16px 0;
+  padding: 0px 0;
+  
 }
 
 .image {
@@ -75,6 +76,13 @@
   justify-content: flex-start; /* Align content from top */
   box-sizing: border-box; /* Include padding in height */
   overflow: hidden; /* Prevent content overflow */
+}
+
+
+.profile-content:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
 }
 
 /* src/components/HelperSwiper.css */
