@@ -2,101 +2,88 @@ import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, g
 import { Helper } from '../models/Helper';
 import { db } from '../firebaseConfig';
 
-class HelperService {
-  private helperCollection: any;
+const helperCollection = collection(db, 'helpers');
 
-  constructor() {
-    this.helperCollection = collection(db, 'helpers');
+export const createHelper = async (helper: Helper): Promise<void> => {
+  try {
+    await addDoc(helperCollection, helper);
+    console.log('Helper added successfully');
+  } catch (error) {
+    console.error('Error adding helper:', error);
   }
+};
 
-  // Create a new helper
-  async createHelper(helper: Helper): Promise<void> {
-    try {
-      await addDoc(this.helperCollection, helper);
-      console.log('Helper added successfully');
-    } catch (error) {
-      console.error('Error adding helper:', error);
-    }
-  }
-
-  // Get a single helper by ID
-  async getHelperById(id: string): Promise<Helper | null> {
-    try {
-      const helperRef = doc(this.helperCollection, id);
-      const helperDoc = await getDoc(helperRef);
-      
-      if (helperDoc.exists()) {
-        const data = helperDoc.data() as Helper;
-        return { ...data, id: helperDoc.id }; // Correctly include ID
-      } else {
-        console.log('No such helper document!');
-        return null;
-      }
-    } catch (error) {
-      console.error('Error fetching helper:', error);
+export const getHelperById = async (id: string): Promise<Helper | null> => {
+  try {
+    const helperRef = doc(helperCollection, id);
+    const helperDoc = await getDoc(helperRef);
+    
+    if (helperDoc.exists()) {
+      const data = helperDoc.data() as Helper;
+      return { ...data, id: helperDoc.id };
+    } else {
+      console.log('No such helper document!');
       return null;
     }
+  } catch (error) {
+    console.error('Error fetching helper:', error);
+    return null;
   }
+};
 
-  // Read all helpers - FIXED: Include document ID
-  async getHelpers(): Promise<Helper[]> {
-    const helpers: Helper[] = [];
-    try {
-      const querySnapshot = await getDocs(this.helperCollection);
-      querySnapshot.forEach((doc) => {
-        const data = doc.data() as Helper;
-        helpers.push({ ...data, id: doc.id }); 
-      });
-    } catch (error) {
-      console.error('Error fetching helpers:', error);
+export const getHelpers = async (): Promise<Helper[]> => {
+  const helpers: Helper[] = [];
+  try {
+    const querySnapshot = await getDocs(helperCollection);
+    querySnapshot.forEach((doc) => {
+      const data = doc.data() as Helper;
+      helpers.push({ ...data, id: doc.id }); 
+    });
+  } catch (error) {
+    console.error('Error fetching helpers:', error);
+  }
+  return helpers;
+};
+
+export const searchHelpers = async (queryString: string, zipcode: string): Promise<Helper[]> => {
+  const helpers: Helper[] = [];
+  try {
+    let q: any = null;
+    if (!queryString) {
+      q = query(helperCollection,
+        where('zipcodes', 'array-contains', zipcode));
+    } else {
+      q = query(helperCollection,
+        where('category', '==', queryString),
+        where('zipcodes', 'array-contains', zipcode));
     }
-    return helpers;
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      const data = doc.data() as Helper;
+      helpers.push({ ...data, id: doc.id });
+    });
+  } catch (error) {
+    console.error('Error searching helpers:', error);
   }
+  return helpers;
+};
 
-  async searchHelpers(queryString: string, zipcode: string): Promise<Helper[]> {
-    const helpers: Helper[] = [];
-    try {
-      let q: any = null;
-      if (!queryString) {
-        q = query(this.helperCollection,
-          where('zipcodes', 'array-contains', zipcode));
-      } else {
-        q = query(this.helperCollection,
-          where('category', '==', queryString),
-          where('zipcodes', 'array-contains', zipcode));
-      }
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        const data = doc.data() as Helper;
-        helpers.push({ ...data, id: doc.id }); // Correct
-      });
-    } catch (error) {
-      console.error('Error searching helpers:', error);
-    }
-    return helpers;
+export const updateHelper = async (id: string, updatedHelper: Partial<Helper>): Promise<void> => {
+  try {
+    const helperRef = doc(helperCollection, id);
+    await updateDoc(helperRef, updatedHelper);
+    console.log('Helper updated successfully');
+  } catch (error) {
+    console.error('Error updating helper:', error);
   }
+};
 
-  // Update a helper by ID
-  async updateHelper(id: string, updatedHelper: Partial<Helper>): Promise<void> {
-    try {
-      const helperRef = doc(this.helperCollection, id);
-      await updateDoc(helperRef, updatedHelper);
-      console.log('Helper updated successfully');
-    } catch (error) {
-      console.error('Error updating helper:', error);
-    }
+export const deleteHelper = async (id: string): Promise<void> => {
+  try {
+    const helperRef = doc(helperCollection, id);
+    await deleteDoc(helperRef);
+    console.log('Helper deleted successfully');
+  } catch (error) {
+    console.error('Error deleting helper:', error);
   }
-
-  // Delete a helper by ID
-  async deleteHelper(id: string): Promise<void> {
-    try {
-      const helperRef = doc(this.helperCollection, id);
-      await deleteDoc(helperRef);
-      console.log('Helper deleted successfully');
-    } catch (error) {
-      console.error('Error deleting helper:', error);
-    }
-  }
-}
-
-export default HelperService;
+};
