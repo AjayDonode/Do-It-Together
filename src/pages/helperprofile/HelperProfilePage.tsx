@@ -1,11 +1,15 @@
 import { useHistory, useParams } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, IonText, IonSpinner, IonIcon, IonAvatar, IonButton, IonChip, IonButtons, IonToast, useIonAlert } from '@ionic/react';
+import { useState, useEffect } from 'react';
+import {
+  IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent,
+  IonText, IonSpinner, IonIcon, IonAvatar, IonButton, IonChip, IonButtons,
+  IonToast, IonModal, IonList, IonItem, IonLabel, IonInput
+} from '@ionic/react';
 import { Helper } from '../../models/Helper';
 import * as HelperService from '../../services/HelperService';
-import { addOutline, arrowBack, briefcase, chatbubble, logoFacebook, logoLinkedin, logoTwitter, logoWhatsapp, shareOutline, star, time } from 'ionicons/icons';
+import { addOutline, arrowBack, briefcase, chatbubble, checkmark, close, shareOutline, star } from 'ionicons/icons';
 import { CardHolder } from '../../models/CardHolder';
-import { addHelperToCardHolder, getCardHolders } from '../../services/CardHolderService';
+import { addHelperToCardHolder, getCardHolders, createCardHolder } from '../../services/CardHolderService';
 import { useAuth } from '../../context/AuthContext';
 
 const HelperProfilePage = () => {
@@ -14,12 +18,16 @@ const HelperProfilePage = () => {
   const [helper, setHelper] = useState<Helper | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const cardRef = useRef<HTMLIonCardElement>(null);
-  const [presentAlert] = useIonAlert();
+
   const [cardHolders, setCardHolders] = useState<CardHolder[]>([]);
   const { currentUser } = useAuth();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newCardHolderName, setNewCardHolderName] = useState('');
+  const [isAddingCardHolder, setIsAddingCardHolder] = useState(false);
 
   const handleGoBack = () => {
     history.goBack();
@@ -27,18 +35,14 @@ const HelperProfilePage = () => {
 
   useEffect(() => {
     const fetchHelperDetails = async () => {
-      console.log("The id is " + id);
-
       if (!id) {
         setError('No helper ID provided');
         setLoading(false);
         return;
       }
-
       try {
         setLoading(true);
         const helperData = await HelperService.getHelperById(id);
-
         if (helperData) {
           setHelper(helperData);
         } else {
@@ -51,7 +55,6 @@ const HelperProfilePage = () => {
         setLoading(false);
       }
     };
-
     fetchHelperDetails();
   }, [id]);
 
@@ -62,250 +65,81 @@ const HelperProfilePage = () => {
         setCardHolders(holders);
       }
     };
-    fetchCardHolders();
-  }, [currentUser]);
-
-  const shareOnPlatform = (platform: string) => {
-    if (!helper) return;
-
-    const shareText = `Check out ${helper.name}\'s profile - ${helper.title}\n\n${helper.description}\n\nRating: ${helper.rating} ⭐`;
-    const encodedText = encodeURIComponent(shareText);
-    const encodedUrl = encodeURIComponent(window.location.href);
-
-    // Include avatar URL for platforms that support image sharing
-    const encodedImage = encodeURIComponent(helper.avatar);
-    const encodedName = encodeURIComponent(helper.name);
-
-    let shareUrl = '';
-
-    switch (platform) {
-      case 'twitter':
-        // Twitter supports text, URL, and hashtags
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}&hashtags=HelperProfile`;
-        break;
-
-      case 'facebook':
-        // Facebook uses Open Graph tags, but we can still share with text
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`;
-        break;
-
-      case 'linkedin':
-        // LinkedIn sharing with title and summary
-        const linkedinTitle = encodeURIComponent(`${helper.name} - ${helper.title}`);
-        const linkedinSummary = encodeURIComponent(helper.description);
-        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&title=${linkedinTitle}&summary=${linkedinSummary}`;
-        break;
-
-      case 'whatsapp':
-        // WhatsApp sharing with text and URL
-        shareUrl = `https://wa.me/?text=${encodedText}%0A%0AView profile: ${encodedUrl}`;
-        break;
-
-      case 'pinterest':
-        // Pinterest supports image sharing
-        shareUrl = `https://pinterest.com/pin/create/button/?url=${encodedUrl}&media=${encodedImage}&description=${encodedText}`;
-        break;
-
-      default:
-        return;
+    if (currentUser) {
+      fetchCardHolders();
     }
-    // Open sharing window
-    window.open(shareUrl, '_blank', 'width=600,height=400');
-  };
+  }, [currentUser, isModalOpen]);
 
-
-  const handleAddHelper = async () => {
+  const handleAddToExistingHolder = async (cardHolderId: string) => {
     if (!helper) return;
-
-    presentAlert({
-      header: 'Select a Card Holder',
-      inputs: cardHolders.map(holder => ({
-        name: holder.name,
-        type: 'radio',
-        label: holder.name,
-        value: holder.id,
-      })),
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-        },
-        {
-          text: 'Add',
-          handler: async (cardHolderId) => {
-            if (cardHolderId) {
-              await addHelperToCardHolder(cardHolderId, helper.id);
-              setToastMessage(`Helper added to card holder`);
-              setShowToast(true);
-            }
-          },
-        },
-      ],
-    });
-  }
-  // Enhanced Web Share API function with better content
-  const handleShareHelper = async () => {
-    if (!helper) return;
-
     try {
-      const shareData = {
-        title: `${helper.name} - ${helper.title}`,
-        text: `${helper.description}\n\n⭐ Rating: ${helper.rating}\n💼 ${helper.contact}`,
-        url: window.location.href,
-
-      };
-      // Try to include files (images) if supported
-      if (navigator.share && navigator.canShare) {
-        try {
-          const imageResponse = await fetch(helper.avatar);
-          const blob = await imageResponse.blob();
-          const filesArray = [new File([blob], `${helper.name}-avatar.jpg`, { type: 'image/jpeg' })];
-
-          if (navigator.canShare({ files: filesArray })) {
-            await navigator.share({
-              ...shareData,
-              files: filesArray
-            });
-            return;
-          }
-        } catch (imageError) {
-          console.error('Error fetching or sharing image:', imageError);
-          console.log('Image sharing not supported, falling back to text sharing');
-        }
-      }
-
-      // Standard Web Share API
-      if (navigator.share) {
-        await navigator.share(shareData);
-      }
-      // Fallback for desktop browsers
-      else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(`${shareData.title}\n\n${shareData.text}\n\n${window.location.href}`);
-        setToastMessage('Profile details copied to clipboard!');
-        setShowToast(true);
-      }
-      // Fallback for older browsers
-      else {
-        copyToClipboardFallback(`${shareData.title}\n\n${shareData.text}\n\n${window.location.href}`);
-        setToastMessage('Profile details copied to clipboard!');
-        setShowToast(true);
-      }
+      await addHelperToCardHolder(cardHolderId, helper.id);
+      setToastMessage(`Helper added successfully!`);
+      setShowToast(true);
+      setIsModalOpen(false);
     } catch (error) {
-      console.error('Error sharing:', error);
-      setToastMessage('Failed to share. Please try again.');
+      console.error("Error adding helper to card holder:", error);
+      setToastMessage('Failed to add helper.');
       setShowToast(true);
     }
   };
 
+  const handleCreateAndAdd = async () => {
+    if (newCardHolderName.trim() !== '' && currentUser && helper) {
+      try {
+        const newHolder = await createCardHolder(currentUser.uid, newCardHolderName);
+        await addHelperToCardHolder(newHolder.id, helper.id);
 
-  function copyToClipboardFallback(arg0: string) {
-    throw new Error('Function not implemented.');
-  }
+        setToastMessage(`Helper added to new collection: ${newCardHolderName}`);
+        setShowToast(true);
 
-  // Enhanced meta tags generation for better social sharing previews
-  const generateMetaTags = () => {
-    if (!helper) return null;
-
-    return (
-      <>
-        {/* Open Graph Meta Tags */}
-        <meta property="og:title" content={`${helper.name} - ${helper.title}`} />
-        <meta property="og:description" content={helper.description} />
-        <meta property="og:image" content={helper.avatar} />
-        <meta property="og:image:width" content="400" />
-        <meta property="og:image:height" content="400" />
-        <meta property="og:url" content={window.location.href} />
-        <meta property="og:type" content="profile" />
-
-        {/* Twitter Card Meta Tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${helper.name} - ${helper.title}`} />
-        <meta name="twitter:description" content={helper.description} />
-        <meta name="twitter:image" content={helper.avatar} />
-        <meta name="twitter:site" content="@yourplatform" />
-
-        {/* Additional Meta Tags */}
-        <meta name="description" content={`${helper.name} - ${helper.title}. ${helper.description}`} />
-        <meta name="author" content={helper.name} />
-      </>
-    );
-  };
-
-  // Function to generate a shareable image card (optional)
-  const generateShareCard = async (): Promise<string> => {
-    if (!helper || !cardRef.current) return '';
-
-    try {
-      // This would require html2canvas or similar library
-      // For now, we'll use the avatar directly
-      return helper.avatar;
-    } catch (error) {
-      console.error('Error generating share card:', error);
-      return helper.avatar; // Fallback to avatar
+        // Reset and close
+        setNewCardHolderName('');
+        setIsAddingCardHolder(false);
+        setIsModalOpen(false);
+      } catch (error) {
+        console.error("Error creating new collection:", error);
+        setToastMessage('Failed to create collection.');
+        setShowToast(true);
+      }
     }
   };
 
+  const openAddToCollectionModal = () => {
+    setIsAddingCardHolder(false);
+    setNewCardHolderName('');
+    setIsModalOpen(true);
+  };
 
+  const handleShareHelper = async () => {
+    if (!helper) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${helper.name} - ${helper.title}`,
+          text: `${helper.description}\n\n⭐ Rating: ${helper.rating}`,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+        setToastMessage('Web Share API not supported in your browser.');
+        setShowToast(true);
+    }
+  };
 
   if (loading) {
-    return (
-      <IonPage>
-        <IonContent className="ion-padding">
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <IonSpinner />
-            <IonText style={{ marginLeft: '10px' }}>Loading helper details...</IonText>
-          </div>
-        </IonContent>
-      </IonPage>
-    );
+    return <IonPage><IonContent className="ion-padding"><div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><IonSpinner /><IonText style={{ marginLeft: '10px' }}>Loading...</IonText></div></IonContent></IonPage>;
   }
 
   if (error) {
-    return (
-      <IonPage>
-        <IonHeader>
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonButton onClick={handleGoBack}>
-                <IonIcon icon={arrowBack} />
-              </IonButton>
-            </IonButtons>
-            <IonTitle>Error</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent className="ion-padding">
-          <IonText color="danger">
-            <h2>Error</h2>
-            <p>{error}</p>
-          </IonText>
-        </IonContent>
-      </IonPage>
-    );
+    return <IonPage><IonHeader><IonToolbar><IonButtons slot="start"><IonButton onClick={handleGoBack}><IonIcon icon={arrowBack} /></IonButton></IonButtons><IonTitle>Error</IonTitle></IonToolbar></IonHeader><IonContent className="ion-padding"><IonText color="danger"><h2>Error</h2><p>{error}</p></IonText></IonContent></IonPage>;
   }
 
   if (!helper) {
-    return (
-      <IonPage>
-        <IonHeader>
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonButton onClick={handleGoBack}>
-                <IonIcon icon={arrowBack} />
-              </IonButton>
-            </IonButtons>
-            <IonTitle>Helper Not Found</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent className="ion-padding">
-          <IonText color="warning">
-            <h2>Helper Not Found</h2>
-            <p>The requested helper could not be found.</p>
-          </IonText>
-        </IonContent>
-      </IonPage>
-    );
+    return <IonPage><IonHeader><IonToolbar><IonButtons slot="start"><IonButton onClick={handleGoBack}><IonIcon icon={arrowBack} /></IonButton></IonButtons><IonTitle>Not Found</IonTitle></IonToolbar></IonHeader><IonContent className="ion-padding"><IonText color="warning"><h2>Helper Not Found</h2></IonText></IonContent></IonPage>;
   }
-
 
   return (
     <IonPage>
@@ -321,65 +155,29 @@ const HelperProfilePage = () => {
       </IonHeader>
       <IonContent className="ion-padding">
         <IonCard className="freelancer-card">
-          {/* Header with curved banner */}
           <div className="card-header-container">
-            <img
-              src={helper.banner}
-              alt={helper.name}
-              className="banner-image"
-            />
-
+            <img src={helper.banner} alt={helper.name} className="banner-image" />
             <div className="avatar-container">
               <IonAvatar className="profile-avatar">
-                <img
-                  src={helper.avatar}
-                  alt={helper.name}
-                />
+                <img src={helper.avatar} alt={helper.name} />
               </IonAvatar>
             </div>
           </div>
 
-          {/* Name section only */}
           <div className="name-action-row">
             <div className="name-section">
               <IonText className="name">{helper.name}</IonText>
               <IonText className="designation">{helper.title}</IonText>
-              <IonText className="email">{helper.email}</IonText>
-              <IonText className="contact">{helper.contact}</IonText>
             </div>
-            {/* Rating badge in top right corner */}
             <div className="header-rating-badge">
               <IonIcon icon={star} className="star-icon" />
               <span className="rating-text">{helper.rating}</span>
             </div>
           </div>
 
-          {/* Stats section */}
           <IonCardContent className="stats-content">
-            <div className="stats-desc"><p className="truncate-3-lines">{helper.description} </p></div>
-            <div className="stats-grid">
-              <div className="stat-item">
-                <IonText className="stat-value">4.9</IonText>
-                <IonText className="stat-label">rating</IonText>
-              </div>
-              <div className="stat-item">
-                <IonText className="stat-value">$35k+</IonText>
-                <IonText className="stat-label">earned</IonText>
-              </div>
-              <div className="stat-item">
-                <IonText className="stat-value">$45/hr</IonText>
-                <IonText className="stat-label">rate</IonText>
-              </div>
-            </div>
-          </IonCardContent>
-
-          {/* Contact section with all buttons aligned left and right */}
-
-
-          {/* NEW SECTIONS - Scrollable content area */}
-          <div className="scrollable-content">
-            {/* Skills Section */}
-            <div className="additional-section">
+            <div className="stats-desc"><p className="truncate-3-lines">{helper.description}</p></div>
+              <div className="additional-section">
               <div className="section-header">
                 <IonIcon icon={briefcase} className="section-icon" />
                 <IonText className="section-title">Skills & Expertise</IonText>
@@ -393,7 +191,6 @@ const HelperProfilePage = () => {
               </div>
             </div>
 
-            {/* Recent Reviews Section */}
             <div className="additional-section">
               <div className="section-header">
                 <IonIcon icon={chatbubble} className="section-icon" />
@@ -414,55 +211,63 @@ const HelperProfilePage = () => {
                 ))}
               </div>
             </div>
+          </IonCardContent>
 
-            <div className="contact-buttons-row">
-              <div className="action-buttons-right">
-                <IonButton shape="round" fill="clear" className="add-button" onClick={handleAddHelper}>
-                  <IonIcon icon={addOutline} />
-                </IonButton>
-                <IonButton  shape="round" fill="clear" className="share-button" onClick={handleShareHelper}>
-                  <IonIcon icon={shareOutline} />
-                </IonButton>
-              </div>
-
-              <div className="social-sharing-options" style={{ marginTop: '16px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                <IonButton
-                  shape="round"
-                  fill="clear" className="share-button"
-                  onClick={() => shareOnPlatform('facebook')}
-                  style={{ borderRadius: '50%', width: '50px', height: '50px' }}
-                >
-                  <IonIcon icon={logoFacebook} size="large" />
-                </IonButton>
-                <IonButton
-                  shape="round"
-                  fill="clear" className="share-button"
-                  onClick={() => shareOnPlatform('twitter')}
-                  style={{ borderRadius: '50%', width: '50px', height: '50px' }}
-                >
-                  <IonIcon icon={logoTwitter} size="large" />
-                </IonButton>
-                <IonButton
-                  shape="round"
-                 fill="clear" className="share-button"
-                  onClick={() => shareOnPlatform('linkedin')}
-                  style={{ borderRadius: '50%', width: '50px', height: '50px' }}
-                >
-                  <IonIcon icon={logoLinkedin} size="large" />
-                </IonButton>
-                <IonButton
-                  shape="round"
-                  fill="clear" className="share-button"
-                  onClick={() => shareOnPlatform('whatsapp')}
-                  style={{ borderRadius: '50%', width: '50px', height: '50px' }}
-                >
-                  <IonIcon icon={logoWhatsapp} size="large" />
-                </IonButton>
-              </div>
-
+          <div className="contact-buttons-row">
+            <div className="action-buttons-right">
+              <IonButton shape="round" fill="clear" className="add-button" onClick={openAddToCollectionModal}>
+                <IonIcon icon={addOutline} />
+              </IonButton>
+              <IonButton shape="round" fill="clear" className="share-button" onClick={handleShareHelper}>
+                <IonIcon icon={shareOutline} />
+              </IonButton>
             </div>
           </div>
         </IonCard>
+
+        {/* Modal for Adding to Collection */}
+        <IonModal isOpen={isModalOpen} onDidDismiss={() => setIsModalOpen(false)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Add to Collection</IonTitle>
+              <IonButtons slot="end">
+                <IonButton onClick={() => setIsModalOpen(false)}>
+                  <IonIcon icon={close} />
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonList>
+              {cardHolders.map((holder) => (
+                <IonItem button key={holder.id} onClick={() => handleAddToExistingHolder(holder.id)}>
+                  <IonLabel>{holder.name}</IonLabel>
+                </IonItem>
+              ))}
+              <IonItem lines="none">
+                  {isAddingCardHolder ? (
+                    <div style={{width: '100%', display: 'flex', alignItems: 'center'}}>
+                      <IonInput
+                        value={newCardHolderName}
+                        onIonChange={(e) => setNewCardHolderName(e.detail.value!)}
+                        placeholder="New collection name"
+                        style={{flexGrow: 1}}
+                      />
+                      <IonButton onClick={handleCreateAndAdd} fill="clear">
+                        <IonIcon icon={checkmark} />
+                      </IonButton>
+                    </div>
+                  ) : (
+                    <IonButton fill="clear" onClick={() => setIsAddingCardHolder(true)}>
+                      <IonIcon icon={addOutline} slot="start" />
+                      <IonLabel>Add New Collection</IonLabel>
+                    </IonButton>
+                  )}
+              </IonItem>
+            </IonList>
+          </IonContent>
+        </IonModal>
+
       </IonContent>
       <IonToast
         isOpen={showToast}
@@ -476,4 +281,3 @@ const HelperProfilePage = () => {
 };
 
 export default HelperProfilePage;
-
