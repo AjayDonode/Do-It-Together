@@ -1,163 +1,108 @@
-.helper-card {
-  display: flex; /* Use flexbox for layout */
-  flex-direction: column; /* Stack children vertically */
-  align-items: center; /* Center items horizontally */
-  justify-content: flex-start; /* Align items at the top */
-  height: 200px; /* Fixed height for all cards */
-  min-width: 200px; /* Fixed width for all cards */
-  margin: 0 auto; /* Center the cards horizontally */
-  text-align: center; /* Center text alignment */
-  box-sizing: border-box; /* Include padding/border in height/width */
-}
+/* src/components/HelperSwiper/HelperSwiper.css */
 
-.swiper-container {
-  padding: 0px 0;
-  
-}
-
-.image {
-  transform: translateY(1vh);
-  display: flex;
-  justify-content: center; /* Center the avatar horizontally */
-}
-
-.profile-content {
-  /*background: var(--ion-color-secondary); */
-  background:rgb(211, 209, 209);
-  border-radius: 5px;
-  padding-bottom: 18vh;
-  height: 100px; /* Set a fixed height for all cards */
-  width: 150px;
-  flex-direction: column;
-  align-items: center; /* Changed: Center content horizontally */
-}
-
-
-
-.image{
-  transform: translateY(1vh);
-  display: flex;
-  justify-content: center; /* Added: Center the avatar horizontally */
-
-  ion-avatar{
-    width: 15vh;
-    height: 15vh;
-    border: 1px solid rgb(157, 156, 156);
-    padding: 0.5vh;
-    margin-bottom: 2vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-}
-
-.profile {
-    text-align: left; /* Center text in the profile item */
-    background: transparent;
-}
-
-.profile-name{
-    font-size: 12px; /* Smaller font for the helper's name */
-    font-weight: bold;
-    color: gray;
-    background: transparent;
-}
-
-.profile-content {
-  /* background: var(--ion-color-secondary); */
-  background: rgb(211, 209, 209);
-  border-radius: 5px;
-  padding-bottom: 18vh; /* Retained, but ensure it doesn't exceed height */
-  height: 200px; /* Updated: Match fixed height for uniformity */
-  width: 150px; /* Retained, but consider matching min-width if needed */
-  display: flex; /* Added: Use flex for internal layout */
-  flex-direction: column;
-  align-items: center; /* Center content horizontally */
-  justify-content: flex-start; /* Align content from top */
-  box-sizing: border-box; /* Include padding in height */
-  overflow: hidden; /* Prevent content overflow */
-}
-
-
-.profile-content:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.12);
-  transition: all 0.3s ease;
-}
-
-/* src/components/HelperSwiper.css */
 .sm-container {
-  display: flow;
-  position: left;
+  position: relative; /* Needed for button positioning */
+  padding: 10px 0;
 }
 
-.sm-container h2{
-  color: rgb(106, 107, 107);
-  padding-left: 15px;
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  margin-bottom: 10px;
+}
+
+.header-container h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #444;
+  margin: 0;
+}
+
+.navigation-buttons {
+  display: flex;
+  gap: 10px;
 }
 
 .swiper-button-prev,
 .swiper-button-next {
-  position: absolute;
-  background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
-  border-radius: 100%; /* Make buttons circular */
-  width: 35px; /* Set width */
-  height: 35px; /* Set height */
+  position: static; /* Remove absolute positioning */
+  width: 35px;
+  height: 35px;
+  background-color: #fff;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
-  align-items: top;
+  align-items: center;
   justify-content: center;
-  border: 1px solid gray; 
-  cursor: pointer; /* Change cursor on hover */
-  z-index: 10; /* Ensure buttons are above other elements */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add a subtle shadow for depth */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
- .swiper-button-prev {
-  right: 50px; /* Position left button slightly to the left */
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  font-size: 1rem;
+  color: #333;
+  font-weight: bold;
 }
 
- .swiper-button-next {
-  right: 10px; /* Position right button */
-}
-
-/* Optional: Add hover effect for better visibility */
 .swiper-button-prev:hover,
 .swiper-button-next:hover {
-  background-color: rgba(182, 178, 178, 0.8); /* Change background on hover */
+  background-color: #f0f0f0;
 }
 
 .swiper-slide {
-  height: 200px; /* Fixed height for all slides to ensure uniformity */
-  display: flex; /* Use flex to center content vertically if needed */
-  align-items: stretch; /* Stretch cards to fill slide height */
+  height: 320px;
+  display: flex;
+  align-items: stretch;
+  padding: 5px;
+  box-sizing: border-box;
 }
 
-.header-container h2 {
-  font-size: 3;
-  font-weight: bold;
-  color: gray;
-  padding-left: 15px;
+.helper-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.helper-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .card-img {
-  flex: 1; /* Allow the image to grow and take available space */
-  object-fit: cover; /* Cover the card area without distortion */
-  width: 100%; /* Make image take the full width */
-  height: 40%; /* Maintain aspect ratio */
+  width: 100%;
+  height: 60%;
+  object-fit: cover;
 }
 
-.card-body {
-  padding: 5px; /* Add padding to the content */
+.helper-card ion-card-header {
+  padding: 15px;
 }
 
-.helper-card h3 {
-  font-size: 10px; /* Adjust the size of the name */
-  font-weight: bold; /* Make the name bold */
-  margin: 0; /* Remove default margin */
+.helper-card ion-card-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.helper-card ion-card-content {
+  flex: 1;
+  padding: 0 15px 15px;
 }
 
 .helper-card p {
-  font-size: 10px;/* Adjust the size of the info text */
-  margin: 5px 0 0; /* Add some margin for spacing */
+  font-size: 0.9rem;
+  color: #777;
+  margin: 0;
 }
-

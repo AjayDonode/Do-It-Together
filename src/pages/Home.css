@@ -18,12 +18,12 @@
 .search-container {
   background-color: white;
   border-radius: 20px;
-  border: 1px solid rgb(184, 184, 184);
-  /* Changed to add a gray border */
+  border: 0px solid rgb(184, 184, 184);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 1200px;
   width: 80%;
   margin: 0 auto;
+  overflow: hidden; /* Ensure child elements conform to the container's border radius */
 }
 
 .search-grid {
@@ -38,8 +38,7 @@
 .search-col {
   display: flex;
   align-items: center;
-  border-right: 1px solid #e0e0e0;
-  padding: 0 10px;
+  padding: 0; /* Remove padding to allow content to fill the container */
 }
 
 .search-col:last-child {
@@ -48,7 +47,7 @@
 
 .search-field {
   display: flex;
-  align-items: center;
+  align-items: stretch; /* Make all child elements stretch to the same height */
   width: 100%;
 }
 
@@ -81,22 +80,18 @@
 .zipcode-container {
   display: flex;
   align-items: center;
-  margin-right: 10px;
-  /* Space between zipcode input and search button */
+  border-left: 1px solid #e0e0e0; /* Add a separator */
+  padding: 0 10px;
 }
 
 .zipcode-icon {
   font-size: 20px;
-  /* Adjust size of the location icon */
   margin-right: 5px;
-  /* Space between icon and input */
 }
 
 .zipcode-input {
   width: 80px;
-  /* Set a fixed width for the zipcode input */
-  padding-left: 30px;
-  /* Space for the icon */
+  padding-left: 10px;
 }
 
 
@@ -132,17 +127,13 @@
   font-weight: italic;
   font-size: 1rem;
   margin-top: 0.2rem;
-  /* Adds spacing between the label and count */
 }
 
 .menu-follow-label {
   font-size: 0.9rem;
   color: #888;
   display: block;
-  /* Ensures the label is displayed above or below the count */
 }
-
-/* Responsive adjustments for smaller screens */
 
 .card-section {
   padding: 16px 0;
@@ -170,7 +161,6 @@
   align-items: center;
   box-sizing: border-box;
   min-width: 0;
-  /* prevents overflow in grid */
 }
 
 .helper-card:hover {
@@ -197,24 +187,16 @@
   font-size: 0.98rem;
 }
 
-.zipcode-container {
-  display: none;
-  /* Hide by default */
-}
-
 .search-button {
-  height: 50px;
+  --border-radius: 0 10px 10px 0; /* Match container's radius on the right */
+  height: 60px; /* Allow the button to stretch vertically */
+  margin: 0; /* Remove default margin */
   font-weight: bold;
-  border-radius: 25px;
 }
 
-/* Responsive styles */
 @media (min-width: 768px) {
-
-  /* Show zipcode input and search button on larger screens */
   .zipcode-container {
     display: flex;
-    /* Show on larger screens */
     align-items: center;
   }
 }
@@ -228,4 +210,58 @@
   .search-col:last-child {
     border-bottom: none;
   }
+}
+
+.flash-error {
+  position: relative;
+  z-index: 1;
+}
+
+.flash-error::before {
+    content: "";
+    position: absolute;
+    top: -3px; 
+    left: -3px; 
+    right: -3px; 
+    bottom: -3px;
+    border-radius: 23px; /* search-container has 20px, so 20+3 */
+    background: linear-gradient(45deg, red, yellow, red, yellow);
+    background-size: 400% 400%;
+    animation: gradient-move 2s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes gradient-move {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes slide-in-fade-out {
+  0% {
+    transform: translate(100%, 100%);
+    opacity: 0;
+  }
+  10% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  90% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(100%, 100%);
+    opacity: 0;
+  }
+}
+
+.custom-toast {
+  animation: slide-in-fade-out 3s forwards;
 }
