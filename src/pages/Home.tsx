@@ -30,7 +30,7 @@ import { useHistory } from 'react-router';
 import ModalHelperDetails from './modals/ModalHelperDetails';
 import { useAuth } from '../context/AuthContext';
 import { getAuth, signOut } from 'firebase/auth';
-import HelperService from '../services/HelperService'; // Import your HelperService
+import * as HelperService from '../services/HelperService'; // Import your HelperService
 import HelperSwiper from '../components/HelperSwiper/HelperSwiper';
 import { Helper } from '../models/Helper';
 import ShareModal from '../components/sharemodal/ShareModal';
@@ -38,7 +38,6 @@ import ShareModal from '../components/sharemodal/ShareModal';
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
   const history = useHistory();
-  const helperService = new HelperService();
   // const [selectedHelper, setSelectedHelper] = useState<Helper | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [helpers, setHelpers] = useState<Helper[]>([]);
@@ -82,14 +81,14 @@ const Home: React.FC = () => {
     }
     setHasSearched(true);
     console.log('Looking for %s in area %s', searchString, zipcode);
-    const results = await helperService.searchHelpers(searchString, zipcode);
+    const results = await HelperService.searchHelpers(searchString, zipcode);
     setHelpers(results);
   };
 
   useEffect(() => {
     const fetchHelpers = async () => {
       try {
-        const helpList = await helperService.getHelpers();
+        const helpList = await HelperService.getHelpers();
         setHelpers(helpList);
       } catch (error) {
         console.error('Error fetching helpers:', error);

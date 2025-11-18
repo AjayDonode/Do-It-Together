@@ -8,10 +8,6 @@ import {
   IonToolbar,
   IonButton,
   IonIcon,
-  IonCard,
-  IonCardContent,
-  IonImg,
-  IonModal,
   IonInput,
   IonItem,
   IonList,
@@ -22,10 +18,10 @@ import { useHistory } from 'react-router';
 import { add, arrowBackOutline, checkmark } from 'ionicons/icons';
 import { Helper } from '../../models/Helper';
 import AddHelperModal from './Modal/AddHelperModal';
-import ModalHelperDetails from '../modals/ModalHelperDetails';
 import { CardHolder } from '../../models/CardHolder';
 import { createCardHolder, getCardHolders, addHelperToCardHolder } from '../../services/CardHolderService';
-import { getHelperById } from '../../services/HelperService';
+import * as HelperService from '../../services/HelperService';
+import HelperSwiper from '../../components/HelperSwiper/HelperSwiper';
 
 const MyCards: React.FC = () => {
   const { currentUser } = useAuth();
@@ -35,9 +31,7 @@ const MyCards: React.FC = () => {
   const [newCardHolderName, setNewCardHolderName] = useState<string>('');
   const [isAddingCardHolder, setIsAddingCardHolder] = useState<boolean>(false);
   const [helpers, setDisplayedHelpers] = useState<Helper[]>([]);
-  const [selectedHelper, setSelectedHelper] = useState<Helper | null>(null);
   const [isAddHelperModalOpen, setIsAddHelperModalOpen] = useState(false);
-  const [isHelperDetailsModalOpen, setIsHelperDetailsModalOpen] = useState(false);
   const [selectedCardHolder, setSelectedCardHolder] = useState<CardHolder | null>(null);
 
   useEffect(() => {
@@ -70,7 +64,7 @@ const MyCards: React.FC = () => {
 
   const fetchHelpersForCardHolder = async (cardHolder: CardHolder) => {
     try {
-      const helperPromises = cardHolder.helperIds.map(id => getHelperById(id));
+      const helperPromises = cardHolder.helperIds.map(id => HelperService.getHelperById(id));
       const fetchedHelpers = await Promise.all(helperPromises);
       setDisplayedHelpers(fetchedHelpers.filter(h => h !== null) as Helper[]);
     } catch (error) {
@@ -111,6 +105,10 @@ const MyCards: React.FC = () => {
 
   const handleSelectCardHolder = (cardHolder: CardHolder) => {
     setSelectedCardHolder(cardHolder);
+  };
+
+  const handleHelperClick = (helper: Helper) => {
+    history.push(`/helper/${helper.id}`);
   };
 
 
@@ -164,46 +162,24 @@ const MyCards: React.FC = () => {
 
           {/* Main Content */}
           <div className="my-cards-content">
-            <h2>{selectedCardHolder?.name || 'Select a collection'}</h2>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <h2 style={{ marginRight: '8px' }}>{selectedCardHolder?.name || 'Select a collection'}</h2>
+              {selectedCardHolder && (
+                <IonButton onClick={() => setIsAddHelperModalOpen(true)} fill="clear">
+                  <IonIcon icon={add} />
+                </IonButton>
+              )}
+            </div>
             <div className="card-section">
-              <div className="helper-grid">
-                {helpers.map((helper) => (
-                  <IonCard
-                    className="helper-card"
-                    key={helper.id}
-                    button
-                    onClick={() => {
-                      setSelectedHelper(helper);
-                      setIsHelperDetailsModalOpen(true);
-                    }}
-                  >
-                    <IonImg src={helper.avatar} alt="Helper" className="card-img" />
-                    <IonCardContent className="card-body">
-                      <h3>{helper.name}</h3>
-                      <p>{helper.info.slice(0, 40)}...</p>
-                    </IonCardContent>
-                  </IonCard>
-                ))}
-                {selectedCardHolder && (
-                  <IonCard
-                    className="helper-card"
-                    button
-                    onClick={() => setIsAddHelperModalOpen(true)}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      flexDirection: 'column',
-                      minHeight: '200px',
-                    }}
-                  >
-                    <IonIcon icon={add} style={{ fontSize: '50px' }} />
-                    <IonCardContent>
-                      <h3>Add Helper</h3>
-                    </IonCardContent>
-                  </IonCard>
+                {helpers.length > 0 && selectedCardHolder ? (
+                    <HelperSwiper
+                        header={selectedCardHolder.name}
+                        helpers={helpers}
+                        onHelperClick={handleHelperClick}
+                    />
+                ) : (
+                    <p>No helpers in this collection yet.</p>
                 )}
-              </div>
             </div>
           </div>
         </div>
@@ -214,11 +190,6 @@ const MyCards: React.FC = () => {
           onAddHelper={handleAddHelper}
         />
 
-        <ModalHelperDetails
-          isOpen={isHelperDetailsModalOpen}
-          onDidDismiss={() => setIsHelperDetailsModalOpen(false)}
-          helper={selectedHelper}
-        />
       </IonContent>
     </IonPage>
   );

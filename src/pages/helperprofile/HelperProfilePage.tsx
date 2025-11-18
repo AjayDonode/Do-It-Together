@@ -1,9 +1,12 @@
 import { useHistory, useParams } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, IonText, IonSpinner, IonIcon, IonAvatar, IonButton, IonChip, IonButtons, IonToast } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, IonText, IonSpinner, IonIcon, IonAvatar, IonButton, IonChip, IonButtons, IonToast, useIonAlert } from '@ionic/react';
 import { Helper } from '../../models/Helper';
-import HelperService from '../../services/HelperService';
+import * as HelperService from '../../services/HelperService';
 import { addOutline, arrowBack, briefcase, chatbubble, logoFacebook, logoLinkedin, logoTwitter, logoWhatsapp, shareOutline, star, time } from 'ionicons/icons';
+import { CardHolder } from '../../models/CardHolder';
+import { addHelperToCardHolder, getCardHolders } from '../../services/CardHolderService';
+import { useAuth } from '../../context/AuthContext';
 
 const HelperProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +17,9 @@ const HelperProfilePage = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const cardRef = useRef<HTMLIonCardElement>(null);
+  const [presentAlert] = useIonAlert();
+  const [cardHolders, setCardHolders] = useState<CardHolder[]>([]);
+  const { currentUser } = useAuth();
 
   const handleGoBack = () => {
     history.goBack();
@@ -31,8 +37,7 @@ const HelperProfilePage = () => {
 
       try {
         setLoading(true);
-        const helperService = new HelperService();
-        const helperData = await helperService.getHelperById(id);
+        const helperData = await HelperService.getHelperById(id);
 
         if (helperData) {
           setHelper(helperData);
@@ -50,11 +55,20 @@ const HelperProfilePage = () => {
     fetchHelperDetails();
   }, [id]);
 
+  useEffect(() => {
+    const fetchCardHolders = async () => {
+      if (currentUser) {
+        const holders = await getCardHolders(currentUser.uid);
+        setCardHolders(holders);
+      }
+    };
+    fetchCardHolders();
+  }, [currentUser]);
 
   const shareOnPlatform = (platform: string) => {
     if (!helper) return;
 
-    const shareText = `Check out ${helper.name}'s profile - ${helper.title}\n\n${helper.description}\n\nRating: ${helper.rating} ⭐`;
+    const shareText = `Check out ${helper.name}\'s profile - ${helper.title}\n\n${helper.description}\n\nRating: ${helper.rating} ⭐`;
     const encodedText = encodeURIComponent(shareText);
     const encodedUrl = encodeURIComponent(window.location.href);
 
@@ -102,6 +116,32 @@ const HelperProfilePage = () => {
 
   const handleAddHelper = async () => {
     if (!helper) return;
+
+    presentAlert({
+      header: 'Select a Card Holder',
+      inputs: cardHolders.map(holder => ({
+        name: holder.name,
+        type: 'radio',
+        label: holder.name,
+        value: holder.id,
+      })),
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Add',
+          handler: async (cardHolderId) => {
+            if (cardHolderId) {
+              await addHelperToCardHolder(cardHolderId, helper.id);
+              setToastMessage(`Helper added to card holder`);
+              setShowToast(true);
+            }
+          },
+        },
+      ],
+    });
   }
   // Enhanced Web Share API function with better content
   const handleShareHelper = async () => {
@@ -436,5 +476,4 @@ const HelperProfilePage = () => {
 };
 
 export default HelperProfilePage;
-
 

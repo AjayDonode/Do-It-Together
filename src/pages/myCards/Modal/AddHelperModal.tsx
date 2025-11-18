@@ -24,7 +24,7 @@ import {
 } from '@ionic/react';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Helper } from '../../../models/Helper';
-import HelperService from '../../../services/HelperService'; // Adjust the path as necessary
+import * as HelperService from '../../../services/HelperService'; // Adjust the path as necessary
 import { add, close, pencilOutline } from 'ionicons/icons';
 import './AddHelperModal.css'; // Import your CSS file
 
@@ -48,7 +48,6 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
   const [newHelperRating, setNewHelperRating] = useState<number>(0);
   const [searching, setSearching] = useState<boolean>(false);
   const [showInputForm, setShowInputForm] = useState<boolean>(false); // New state for input form visibility
-  const helperService = new HelperService();
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
   const bannerFileInputRef = useRef<HTMLInputElement>(null);
   const [filteredCategories, setFilteredCategories] = useState<{ value: string; label: string }[]>([]); // Specify type for filteredCategories
@@ -103,7 +102,7 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
 
       setSearching(true);
       try {
-        const helpers = await helperService.getHelpers();
+        const helpers = await HelperService.getHelpers();
         const filteredHelpers = helpers.filter(helper =>
           helper.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -138,7 +137,7 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
       };
 
       try {
-        await helperService.createHelper(newHelper);
+        await HelperService.createHelper(newHelper);
         onAddHelper(newHelper);
         // Reset fields after adding
         setNewHelperName('');
@@ -272,16 +271,7 @@ const addZipCode = () => {
                   <IonItem
                     key={helper.id}
                     button
-                    onClick={() => {
-                      // For edit: Populate form with existing helper data and show input form
-                      setNewHelperName(helper.name);
-                      setNewHelperAvatar(helper.avatar);
-                      setNewHelperInfo(helper.info);
-                      setNewHelperBanner(helper.banner);
-                      setZipCodes(['']); // Reset area codes
-                      setNewHelperCategory(helper.category);
-                      setShowInputForm(true); // Switch to edit mode
-                    }}
+                    onClick={() => onAddHelper(helper)}
                   >
                     <IonCard>
                       <IonCardContent>
