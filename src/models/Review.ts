@@ -1,6 +1,9 @@
 export interface Review {
-  userId: string; // ID of the user who left the review
-  rating: number; // Individual rating given by the user
-  comment: string; // Review comment
-  timestamp: Date; // When the review was created
+  reviewId: string; // Auto-generated
+  proProfileId: string; // Foreign key to Profile.userId (required)
+  reviewerUserId: string; // Foreign key to User.uid (required)
+  rating: number; // 1-5 stars, required
+  comment?: string; // Optional text
+  createdAt: Date; // Timestamp
+  photos?: string[]; // Optional review photos
 }

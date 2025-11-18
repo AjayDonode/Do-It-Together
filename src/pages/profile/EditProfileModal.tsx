@@ -19,7 +19,7 @@ import {
   IonIcon, // For state suggestions dropdown
 } from '@ionic/react';
 import { User } from 'firebase/auth'; // Import Firebase User type
-import { CustomUserProfile, Address } from '../../models/CustomUserProfile'; // Your custom types (NOTE: Update Address to have zip as string if possible)
+import { UserProfile, Address } from '../../models/UserProfile'; // Your custom types (NOTE: Update Address to have zip as string if possible)
 import { usStates } from '../../common/AppConstant'; // Moved to common constants file
 import './EditProfileModal.css';
 import { closeOutline } from 'ionicons/icons';
@@ -30,8 +30,8 @@ export interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser: User | null;
-  profileData: CustomUserProfile;
-  handleSave: (updatedProfile: CustomUserProfile) => Promise<void>;
+  profileData: UserProfile;
+  handleSave: (updatedProfile: UserProfile) => Promise<void>;
 }
 
 const EditProfileModal: React.FC<EditProfileModalProps> = ({
@@ -99,7 +99,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       return; // Don't save if there are errors
     }
 
-    const updatedProfile: CustomUserProfile = {
+    const updatedProfile: UserProfile = {
       address: { ...address, zip: address.zip }, // If model expects number, convert back: Number(address.zip)
       phoneNumber,
     };

@@ -10,6 +10,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import Profile from './pages/profile/Profile';
 import MyCards from './pages/myCards/MyCards';
 import HelperProfilePage from './pages/helperprofile/HelperProfilePage';
+import JoinProPage from './pages/join-pro/JoinProPage';
 
 setupIonicReact();
 
@@ -42,6 +43,7 @@ const App: React.FC = () => {
             <Route exact path="/home" component={Home} />
             <Route exact path="/profile" component={Profile} />
             <Route exact path="/mycards" component={MyCards} />
+            <Route exact path="/join-pro" component={JoinProPage} />
             <Route path="/helper-profile/:id" component={HelperProfilePage} />
           </IonRouterOutlet>
         </IonReactRouter>

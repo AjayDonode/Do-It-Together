@@ -1,12 +1,12 @@
 import { useHistory, useParams } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard,IonCardContent, IonText, IonSpinner, IonIcon, IonAvatar, IonButton, IonChip, IonButtons, IonToast } from '@ionic/react';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonCard, IonCardContent, IonText, IonSpinner, IonIcon, IonAvatar, IonButton, IonChip, IonButtons, IonToast } from '@ionic/react';
 import { Helper } from '../../models/Helper';
 import HelperService from '../../services/HelperService';
-import { addOutline, arrowBack, briefcase, chatbubble, shareOutline, star, time } from 'ionicons/icons';
+import { addOutline, arrowBack, briefcase, chatbubble, logoFacebook, logoLinkedin, logoTwitter, logoWhatsapp, shareOutline, star, time } from 'ionicons/icons';
 
 const HelperProfilePage = () => {
-   const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>();
   const history = useHistory();
   const [helper, setHelper] = useState<Helper | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,7 +22,7 @@ const HelperProfilePage = () => {
   useEffect(() => {
     const fetchHelperDetails = async () => {
       console.log("The id is " + id);
-      
+
       if (!id) {
         setError('No helper ID provided');
         setLoading(false);
@@ -52,159 +52,158 @@ const HelperProfilePage = () => {
 
 
   const shareOnPlatform = (platform: string) => {
-  if (!helper) return;
+    if (!helper) return;
 
-  const shareText = `Check out ${helper.name}'s profile - ${helper.title}\n\n${helper.description}\n\nRating: ${helper.rating} ⭐`;
-  const encodedText = encodeURIComponent(shareText);
-  const encodedUrl = encodeURIComponent(window.location.href);
-  
-  // Include avatar URL for platforms that support image sharing
-  const encodedImage = encodeURIComponent(helper.avatar);
-  const encodedName = encodeURIComponent(helper.name);
+    const shareText = `Check out ${helper.name}'s profile - ${helper.title}\n\n${helper.description}\n\nRating: ${helper.rating} ⭐`;
+    const encodedText = encodeURIComponent(shareText);
+    const encodedUrl = encodeURIComponent(window.location.href);
 
-  let shareUrl = '';
+    // Include avatar URL for platforms that support image sharing
+    const encodedImage = encodeURIComponent(helper.avatar);
+    const encodedName = encodeURIComponent(helper.name);
 
-  switch (platform) {
-    case 'twitter':
-      // Twitter supports text, URL, and hashtags
-      shareUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}&hashtags=HelperProfile`;
-      break;
-    
-    case 'facebook':
-      // Facebook uses Open Graph tags, but we can still share with text
-      shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`;
-      break;
-    
-    case 'linkedin':
-      // LinkedIn sharing with title and summary
-      const linkedinTitle = encodeURIComponent(`${helper.name} - ${helper.title}`);
-      const linkedinSummary = encodeURIComponent(helper.description);
-      shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&title=${linkedinTitle}&summary=${linkedinSummary}`;
-      break;
-    
-    case 'whatsapp':
-      // WhatsApp sharing with text and URL
-      shareUrl = `https://wa.me/?text=${encodedText}%0A%0AView profile: ${encodedUrl}`;
-      break;
-    
-    case 'pinterest':
-      // Pinterest supports image sharing
-      shareUrl = `https://pinterest.com/pin/create/button/?url=${encodedUrl}&media=${encodedImage}&description=${encodedText}`;
-      break;
-    
-    default:
-      return;
+    let shareUrl = '';
+
+    switch (platform) {
+      case 'twitter':
+        // Twitter supports text, URL, and hashtags
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}&hashtags=HelperProfile`;
+        break;
+
+      case 'facebook':
+        // Facebook uses Open Graph tags, but we can still share with text
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`;
+        break;
+
+      case 'linkedin':
+        // LinkedIn sharing with title and summary
+        const linkedinTitle = encodeURIComponent(`${helper.name} - ${helper.title}`);
+        const linkedinSummary = encodeURIComponent(helper.description);
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&title=${linkedinTitle}&summary=${linkedinSummary}`;
+        break;
+
+      case 'whatsapp':
+        // WhatsApp sharing with text and URL
+        shareUrl = `https://wa.me/?text=${encodedText}%0A%0AView profile: ${encodedUrl}`;
+        break;
+
+      case 'pinterest':
+        // Pinterest supports image sharing
+        shareUrl = `https://pinterest.com/pin/create/button/?url=${encodedUrl}&media=${encodedImage}&description=${encodedText}`;
+        break;
+
+      default:
+        return;
+    }
+    // Open sharing window
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+  };
+
+
+  const handleAddHelper = async () => {
+    if (!helper) return;
   }
-  // Open sharing window
-  window.open(shareUrl, '_blank', 'width=600,height=400');
-};
+  // Enhanced Web Share API function with better content
+  const handleShareHelper = async () => {
+    if (!helper) return;
 
+    try {
+      const shareData = {
+        title: `${helper.name} - ${helper.title}`,
+        text: `${helper.description}\n\n⭐ Rating: ${helper.rating}\n💼 ${helper.contact}`,
+        url: window.location.href,
 
-const handleAddHelper = async () => {
-  if (!helper) return;
-}
-// Enhanced Web Share API function with better content
-const handleShareHelper = async () => {
-  if (!helper) return;
+      };
+      // Try to include files (images) if supported
+      if (navigator.share && navigator.canShare) {
+        try {
+          const imageResponse = await fetch(helper.avatar);
+          const blob = await imageResponse.blob();
+          const filesArray = [new File([blob], `${helper.name}-avatar.jpg`, { type: 'image/jpeg' })];
 
-  try {
-    const shareData = {
-      title: `${helper.name} - ${helper.title}`,
-      text: `${helper.description}\n\n⭐ Rating: ${helper.rating}\n💼 ${helper.contact}`,
-      url: window.location.href,
-      
-    };
-    // Try to include files (images) if supported
-    if (navigator.share && navigator.canShare) {
-      try {
-        const imageResponse = await fetch(helper.avatar);
-         console.log('Share data b:'+ imageResponse);
-        const blob = await imageResponse.blob();
-        const filesArray = [new File([blob], `${helper.name}-avatar.jpg`, { type: 'image/jpeg' })];
-        
-        if (navigator.canShare({ files: filesArray })) {
-          await navigator.share({
-            ...shareData,
-            files: filesArray
-          });
-          return;
+          if (navigator.canShare({ files: filesArray })) {
+            await navigator.share({
+              ...shareData,
+              files: filesArray
+            });
+            return;
+          }
+        } catch (imageError) {
+          console.error('Error fetching or sharing image:', imageError);
+          console.log('Image sharing not supported, falling back to text sharing');
         }
-      } catch (imageError) {
-        console.error('Error fetching or sharing image:', imageError);
-        console.log('Image sharing not supported, falling back to text sharing');
       }
-    }
 
-    // Standard Web Share API
-    if (navigator.share) {
-      await navigator.share(shareData);
-    } 
-    // Fallback for desktop browsers
-    else if (navigator.clipboard) {
-      await navigator.clipboard.writeText(`${shareData.title}\n\n${shareData.text}\n\n${window.location.href}`);
-      setToastMessage('Profile details copied to clipboard!');
+      // Standard Web Share API
+      if (navigator.share) {
+        await navigator.share(shareData);
+      }
+      // Fallback for desktop browsers
+      else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(`${shareData.title}\n\n${shareData.text}\n\n${window.location.href}`);
+        setToastMessage('Profile details copied to clipboard!');
+        setShowToast(true);
+      }
+      // Fallback for older browsers
+      else {
+        copyToClipboardFallback(`${shareData.title}\n\n${shareData.text}\n\n${window.location.href}`);
+        setToastMessage('Profile details copied to clipboard!');
+        setShowToast(true);
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      setToastMessage('Failed to share. Please try again.');
       setShowToast(true);
-    } 
-    // Fallback for older browsers
-    else {
-      copyToClipboardFallback(`${shareData.title}\n\n${shareData.text}\n\n${window.location.href}`);
-      setToastMessage('Profile details copied to clipboard!');
-      setShowToast(true);
     }
-  } catch (error) {
-    console.error('Error sharing:', error);
-    setToastMessage('Failed to share. Please try again.');
-    setShowToast(true);
+  };
+
+
+  function copyToClipboardFallback(arg0: string) {
+    throw new Error('Function not implemented.');
   }
-};
 
+  // Enhanced meta tags generation for better social sharing previews
+  const generateMetaTags = () => {
+    if (!helper) return null;
 
-function copyToClipboardFallback(arg0: string) {
-  throw new Error('Function not implemented.');
-}
+    return (
+      <>
+        {/* Open Graph Meta Tags */}
+        <meta property="og:title" content={`${helper.name} - ${helper.title}`} />
+        <meta property="og:description" content={helper.description} />
+        <meta property="og:image" content={helper.avatar} />
+        <meta property="og:image:width" content="400" />
+        <meta property="og:image:height" content="400" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:type" content="profile" />
 
-// Enhanced meta tags generation for better social sharing previews
-const generateMetaTags = () => {
-  if (!helper) return null;
+        {/* Twitter Card Meta Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${helper.name} - ${helper.title}`} />
+        <meta name="twitter:description" content={helper.description} />
+        <meta name="twitter:image" content={helper.avatar} />
+        <meta name="twitter:site" content="@yourplatform" />
 
-  return (
-    <>
-      {/* Open Graph Meta Tags */}
-      <meta property="og:title" content={`${helper.name} - ${helper.title}`} />
-      <meta property="og:description" content={helper.description} />
-      <meta property="og:image" content={helper.avatar} />
-      <meta property="og:image:width" content="400" />
-      <meta property="og:image:height" content="400" />
-      <meta property="og:url" content={window.location.href} />
-      <meta property="og:type" content="profile" />
-      
-      {/* Twitter Card Meta Tags */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={`${helper.name} - ${helper.title}`} />
-      <meta name="twitter:description" content={helper.description} />
-      <meta name="twitter:image" content={helper.avatar} />
-      <meta name="twitter:site" content="@yourplatform" />
-      
-      {/* Additional Meta Tags */}
-      <meta name="description" content={`${helper.name} - ${helper.title}. ${helper.description}`} />
-      <meta name="author" content={helper.name} />
-    </>
-  );
-};
+        {/* Additional Meta Tags */}
+        <meta name="description" content={`${helper.name} - ${helper.title}. ${helper.description}`} />
+        <meta name="author" content={helper.name} />
+      </>
+    );
+  };
 
-// Function to generate a shareable image card (optional)
-const generateShareCard = async (): Promise<string> => {
-  if (!helper || !cardRef.current) return '';
-  
-  try {
-    // This would require html2canvas or similar library
-    // For now, we'll use the avatar directly
-    return helper.avatar;
-  } catch (error) {
-    console.error('Error generating share card:', error);
-    return helper.avatar; // Fallback to avatar
-  }
-};
+  // Function to generate a shareable image card (optional)
+  const generateShareCard = async (): Promise<string> => {
+    if (!helper || !cardRef.current) return '';
+
+    try {
+      // This would require html2canvas or similar library
+      // For now, we'll use the avatar directly
+      return helper.avatar;
+    } catch (error) {
+      console.error('Error generating share card:', error);
+      return helper.avatar; // Fallback to avatar
+    }
+  };
 
 
 
@@ -223,7 +222,7 @@ const generateShareCard = async (): Promise<string> => {
 
   if (error) {
     return (
-        <IonPage>
+      <IonPage>
         <IonHeader>
           <IonToolbar>
             <IonButtons slot="start">
@@ -270,7 +269,7 @@ const generateShareCard = async (): Promise<string> => {
 
   return (
     <IonPage>
-       <IonHeader>
+      <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
             <IonButton onClick={handleGoBack}>
@@ -281,146 +280,149 @@ const generateShareCard = async (): Promise<string> => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-         <IonCard className="freelancer-card">
-              {/* Header with curved banner */}
-              <div className="card-header-container">
-                <img 
-                  src={helper.banner}
+        <IonCard className="freelancer-card">
+          {/* Header with curved banner */}
+          <div className="card-header-container">
+            <img
+              src={helper.banner}
+              alt={helper.name}
+              className="banner-image"
+            />
+
+            <div className="avatar-container">
+              <IonAvatar className="profile-avatar">
+                <img
+                  src={helper.avatar}
                   alt={helper.name}
-                  className="banner-image"
                 />
-              
-                <div className="avatar-container">
-                  <IonAvatar className="profile-avatar">
-                    <img 
-                      src={helper.avatar}
-                      alt={helper.name}
-                    />
-                  </IonAvatar>
-                </div>
+              </IonAvatar>
+            </div>
+          </div>
+
+          {/* Name section only */}
+          <div className="name-action-row">
+            <div className="name-section">
+              <IonText className="name">{helper.name}</IonText>
+              <IonText className="designation">{helper.title}</IonText>
+              <IonText className="email">{helper.email}</IonText>
+              <IonText className="contact">{helper.contact}</IonText>
+            </div>
+            {/* Rating badge in top right corner */}
+            <div className="header-rating-badge">
+              <IonIcon icon={star} className="star-icon" />
+              <span className="rating-text">{helper.rating}</span>
+            </div>
+          </div>
+
+          {/* Stats section */}
+          <IonCardContent className="stats-content">
+            <div className="stats-desc"><p className="truncate-3-lines">{helper.description} </p></div>
+            <div className="stats-grid">
+              <div className="stat-item">
+                <IonText className="stat-value">4.9</IonText>
+                <IonText className="stat-label">rating</IonText>
               </div>
-        
-              {/* Name section only */}
-              <div className="name-action-row">
-                <div className="name-section">
-                  <IonText className="name">{helper.name}</IonText>
-                  <IonText className="designation">{helper.title}</IonText>
-                  <IonText className="email">{helper.email}</IonText>
-                  <IonText className="contact">{helper.contact}</IonText>
-                </div>
-                  {/* Rating badge in top right corner */}
-                <div className="header-rating-badge">
-                  <IonIcon icon={star} className="star-icon" />
-                  <span className="rating-text">{helper.rating}</span>
-                </div>
+              <div className="stat-item">
+                <IonText className="stat-value">$35k+</IonText>
+                <IonText className="stat-label">earned</IonText>
               </div>
-        
-              {/* Stats section */}
-              <IonCardContent className="stats-content">
-                <div className="stats-desc"><p className="truncate-3-lines">{helper.description} </p></div>
-                <div className="stats-grid">
-                  <div className="stat-item">
-                    <IonText className="stat-value">4.9</IonText>
-                    <IonText className="stat-label">rating</IonText>
-                  </div>
-                  <div className="stat-item">
-                    <IonText className="stat-value">$35k+</IonText>
-                    <IonText className="stat-label">earned</IonText>
-                  </div>
-                  <div className="stat-item">
-                    <IonText className="stat-value">$45/hr</IonText>
-                    <IonText className="stat-label">rate</IonText>
-                  </div>
-                </div>
-                <div className="contact-section">
-                <div className="contact-buttons-row">
-              
-                  {/* <div className="action-buttons-right">
-                    <IonButton fill="clear" className="add-button" onClick={handleAddHelper}>
-                      <IonIcon icon={addOutline} />
-                    </IonButton>
-                    <IonButton fill="clear" className="share-button" onClick={handleShareHelper}>
-                      <IonIcon icon={shareOutline} />
-                    </IonButton>
-                  </div> */}
-                </div>
+              <div className="stat-item">
+                <IonText className="stat-value">$45/hr</IonText>
+                <IonText className="stat-label">rate</IonText>
               </div>
-              </IonCardContent>
-        
-              {/* Contact section with all buttons aligned left and right */}
-              
-        
-              {/* NEW SECTIONS - Scrollable content area */}
-              <div className="scrollable-content">
-                
-                {/* Skills Section */}
-                <div className="additional-section">
-                  <div className="section-header">
-                    <IonIcon icon={briefcase} className="section-icon" />
-                    <IonText className="section-title">Skills & Expertise</IonText>
-                  </div>
-                  <div className="skills-grid">
-                    {helper.tags?.slice(0, 6).map((tag, index) => (
-                      <IonChip key={index} className="skill-chip">
-                        {tag}
-                      </IonChip>
-                    ))}
-                  </div>
-                </div>
-           
-                {/* Recent Reviews Section */}
-                <div className="additional-section">
-                  <div className="section-header">
-                    <IonIcon icon={chatbubble} className="section-icon" />
-                    <IonText className="section-title">Recent Reviews</IonText>
-                  </div>
-                  <div className="reviews-list">
-                    {helper.reviews?.slice(0, 2).map((review, index) => (
-                      <div key={index} className="review-item">
-                        <div className="review-header">
-                          <IonText className="reviewer-name">Review</IonText>
-                          <div className="review-rating">
-                            <IonIcon icon={star} className="small-star" />
-                            <IonText>{review.rating}</IonText>
-                          </div>
-                        </div>
-                        <IonText className="review-text">{review.comment}</IonText>
+            </div>
+          </IonCardContent>
+
+          {/* Contact section with all buttons aligned left and right */}
+
+
+          {/* NEW SECTIONS - Scrollable content area */}
+          <div className="scrollable-content">
+            {/* Skills Section */}
+            <div className="additional-section">
+              <div className="section-header">
+                <IonIcon icon={briefcase} className="section-icon" />
+                <IonText className="section-title">Skills & Expertise</IonText>
+              </div>
+              <div className="skills-grid">
+                {helper.tags?.slice(0, 6).map((tag, index) => (
+                  <IonChip key={index} className="skill-chip">
+                    {tag}
+                  </IonChip>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Reviews Section */}
+            <div className="additional-section">
+              <div className="section-header">
+                <IonIcon icon={chatbubble} className="section-icon" />
+                <IonText className="section-title">Recent Reviews</IonText>
+              </div>
+              <div className="reviews-list">
+                {helper.reviews?.slice(0, 2).map((review, index) => (
+                  <div key={index} className="review-item">
+                    <div className="review-header">
+                      <IonText className="reviewer-name">Review</IonText>
+                      <div className="review-rating">
+                        <IonIcon icon={star} className="small-star" />
+                        <IonText>{review.rating}</IonText>
                       </div>
-                    ))}
+                    </div>
+                    <IonText className="review-text">{review.comment}</IonText>
                   </div>
-                </div>
-
-                  <div className="contact-buttons-row">
-                  
-                  <div className="action-buttons-right">
-                    <IonButton fill="clear" className="add-button" onClick={handleAddHelper}>
-                      <IonIcon icon={addOutline} />
-                    </IonButton>
-                    <IonButton fill="clear" className="share-button" onClick={handleShareHelper}>
-                      <IonIcon icon={shareOutline} />
-                    </IonButton>
-                  </div>
-                </div>
-
+                ))}
               </div>
-            </IonCard>
+            </div>
 
-            {/* Social sharing options (optional - can be shown in a modal or dropdown) */}
-        {/* <div className="social-sharing-options" style={{ marginTop: '16px', textAlign: 'center' }}>
-          <IonButton size="small" onClick={() => shareOnPlatform('facebook')}>
-            Facebook
-          </IonButton>
-          <IonButton size="small" onClick={() => shareOnPlatform('twitter')}>
-            Twitter
-          </IonButton>
-          <IonButton size="small" onClick={() => shareOnPlatform('linkedin')}>
-            LinkedIn
-          </IonButton>
-          <IonButton size="small" onClick={() => shareOnPlatform('whatsapp')}>
-            WhatsApp
-          </IonButton>
-        </div> */}
+            <div className="contact-buttons-row">
+              <div className="action-buttons-right">
+                <IonButton shape="round" fill="clear" className="add-button" onClick={handleAddHelper}>
+                  <IonIcon icon={addOutline} />
+                </IonButton>
+                <IonButton  shape="round" fill="clear" className="share-button" onClick={handleShareHelper}>
+                  <IonIcon icon={shareOutline} />
+                </IonButton>
+              </div>
 
+              <div className="social-sharing-options" style={{ marginTop: '16px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                <IonButton
+                  shape="round"
+                  fill="clear" className="share-button"
+                  onClick={() => shareOnPlatform('facebook')}
+                  style={{ borderRadius: '50%', width: '50px', height: '50px' }}
+                >
+                  <IonIcon icon={logoFacebook} size="large" />
+                </IonButton>
+                <IonButton
+                  shape="round"
+                  fill="clear" className="share-button"
+                  onClick={() => shareOnPlatform('twitter')}
+                  style={{ borderRadius: '50%', width: '50px', height: '50px' }}
+                >
+                  <IonIcon icon={logoTwitter} size="large" />
+                </IonButton>
+                <IonButton
+                  shape="round"
+                 fill="clear" className="share-button"
+                  onClick={() => shareOnPlatform('linkedin')}
+                  style={{ borderRadius: '50%', width: '50px', height: '50px' }}
+                >
+                  <IonIcon icon={logoLinkedin} size="large" />
+                </IonButton>
+                <IonButton
+                  shape="round"
+                  fill="clear" className="share-button"
+                  onClick={() => shareOnPlatform('whatsapp')}
+                  style={{ borderRadius: '50%', width: '50px', height: '50px' }}
+                >
+                  <IonIcon icon={logoWhatsapp} size="large" />
+                </IonButton>
+              </div>
+
+            </div>
+          </div>
+        </IonCard>
       </IonContent>
       <IonToast
         isOpen={showToast}
