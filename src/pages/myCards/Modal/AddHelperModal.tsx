@@ -97,7 +97,9 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
       setNewHelperBanner(getRandomDefaultBanner());
       setNewHelperCategory('');
       setNewHelperRating(0);
-      setZipCodes(currentUser?.address?.zip ? [currentUser.address.zip] : []);
+      // Type cast currentUser since we expect custom profile properties
+      const user = currentUser as any;
+      setZipCodes(user?.address?.zip ? [user.address.zip] : []);
     }
   }, [isOpen, currentUser]);
 
@@ -167,7 +169,6 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
         setNewHelperBanner('./images/banners/bg_1.png');
         setNewHelperCategory('');
         setNewHelperRating(0);
-        setShowInputForm(false); // Hide the input form after adding
         setZipCodes(['']); // Reset area codes
         onClose();
       } catch (error) {

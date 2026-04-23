@@ -1,0 +1,37 @@
+type User @table {
+  displayName: String!
+  createdAt: Timestamp!
+  email: String
+  photoUrl: String
+}
+
+type Card @table {
+  cardName: String!
+  owner: User!
+  phoneNumber: String
+  emailAddress: String
+  address: String
+  company: String
+  jobTitle: String
+  website: String
+  socialMediaLink: String
+  notes: String
+}
+
+type Connection @table(key: ["sharer", "receiver", "sharedCard"]) {
+  sharer: User!
+  receiver: User!
+  sharedCard: Card!
+  createdAt: Timestamp!
+  notes: String
+  isFavorite: Boolean
+}
+
+type ShareRequest @table {
+  sender: User!
+  recipient: User!
+  cardToShare: Card!
+  status: String!
+  createdAt: Timestamp!
+  message: String
+}

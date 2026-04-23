@@ -1,0 +1,67 @@
+mutation CreateDemoData @transaction {
+  user_insertMany(data: [
+    {
+      id: "c2c1b4b9-7a3a-4e8c-8f1a-0a2b3c4d5e6f",
+      displayName: "Alice Smith",
+      createdAt: "2023-10-26T10:00:00Z",
+      email: "alice@example.com",
+      photoUrl: "https://example.com/alice.jpg"
+    },
+    {
+      id: "d4d3c2c1-b4b9-7a3a-4e8c-8f1a0a2b3c4d",
+      displayName: "Bob Johnson",
+      createdAt: "2023-10-26T10:05:00Z",
+      email: "bob@example.com",
+      photoUrl: "https://example.com/bob.jpg"
+    }
+  ])
+  card_insertMany(data: [
+    {
+      id: "a1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c",
+      ownerId: "c2c1b4b9-7a3a-4e8c-8f1a-0a2b3c4d5e6f",
+      cardName: "Alice's Business Card",
+      phoneNumber: "111-222-3333",
+      emailAddress: "alice@business.com",
+      address: "123 Main St, Anytown",
+      company: "Alice's Awesome Company",
+      jobTitle: "CEO",
+      website: "https://alice.co",
+      socialMediaLink: "https://linkedin.com/in/alice",
+      notes: "Met at the conference, interested in collaboration."
+    },
+    {
+      id: "b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      ownerId: "d4d3c2c1-b4b9-7a3a-4e8c-8f1a0a2b3c4d",
+      cardName: "Bob's Contact Info",
+      phoneNumber: "444-555-6666",
+      emailAddress: "bob@tech.com",
+      address: "456 Oak Ave, Big City",
+      company: "Bob's Tech Solutions",
+      jobTitle: "Lead Developer",
+      website: "https://bobtech.dev",
+      socialMediaLink: "https://github.com/bobdev",
+      notes: "Looking for new projects."
+    }
+  ])
+  shareRequest_insertMany(data: [
+    {
+      id: "e1e2f3a4-b5c6-7d8e-9f0a-1b2c3d4e5f6a",
+      senderId: "c2c1b4b9-7a3a-4e8c-8f1a-0a2b3c4d5e6f",
+      recipientId: "d4d3c2c1-b4b9-7a3a-4e8c-8f1a0a2b3c4d",
+      cardToShareId: "a1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c",
+      status: "pending",
+      createdAt: "2023-10-26T10:10:00Z",
+      message: "Hey Bob, thought you might find my new business card useful!"
+    }
+  ])
+  connection_insertMany(data: [
+    {
+      sharerId: "c2c1b4b9-7a3a-4e8c-8f1a-0a2b3c4d5e6f",
+      receiverId: "d4d3c2c1-b4b9-7a3a-4e8c-8f1a0a2b3c4d",
+      sharedCardId: "a1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c",
+      createdAt: "2023-10-26T10:15:00Z",
+      notes: "Connected after Alice shared her card. Potential collaborator.",
+      isFavorite: false
+    }
+  ])
+}

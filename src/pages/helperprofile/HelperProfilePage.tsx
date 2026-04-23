@@ -115,19 +115,22 @@ const HelperProfilePage = () => {
 
   const handleShareHelper = async () => {
     if (!helper) return;
-    if (navigator.share) {
-      try {
+    const profileUrl = `https://doitto-fdce8.web.app/share/helper/${helper.id}`;
+    const shareText = `${helper.name}\n⭐ ${helper.rating} · ${helper.category}\n${helper.description?.slice(0, 120) || ''}`;
+    try {
+      if (navigator.share) {
         await navigator.share({
-          title: `${helper.name} - ${helper.title}`,
-          text: `${helper.description}\n\n⭐ Rating: ${helper.rating}`,
-          url: window.location.href,
+          title: helper.name,
+          text: shareText,
+          url: profileUrl,
         });
-      } catch (error) {
-        console.error('Error sharing:', error);
-      }
-    } else {
-        setToastMessage('Web Share API not supported in your browser.');
+      } else {
+        await navigator.clipboard.writeText(profileUrl);
+        setToastMessage('Link copied to clipboard!');
         setShowToast(true);
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
     }
   };
 

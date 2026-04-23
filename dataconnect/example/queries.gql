@@ -1,0 +1,57 @@
+mutation CreateUserCard($cardName: String!, $phoneNumber: String, $emailAddress: String, $address: String, $company: String, $jobTitle: String, $website: String, $socialMediaLink: String, $notes: String) @auth(level: USER, insecureReason: "This mutation inserts a new card for the authenticated user based on their auth.uid") {
+  card_insert(data: {
+    cardName: $cardName,
+    ownerId_expr: "auth.uid",
+    phoneNumber: $phoneNumber,
+    emailAddress: $emailAddress,
+    address: $address,
+    company: $company,
+    jobTitle: $jobTitle,
+    website: $website,
+    socialMediaLink: $socialMediaLink,
+    notes: $notes
+  })
+}
+
+query GetMyCards @auth(level: USER) {
+  cards(where: { ownerId: { eq_expr: "auth.uid" } }) {
+    id
+    cardName
+    phoneNumber
+    emailAddress
+    address
+    company
+    jobTitle
+    website
+    socialMediaLink
+    notes
+  }
+}
+
+mutation CreateShareRequest($recipientId: UUID!, $cardToShareId: UUID!, $message: String) @auth(level: USER, insecureReason: "This mutation allows a logged-in user to send a share request to another user.") {
+  shareRequest_insert(data: {
+    senderId_expr: "auth.uid",
+    recipientId: $recipientId,
+    cardToShareId: $cardToShareId,
+    status: "PENDING",
+    createdAt_expr: "request.time",
+    message: $message
+  })
+}
+
+query GetMyReceivedShareRequests @auth(level: USER) {
+  shareRequests(where: { recipientId: { eq_expr: "auth.uid" } }) {
+    id
+    sender {
+      displayName
+      email
+    }
+    cardToShare {
+      cardName
+      phoneNumber
+    }
+    status
+    createdAt
+    message
+  }
+}
