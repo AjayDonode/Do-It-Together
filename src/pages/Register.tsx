@@ -1,11 +1,23 @@
-import { IonButton, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonInput, IonItem, IonLabel, IonPage, IonRow, IonText, IonTitle, IonToolbar } from '@ionic/react';
+import {
+  IonButton,
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonText,
+  IonTitle,
+  IonToolbar,
+  IonIcon,
+  IonSpinner,
+} from '@ionic/react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { auth, db } from '../firebaseConfig';
 import './Register.css';
 import { useHistory } from 'react-router';
 import { doc, setDoc } from 'firebase/firestore';
-import { alertCircleOutline } from 'ionicons/icons';
+import { personAddOutline } from 'ionicons/icons';
+import FormField from '../components/common/FormField';
+import PasswordStrengthMeter from '../components/common/PasswordStrengthMeter';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -25,188 +37,219 @@ const Register = () => {
   });
 
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const history = useHistory();
 
-  // Validation function
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
+    const newErrors: Partial<typeof errors> = {};
 
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required.';
+      newErrors.firstName = 'First name is required';
     }
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required.';
+      newErrors.lastName = 'Last name is required';
     }
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required.';
+      newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Invalid email format.';
+      newErrors.email = 'Invalid email format';
     }
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required.';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters.';
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    } else if (!/[A-Z]/.test(formData.password)) {
+      newErrors.password = 'Password must contain an uppercase letter';
+    } else if (!/[0-9]/.test(formData.password)) {
+      newErrors.password = 'Password must contain a number';
     }
     if (!formData.confirmPassword.trim()) {
-      newErrors.confirmPassword = 'Confirm password is required.';
+      newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match.';
+      newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    setErrors(newErrors); //TODO check 
+    setErrors({
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      ...newErrors,
+    });
     return Object.keys(newErrors).length === 0;
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
-    setErrors({ ...errors, [field]: '' }); // Clear errors for the field
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateForm()) {
-      console.log('Form submitted successfully:', formData);
-    }
+    setErrors({ ...errors, [field]: '' });
   };
 
   const handleRegister = async () => {
     if (!validateForm()) {
-      return; // Prevent registration if validation fails
+      return;
     }
 
+    setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
       const user = userCredential.user;
 
-      // Save user details to Firestore
       await setDoc(doc(db, 'users', user.uid), {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         uid: user.uid,
+        createdAt: new Date(),
       });
+
       history.push('/home');
     } catch (err: any) {
       switch (err.code) {
         case 'auth/email-already-in-use':
-          setError('This email is already registered. Please use a different email.');
+          setError('This email is already registered. Try logging in instead.');
           break;
         case 'auth/invalid-email':
-          setError('The email address you entered is invalid. Please try again.');
+          setError('Invalid email address. Please check and try again.');
           break;
         case 'auth/weak-password':
-          setError('Your password is too weak. Please choose a stronger password.');
+          setError('Password is too weak. Please choose a stronger one.');
           break;
         case 'auth/operation-not-allowed':
-          setError('Registration is currently disabled. Please contact support.');
+          setError('Registration is temporarily disabled. Please try later.');
           break;
         case 'auth/network-request-failed':
-          setError('Network error. Please check your internet connection.');
+          setError('Network error. Check your Internet connection.');
           break;
         case 'auth/too-many-requests':
           setError('Too many attempts. Please try again later.');
           break;
-        case 'auth/internal-error':
-          setError('An unexpected error occurred. Please try again later.');
-          break;
         default:
           setError('Registration failed. Please try again.');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle className="ion-text-center" style={{ color: '#ff385c', fontWeight: 'bold' }}>
-          Do it To
+        <IonToolbar className="register-header">
+          <IonTitle className="ion-text-center app-title">
+            Do-It-Together
           </IonTitle>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent className="ion-padding">
-        <div className="auth-container auth-card">
+      <IonContent className="register-content">
+        <div className="auth-card">
           <div className="auth-header">
-            <IonText color="primary">
-              <h1 className="ion-text-center">Register</h1>
-            </IonText>
-            <p className="ion-text-center">Register new user</p>
+            <h1>Create Account</h1>
+            <p>Join the community and start helping others</p>
           </div>
 
           {error && (
-            <div className="error-message">
-              <IonIcon icon={alertCircleOutline} color="danger" className="error-icon" />
-              <IonText color="danger" className="error-text">
-                {error}
+            <div className="error-banner">
+              <IonIcon icon={personAddOutline} className="error-icon" />
+              <IonText>
+                <p>{error}</p>
               </IonText>
             </div>
           )}
 
-          <IonGrid>
-            <IonRow>
-              <IonCol>
-                <IonItem>
-                  <IonLabel position="floating">First Name</IonLabel>
-                  <IonInput
-                    type="text"
-                    value={formData.firstName}
-                    onIonChange={(e) => handleInputChange('firstName', e.detail.value!)}
-                  />
-                  {errors.firstName && <IonText color="danger">{errors.firstName}</IonText>}
-                </IonItem>
-              </IonCol>
-              <IonCol>
-                <IonItem>
-                  <IonLabel position="floating">Last Name</IonLabel>
-                  <IonInput
-                    type="text"
-                    value={formData.lastName}
-                    onIonChange={(e) => handleInputChange('lastName', e.detail.value!)}
-                  />
-                  {errors.lastName && <IonText color="danger">{errors.lastName}</IonText>}
-                </IonItem>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
+          <div className="form-group">
+            <div className="name-row">
+              <FormField
+                label="First Name"
+                type="text"
+                value={formData.firstName}
+                onChange={(val) => handleInputChange('firstName', val)}
+                placeholder="John"
+                required
+                error={errors.firstName}
+              />
+              <FormField
+                label="Last Name"
+                type="text"
+                value={formData.lastName}
+                onChange={(val) => handleInputChange('lastName', val)}
+                placeholder="Doe"
+                required
+                error={errors.lastName}
+              />
+            </div>
 
-          <IonItem>
-            <IonLabel position="floating">Email</IonLabel>
-            <IonInput
+            <FormField
+              label="Email Address"
               type="email"
               value={formData.email}
-              onIonChange={(e) => handleInputChange('email', e.detail.value!)}
+              onChange={(val) => handleInputChange('email', val)}
+              placeholder="you@example.com"
+              required
+              helperText="We'll verify your email"
+              error={errors.email}
             />
-            {errors.email && <IonText color="danger">{errors.email}</IonText>}
-          </IonItem>
-          <IonItem>
-            <IonLabel position="floating">Password</IonLabel>
-            <IonInput
+
+            <FormField
+              label="Password"
               type="password"
               value={formData.password}
-              onIonChange={(e) => handleInputChange('password', e.detail.value!)}
+              onChange={(val) => handleInputChange('password', val)}
+              placeholder="••••••••"
+              required
+              error={errors.password}
             />
-            {errors.password && <IonText color="danger">{errors.password}</IonText>}
-          </IonItem>
-          <IonItem>
-            <IonLabel position="floating">Confirm Password</IonLabel>
-            <IonInput
+
+            <PasswordStrengthMeter password={formData.password} />
+
+            <FormField
+              label="Confirm Password"
               type="password"
               value={formData.confirmPassword}
-              onIonChange={(e) => handleInputChange('confirmPassword', e.detail.value!)}
+              onChange={(val) => handleInputChange('confirmPassword', val)}
+              placeholder="••••••••"
+              required
+              error={errors.confirmPassword}
             />
-            {errors.confirmPassword && <IonText color="danger">{errors.confirmPassword}</IonText>}
-          </IonItem>
+          </div>
+
           <IonButton
             expand="block"
             onClick={handleRegister}
-            className="auth-button"
+            className="register-button"
+            disabled={loading}
           >
-            Register
+            {loading ? (
+              <>
+                <IonSpinner name="dots" /> Creating Account...
+              </>
+            ) : (
+              <>
+                <IonIcon slot="start" icon={personAddOutline} />
+                Create Account
+              </>
+            )}
           </IonButton>
-          <p className="auth-footer">
-            Already have an account? <a href="/login">Login</a>
-          </p>
+
+          <div className="auth-footer ion-text-center">
+            <p>
+              Already have an account?{' '}
+              <a href="/login" className="login-link">Sign in</a>
+            </p>
+          </div>
+
+          <div className="terms-text">
+            <p>
+              By creating an account, you agree to our{' '}
+              <a href="#" className="link">Terms of Service</a> and{' '}
+              <a href="#" className="link">Privacy Policy</a>
+            </p>
+          </div>
         </div>
       </IonContent>
     </IonPage>

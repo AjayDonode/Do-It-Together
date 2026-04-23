@@ -6,7 +6,6 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  IonSearchbar,
   IonButton,
   IonGrid,
   IonRow,
@@ -24,14 +23,14 @@ import {
   IonToast,
   IonText,
 } from '@ionic/react';
-import { pin, warning } from 'ionicons/icons';
+import { pin, warning, search, brushOutline, hammerOutline, cubeOutline, leafOutline, waterOutline, flashOutline, colorFillOutline, constructOutline, laptopOutline, carOutline } from 'ionicons/icons';
 import './Home.css';
 import { useHistory } from 'react-router';
 import ModalHelperDetails from './modals/ModalHelperDetails';
 import { useAuth } from '../context/AuthContext';
 import { getAuth, signOut } from 'firebase/auth';
 import * as HelperService from '../services/HelperService'; // Import your HelperService
-import HelperSwiper from '../components/HelperSwiper/HelperSwiper';
+import StackedCards from '../components/StackedCards/StackedCards';
 import { Helper } from '../models/Helper';
 import ShareModal from '../components/sharemodal/ShareModal';
 
@@ -128,72 +127,10 @@ const handleShareClick = (helper: Helper) => {
 
   return (
     <>
-      <IonMenu contentId="main-content" side="start">
-        <IonHeader>
-          <IonToolbar className="menu-header">
-            {currentUser ? (
-              <>
-                <IonAvatar slot="start">
-                  <img
-                    src={currentUser.photoURL || 'https://www.gravatar.com/avatar?d=mp'}
-                    alt="User Avatar"
-                  />
-                </IonAvatar>
-                <div className="menu-user-info">
-                  <IonLabel className="menu-welcome">
-                    {currentUser.displayName || currentUser.email}
-                  </IonLabel>
-                  <IonLabel className="menu-email">
-                    {currentUser.email}
-                  </IonLabel>
-                </div>
-              </>
-            ) : (
-              <IonItem>
-                <IonAvatar slot="start">
-                  <img src="https://www.gravatar.com/avatar?d=mp" alt="Guest Avatar" />
-                </IonAvatar>
-                <IonLabel className="menu-welcome">Welcome, Guest!</IonLabel>
-              </IonItem>
-            )}
-          </IonToolbar>
-        </IonHeader>
-        <IonContent>
-          <IonList>
-            {currentUser ? (
-              <IonMenuToggle autoHide={false}>
-                <IonItem button onClick={() => navigateToPage('mycards')}>
-                  <IonLabel>My Cards</IonLabel>
-                </IonItem>
-                <IonItem button onClick={() => navigateToPage('profile')}>
-                  <IonLabel>Profile</IonLabel>
-                </IonItem>
-                <IonItem button onClick={() => navigateToPage('settings')}>
-                  <IonLabel>Settings</IonLabel>
-                </IonItem>
-                <IonItem button onClick={handleLogout}>
-                  <IonLabel>Logout</IonLabel>
-                </IonItem>
-              </IonMenuToggle>
-            ) : (
-              <IonMenuToggle autoHide={false}>
-                <IonItem button onClick={() => navigateToPage('login')}>
-                  <IonLabel>Login</IonLabel>
-                </IonItem>
-                <IonItem button onClick={() => navigateToPage('register')}>
-                  <IonLabel>Sign Up</IonLabel>
-                </IonItem>
-              </IonMenuToggle>
-            )}
-          </IonList>
-        </IonContent>
-      </IonMenu>
-
       <IonPage id="main-content">
         <IonHeader>
           <IonToolbar>
-            <IonMenuButton slot="start" />
-            <IonTitle className="ion-text-center" style={{ color: '#ff385c', fontWeight: 'bold' }}>
+            <IonTitle className="ion-text-center" color="primary" style={{ fontWeight: 'bold' }}>
               Do it To
             </IonTitle>
           </IonToolbar>
@@ -209,36 +146,88 @@ const handleShareClick = (helper: Helper) => {
             <IonGrid className="search-grid">
               <IonRow className="search-row">
                 <IonCol size="12" className="search-col">
-                  <div className="search-field">
-                    <IonSearchbar
-                      placeholder="Describe your project"
-                      className="custom-searchbar"
-                      value={searchString}
-                      onIonInput={(e) => setSearchString(e.target.value || '')}
-                    />
-                    <div className="zipcode-container">
-                      <IonIcon icon={pin} className="zipcode-icon" />
+                  <div className="search-field search-bar">
+                    <div className="search-bar-input">
+                      <IonIcon icon={search} className="search-input-icon" />
                       <IonInput
-                        placeholder="Zipcode"
-                        className="zipcode-input"
-                        value={zipcode}
-                        onIonInput={(e) => setZipcode(String(e.target.value))} // Default to empty string
-                        required
+                        placeholder="What are you looking for?"
+                        className="search-text-input"
+                        value={searchString}
+                        onIonInput={(e) => setSearchString(e.detail.value as string || '')}
                       />
                     </div>
-                   
-                  </div>
-                  <div> <IonButton
+
+                    <div className="search-divider" />
+
+                    <div className="search-bar-location">
+                      <IonIcon icon={pin} className="location-icon" />
+                      <IonInput
+                        placeholder="City or Zip code"
+                        className="location-input"
+                        value={zipcode}
+                        onIonInput={(e) => setZipcode(String(e.target.value))}
+                      />
+                    </div>
+
+                    <IonButton
                       color="danger"
                       className="search-button"
                       onClick={() => handleSearch(searchString, zipcode)}
                     >
-                      Search
-                    </IonButton></div>
+                      Go
+                    </IonButton>
+                  </div>
                 </IonCol>
               </IonRow>
             </IonGrid>
           </div>
+          
+          <div className="categories-container">
+            <h2 className="categories-title">Browse Categories</h2>
+            <div className="categories-grid">
+              <div className="category-card" onClick={() => handleSearch('Cleaning', zipcode)}>
+                <IonIcon icon={brushOutline} className="category-icon" />
+                <span>Cleaning</span>
+              </div>
+              <div className="category-card" onClick={() => handleSearch('Handyman', zipcode)}>
+                <IonIcon icon={hammerOutline} className="category-icon" />
+                <span>Handyman</span>
+              </div>
+              <div className="category-card" onClick={() => handleSearch('Moving', zipcode)}>
+                <IonIcon icon={cubeOutline} className="category-icon" />
+                <span>Moving</span>
+              </div>
+              <div className="category-card" onClick={() => handleSearch('Gardening', zipcode)}>
+                <IonIcon icon={leafOutline} className="category-icon" />
+                <span>Gardening</span>
+              </div>
+              <div className="category-card" onClick={() => handleSearch('Plumbing', zipcode)}>
+                <IonIcon icon={waterOutline} className="category-icon" />
+                <span>Plumbing</span>
+              </div>
+              <div className="category-card" onClick={() => handleSearch('Electrical', zipcode)}>
+                <IonIcon icon={flashOutline} className="category-icon" />
+                <span>Electrical</span>
+              </div>
+              <div className="category-card" onClick={() => handleSearch('Painting', zipcode)}>
+                <IonIcon icon={colorFillOutline} className="category-icon" />
+                <span>Painting</span>
+              </div>
+              <div className="category-card" onClick={() => handleSearch('Assembly', zipcode)}>
+                <IonIcon icon={constructOutline} className="category-icon" />
+                <span>Assembly</span>
+              </div>
+              <div className="category-card" onClick={() => handleSearch('Tech Support', zipcode)}>
+                <IonIcon icon={laptopOutline} className="category-icon" />
+                <span>Tech Support</span>
+              </div>
+              <div className="category-card" onClick={() => handleSearch('Delivery', zipcode)}>
+                <IonIcon icon={carOutline} className="category-icon" />
+                <span>Delivery</span>
+              </div>
+            </div>
+          </div>
+          
           <div>
             {hasSearched && helpers.length === 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
@@ -248,7 +237,7 @@ const handleShareClick = (helper: Helper) => {
                 </IonText>
               </div>
             ) : (
-              <HelperSwiper header="Featured Helpers" helpers={helpers} onHelperClick={handleHelperClick} />
+              <StackedCards header="Featured Helpers" helpers={helpers} onHelperClick={handleHelperClick} />
             )}
           </div>
 

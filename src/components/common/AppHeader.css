@@ -1,0 +1,58 @@
+/* src/components/common/AppHeader.css */
+
+.app-header {
+  --background: var(--color-bg-primary);
+  --border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-header ion-toolbar {
+  background-color: var(--color-bg-primary);
+}
+
+.header-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.icon-button {
+  --color: var(--color-text-secondary);
+  --padding-top: var(--spacing-md);
+  --padding-bottom: var(--spacing-md);
+  --padding-start: var(--spacing-md);
+  --padding-end: var(--spacing-md);
+  transition: all var(--transition-fast);
+}
+
+.icon-button:hover {
+  --color: var(--color-primary);
+}
+
+.back-button {
+  --color: var(--color-primary);
+  --icon-font-size: var(--font-size-2xl);
+}
+
+@media (max-width: 768px) {
+  .header-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .header-actions {
+    gap: var(--spacing-xs);
+  }
+
+  .icon-button {
+    --padding-top: var(--spacing-sm);
+    --padding-bottom: var(--spacing-sm);
+    --padding-start: var(--spacing-sm);
+    --padding-end: var(--spacing-sm);
+  }
+}

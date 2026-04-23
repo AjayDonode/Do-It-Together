@@ -53,12 +53,21 @@
   background-color: #f0f0f0;
 }
 
+.swiper-container {
+  padding-bottom: 8px;
+}
+
 .swiper-slide {
-  height: 320px;
+  height: auto;
   display: flex;
   align-items: stretch;
-  padding: 5px;
+  padding: 0;
   box-sizing: border-box;
+}
+
+.swiper-slide .mini-card {
+  margin: 0;
+  width: 100%;
 }
 
 .helper-card {

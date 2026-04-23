@@ -22,7 +22,8 @@ import {
 import './Profile.css';
 import { useAuth } from '../../context/AuthContext';
 import { useHistory } from 'react-router';
-import { arrowBackOutline, createOutline } from 'ionicons/icons';
+import { arrowBackOutline, createOutline, logOutOutline } from 'ionicons/icons';
+import { getAuth, signOut } from 'firebase/auth';
 import UserProfileService from '../../services/UserProfileService';
 import EditProfileModal from './EditProfileModal';
 import { UserProfile, Address } from '../../models/UserProfile'; // Assuming renamed as per previous fix
@@ -49,6 +50,16 @@ const Profile: React.FC = () => {
 
   const handleBackToHome = () => {
     history.push('/home');
+  };
+
+  const handleLogout = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+      history.push('/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   useEffect(() => {
@@ -109,9 +120,12 @@ const Profile: React.FC = () => {
           <IonButton slot="start" fill="clear" onClick={handleBackToHome}>
             <IonIcon icon={arrowBackOutline} style={{ fontSize: '20px', marginRight: '8px' }} />
           </IonButton>
-          <IonTitle className="ion-text-left" style={{ color: '#ff385c', fontWeight: 'bold' }} >
+          <IonTitle className="ion-text-left" color="primary" style={{ fontWeight: 'bold' }} >
             Profile
           </IonTitle>
+          <IonButton slot="end" fill="clear" color="danger" onClick={handleLogout}>
+            <IonIcon icon={logOutOutline} />
+          </IonButton>
         </IonToolbar>
       </IonHeader>
 

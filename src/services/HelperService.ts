@@ -4,12 +4,14 @@ import { db } from '../firebaseConfig';
 
 const helperCollection = collection(db, 'helpers');
 
-export const createHelper = async (helper: Helper): Promise<void> => {
+export const createHelper = async (helper: Helper): Promise<string> => {
   try {
-    await addDoc(helperCollection, helper);
-    console.log('Helper added successfully');
+    const docRef = await addDoc(helperCollection, helper);
+    console.log('Helper added successfully with ID:', docRef.id);
+    return docRef.id;
   } catch (error) {
     console.error('Error adding helper:', error);
+    throw error;
   }
 };
 

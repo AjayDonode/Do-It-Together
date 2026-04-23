@@ -29,12 +29,14 @@ const HelperSwiper: React.FC<HelperSwiperProps> = ({ header, helpers, onHelperCl
       <Swiper
         onSwiper={(swiper) => (swiperRef.current = swiper)}
         modules={[Navigation]}
-        spaceBetween={20}
-        slidesPerView={1}
+        spaceBetween={8}
+        slidesPerView={3}
         breakpoints={{
-          640: { slidesPerView: 2 },
-          768: { slidesPerView: 3 },
-          1024: { slidesPerView: 4 },
+          320: { slidesPerView: 3, spaceBetween: 6 },
+          420: { slidesPerView: 3, spaceBetween: 8 },
+          540: { slidesPerView: 3.5, spaceBetween: 10 },
+          680: { slidesPerView: 4, spaceBetween: 10 },
+          1024: { slidesPerView: 4.5, spaceBetween: 14 },
         }}
         className="swiper-container"
       >

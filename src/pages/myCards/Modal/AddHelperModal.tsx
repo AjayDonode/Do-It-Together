@@ -23,31 +23,39 @@ import {
   IonSelectOption,
 } from '@ionic/react';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useAuth } from '../../../context/AuthContext';
 import { Helper } from '../../../models/Helper';
 import * as HelperService from '../../../services/HelperService'; // Adjust the path as necessary
-import { add, close, pencilOutline } from 'ionicons/icons';
+import { 
+  add, close, brushOutline, hammerOutline, cubeOutline, leafOutline, 
+  waterOutline, flashOutline, colorFillOutline, constructOutline, 
+  laptopOutline, carOutline, informationCircleOutline 
+} from 'ionicons/icons';
 import './AddHelperModal.css'; // Import your CSS file
 
 interface AddHelperModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddHelper: (helper: Helper) => void;
+  initialMode?: 'search' | 'create';
 }
 
-const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddHelper }) => {
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [foundHelpers, setFoundHelpers] = useState<Helper[]>([]);
+const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddHelper, initialMode = 'search' }) => {
+  const { currentUser } = useAuth();
   const [newHelperName, setNewHelperName] = useState<string>('');
   const [contactNumber, setContactNumber] = useState<string>('');
   const [contactMail, setContactmail] = useState<string>('');
+  const [foundHelpers, setFoundHelpers] = useState<Helper[]>([]);
+  const [showAutocomplete, setShowAutocomplete] = useState<boolean>(false);
+  const [searching, setSearching] = useState<boolean>(false);
+  const [showCategoryModal, setShowCategoryModal] = useState<boolean>(false);
 
   const [newHelperAvatar, setNewHelperAvatar] = useState<string>('/images/default-avatar.png'); // Default from public/images
   const [newHelperInfo, setNewHelperInfo] = useState<string>('');
   const [newHelperBanner, setNewHelperBanner] = useState<string>('/images/default-banner.jpg'); // Default from public/images
   const [newHelperCategory, setNewHelperCategory] = useState<string>('');
   const [newHelperRating, setNewHelperRating] = useState<number>(0);
-  const [searching, setSearching] = useState<boolean>(false);
-  const [showInputForm, setShowInputForm] = useState<boolean>(false); // New state for input form visibility
+  
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
   const bannerFileInputRef = useRef<HTMLInputElement>(null);
   const [filteredCategories, setFilteredCategories] = useState<{ value: string; label: string }[]>([]); // Specify type for filteredCategories
@@ -80,23 +88,31 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
 
   useEffect(() => {
     if (isOpen) {
-      setSearchTerm('');
-      setFoundHelpers([]);
       setNewHelperName('');
+      setFoundHelpers([]);
+      setShowAutocomplete(false);
       setContactNumber('');
       setContactmail('');
       setNewHelperAvatar(getRandomDefaultImage());
       setNewHelperBanner(getRandomDefaultBanner());
       setNewHelperCategory('');
       setNewHelperRating(0);
-      setShowInputForm(false); // Reset to hide input form
+      setZipCodes(currentUser?.address?.zip ? [currentUser.address.zip] : []);
     }
-  }, [isOpen]);
+  }, [isOpen, currentUser]);
+
+  useEffect(() => {
+    if (newHelperCategory) {
+      // Basic category to avatar mapping (fallback to a default if category image doesn't exist)
+      setNewHelperAvatar(`./images/users/${newHelperCategory.toLowerCase().replace(/\s+/g, '')}_1.png`);
+    }
+  }, [newHelperCategory]);
 
   useEffect(() => {
     const loadHelpers = async () => {
-      if (searchTerm.trim() === '') {
+      if (newHelperName.trim().length < 3) {
         setFoundHelpers([]);
+        setShowAutocomplete(false);
         return;
       }
 
@@ -104,9 +120,10 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
       try {
         const helpers = await HelperService.getHelpers();
         const filteredHelpers = helpers.filter(helper =>
-          helper.name.toLowerCase().includes(searchTerm.toLowerCase())
+          helper.name.toLowerCase().includes(newHelperName.toLowerCase())
         );
         setFoundHelpers(filteredHelpers);
+        setShowAutocomplete(true);
       } catch (error) {
         console.error('Error searching helpers:', error);
       } finally {
@@ -117,7 +134,7 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
     const debounceLoadHelpers = setTimeout(loadHelpers, 300); // Debounce for better performance
 
     return () => clearTimeout(debounceLoadHelpers);
-  }, [searchTerm]);
+  }, [newHelperName]);
 
   const handleAddNewHelper = async () => {
     if (newHelperName.trim() !== '') {
@@ -133,11 +150,15 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
         description: '',
         ratingCount: 0,
         reviews: [],
-        zipcodes: zipcodes 
+        zipcodes: zipcodes,
+        email: contactMail,
+        contact: contactNumber,
+        tags: []
       };
 
       try {
-        await HelperService.createHelper(newHelper);
+        const generatedId = await HelperService.createHelper(newHelper);
+        newHelper.id = generatedId; // Ensure we pass the real Firebase document ID
         onAddHelper(newHelper);
         // Reset fields after adding
         setNewHelperName('');
@@ -155,84 +176,18 @@ const AddHelperModal: React.FC<AddHelperModalProps> = ({ isOpen, onClose, onAddH
     }
   };
 
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      try {
-        const avatarRef = storageRef(storage, `avatars/${Date.now()}_${file.name}`);
-        await uploadBytes(avatarRef, file);
-        const url = await getDownloadURL(avatarRef);
-        setNewHelperAvatar(url);
-      } catch (error) {
-        console.error('Error uploading avatar:', error);
-      }
-    }
-  };
-
-  const handleBannerUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      try {
-        const bannerRef = storageRef(storage, `banners/${Date.now()}_${file.name}`);
-        await uploadBytes(bannerRef, file);
-        const url = await getDownloadURL(bannerRef);
-        setNewHelperBanner(url);
-      } catch (error) {
-        console.error('Error uploading banner:', error);
-      }
-    }
-  };
-
-  const triggerAvatarUpload = () => {
-    avatarFileInputRef.current?.click();
-  };
-
-  const triggerBannerUpload = () => {
-    bannerFileInputRef.current?.click();
-  };
-
   const categories = [
-    { value: '1', label: 'Handiman' },
-    { value: '2', label: 'Plumber' },
-    { value: '3', label: 'Electician' },
-    { value: '4', label: 'Carpenter' },
-    { value: '5', label: 'Cabinates' },
-    { value: '6', label: 'Landscaping' },
-    // Add more categories as needed
+    { value: 'cleaning', label: 'Cleaning', icon: brushOutline },
+    { value: 'handyman', label: 'Handyman', icon: hammerOutline },
+    { value: 'moving', label: 'Moving', icon: cubeOutline },
+    { value: 'gardening', label: 'Gardening', icon: leafOutline },
+    { value: 'plumbing', label: 'Plumbing', icon: waterOutline },
+    { value: 'electrical', label: 'Electrical', icon: flashOutline },
+    { value: 'painting', label: 'Painting', icon: colorFillOutline },
+    { value: 'assembly', label: 'Assembly', icon: constructOutline },
+    { value: 'techsupport', label: 'Tech Support', icon: laptopOutline },
+    { value: 'delivery', label: 'Delivery', icon: carOutline },
   ];
-
-  const handleInputChange = (value: string | null | undefined) => {
-    //const value = e.target.value;
-    setNewHelperCategory(newHelperCategory);
-
-    // Filter categories based on input
-    const filtered = categories.filter(category =>
-      category.label.toLowerCase().includes(newHelperCategory.toLowerCase())
-    );
-    setFilteredCategories(filtered);
-  };
-
-  const handleCategorySelect = (category: { value: string; label: string }) => {
-    setNewHelperCategory(category.label);
-    setFilteredCategories([]); // Clear suggestions
-  };
-
-  const handleZipCodeChange = (index: number, value: string) => {
-    const newAreaCodes = [...zipcodes]; // Create a copy of the current area codes
-    newAreaCodes[index] = value; // Update the area code at the specified index
-    setZipCodes(newAreaCodes); // Update the state with the new area codes
-};
-
-// Function to remove an area code from the list
-const removeZipCode = (index: number) => {
-    const newAreaCodes = zipcodes.filter((_, i) => i !== index); // Remove the area code at the specified index
-    setZipCodes(newAreaCodes); // Update the state with the new area codes
-};
-
-// Function to add a new area code input field
-const addZipCode = () => {
-    setZipCodes([...zipcodes, '']); // Add an empty string for a new area code
-};
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onClose}>
@@ -247,149 +202,146 @@ const addZipCode = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="modal-content">
-        {!showInputForm ? (
-          <>
-            <div className="search-container">
-              <IonSearchbar
-                className="search-bar"
-                showClearButton="focus"
-                value={searchTerm}
-                placeholder="Search for a helper..."
-                onIonChange={(e) => setSearchTerm(e.detail.value!)}
+        <div className="input-form slide-in">
+          <div className="banner-avatar-container">
+            <div className="banner-wrapper">
+              <img
+                className="modal-banner"
+                src={newHelperBanner}
+                alt="Banner"
               />
-              <IonButton color="danger" onClick={() => setShowInputForm(true)}>
-                <IonIcon icon={add} />
-              </IonButton>
             </div>
-            <IonList>
-              {searching ? (
-                <IonText color="medium">
-                  <p>Searching...</p>
-                </IonText>
-              ) : foundHelpers.length > 0 ? (
-                foundHelpers.map((helper) => (
-                  <IonItem
-                    key={helper.id}
-                    button
-                    onClick={() => onAddHelper(helper)}
-                  >
-                    <IonCard>
-                      <IonCardContent>
-                        <h3>{helper.name}</h3>
-                      </IonCardContent>
-                    </IonCard>
-                  </IonItem>
-                ))
-              ) : (
-                <IonText color="medium">
-                  <p>No helpers found. You can add a new helper below.</p>
-                </IonText>
-              )}
-            </IonList>
-          </>
-        ) : (
-          <div className="input-form slide-in">
-            <div className="banner-avatar-container">
-              <div className="banner-wrapper">
-                <img
-                  className="modal-banner"
-                  src={newHelperBanner}
-                  alt="Banner"
-                />
-                <IonButton fill="clear" className="edit-banner" onClick={triggerBannerUpload}>
-                  <IonIcon icon={pencilOutline} />
-                </IonButton>
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={bannerFileInputRef}
-                  style={{ display: 'none' }}
-                  onChange={handleBannerUpload}
-                />
-              </div>
-              <div className="avatar-wrapper">
-                <IonAvatar className="modal-avatar">
-                  <img src={newHelperAvatar} alt="Avatar" />
-                </IonAvatar>
-                <IonButton fill="clear" className="edit-avatar" onClick={triggerAvatarUpload}>
-                  <IonIcon icon={pencilOutline} />
-                </IonButton>
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={avatarFileInputRef}
-                  style={{ display: 'none' }}
-                  onChange={handleAvatarUpload}
-                />
-              </div>
+            <div className="avatar-wrapper">
+              <img className="modal-avatar" src={newHelperAvatar} alt="Avatar" />
             </div>
+          </div>
 
+          <div className="autocomplete-container">
             <IonInput
               value={newHelperName}
               label="Name / Company Name"
               labelPlacement="floating"
               onIonChange={(e) => setNewHelperName(e.detail.value!)}
               className="form-input"
+              placeholder="Start typing to search..."
             />
+            {showAutocomplete && (searching || foundHelpers.length > 0) && (
+              <div className="autocomplete-dropdown">
+                {searching ? (
+                  <div className="autocomplete-empty">Searching...</div>
+                ) : (
+                  foundHelpers.map((helper) => (
+                    <div
+                      key={helper.id}
+                      className="autocomplete-item"
+                      onClick={() => {
+                        onAddHelper(helper);
+                        onClose();
+                      }}
+                    >
+                      <img src={helper.avatar} alt={helper.name} className="autocomplete-avatar" />
+                      <div className="autocomplete-details">
+                        <h4 className="autocomplete-name">{helper.name}</h4>
+                        <p className="autocomplete-category">{helper.category}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+            {showAutocomplete && !searching && foundHelpers.length === 0 && (
+              <div className="autocomplete-warning-tooltip">
+                <IonIcon icon={informationCircleOutline} />
+                <span>No matching contacts found. Keep typing to create a new one!</span>
+              </div>
+            )}
+          </div>
 
-            <IonInput type="tel" placeholder="888-888-8888"
-              value={contactNumber}
-              label="Contact Number"
-              labelPlacement="floating"
-              onIonChange={(e) => setContactNumber(e.detail.value!)}
-              className="form-input"
-            />
+          <IonInput type="tel" placeholder="888-888-8888"
+            value={contactNumber}
+            label="Contact Number"
+            labelPlacement="floating"
+            onIonChange={(e) => setContactNumber(e.detail.value!)}
+            className="form-input"
+          />
 
-            <IonInput type="email" placeholder="email@domain.com"
-              value={contactMail}
-              label="Email"
-              labelPlacement="floating"
-              onIonChange={(e) => setContactmail(e.detail.value!)}
-              className="form-input"
-            />
+          <IonInput type="email" placeholder="email@domain.com"
+            value={contactMail}
+            label="Email"
+            labelPlacement="floating"
+            onIonChange={(e) => setContactmail(e.detail.value!)}
+            className="form-input"
+          />
 
-             <IonLabel>Area Codes</IonLabel>
-            {zipcodes.map((code, index) => (
-              <IonItem key={index}>
-                <IonInput
-                  value={code}
-                  placeholder="Enter area code"
-                  onIonChange={(e) => handleZipCodeChange(index, e.detail.value!)}
-                />
-                <IonButton onClick={() => removeZipCode(index)} color="danger">
-                  Remove
-                </IonButton>
-              </IonItem>
-            ))}
-            <IonButton onClick={addZipCode} expand="full">
-              Add Area Code
-            </IonButton>
+          <IonInput
+            value={zipcodes.join(', ')}
+            label="Service Areas (Zip Codes)"
+            labelPlacement="floating"
+            placeholder="e.g. 90210, 90211"
+            onIonChange={(e) => {
+              const val = e.detail.value || '';
+              setZipCodes(val.split(',').map(z => z.trim()).filter(z => z));
+            }}
+            className="form-input"
+          />
 
-            <IonItem>
-              <IonSelect label="Select Category" labelPlacement="floating">
-                {categories.map((category) => (
-                  <IonSelectOption key={category.value} value={category.value}>
-                    {category.label}
-                  </IonSelectOption>
-                ))}
-              </IonSelect>
-            </IonItem>
-            //Add zip input here 
-            <IonTextarea
-              value={newHelperInfo}
-              labelPlacement="floating"
-              placeholder="Enter info"
-              onIonChange={(e) => setNewHelperInfo(e.detail.value!)}
-              className="form-input"
-              maxlength={500} // Set maximum length to 500 characters
-              rows={5} // Adjust the number of visible rows as needed
-            />
-            <div className="form-buttons">
-              <IonButton onClick={handleAddNewHelper} color="primary">Save Helper</IonButton>
-              <IonButton onClick={() => setShowInputForm(false)} color="light">Cancel</IonButton>
+          <div 
+            className="form-input custom-select-button" 
+            onClick={() => setShowCategoryModal(true)}
+          >
+            <IonLabel color="medium" position="stacked">Category</IonLabel>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
+              <span style={{ fontSize: '16px', color: newHelperCategory ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}>
+                {newHelperCategory || 'Select a Category'}
+              </span>
+              <IonIcon icon={newHelperCategory ? categories.find(c => c.label === newHelperCategory)?.icon : add} />
             </div>
           </div>
-        )}
+
+          <IonModal
+            isOpen={showCategoryModal}
+            onDidDismiss={() => setShowCategoryModal(false)}
+            initialBreakpoint={0.65}
+            breakpoints={[0, 0.65, 0.9]}
+            className="category-sheet-modal"
+          >
+            <div style={{ padding: '24px 16px' }}>
+              <h2 style={{ marginTop: 0, marginBottom: '16px', fontSize: '20px', fontWeight: 'bold' }}>Select Category</h2>
+              <div className="modal-categories-grid">
+                {categories.map((category) => (
+                  <div 
+                    key={category.value}
+                    className={`modal-category-card ${newHelperCategory === category.label ? 'selected' : ''}`}
+                    onClick={() => {
+                      setNewHelperCategory(category.label);
+                      setShowCategoryModal(false);
+                    }}
+                  >
+                    <div className="modal-icon-bg">
+                      <IonIcon icon={category.icon} className="modal-category-icon" />
+                    </div>
+                    <span>{category.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </IonModal>
+          
+          <IonTextarea
+            value={newHelperInfo}
+            labelPlacement="floating"
+            label="Description"
+            placeholder="Enter info"
+            onIonChange={(e) => setNewHelperInfo(e.detail.value!)}
+            className="form-input"
+            maxlength={500}
+            rows={4}
+          />
+          <div className="form-buttons">
+            <IonButton onClick={handleAddNewHelper} color="primary">Save Contact</IonButton>
+            <IonButton onClick={onClose} fill="outline" color="medium">Cancel</IonButton>
+          </div>
+        </div>
       </IonContent>
     </IonModal>
   );

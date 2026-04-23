@@ -15,13 +15,13 @@ import {
 import './MyCards.css';
 import { useAuth } from '../../context/AuthContext';
 import { useHistory } from 'react-router';
-import { add, arrowBackOutline, checkmark } from 'ionicons/icons';
+import { add, arrowBackOutline, checkmark, searchOutline, addCircleOutline, createOutline, folderOpenOutline, personAddOutline, menuOutline } from 'ionicons/icons';
 import { Helper } from '../../models/Helper';
 import AddHelperModal from './Modal/AddHelperModal';
 import { CardHolder } from '../../models/CardHolder';
 import { createCardHolder, getCardHolders, addHelperToCardHolder } from '../../services/CardHolderService';
 import * as HelperService from '../../services/HelperService';
-import HelperSwiper from '../../components/HelperSwiper/HelperSwiper';
+import MiniCard from '../../components/mini-card/mini-card';
 
 const MyCards: React.FC = () => {
   const { currentUser } = useAuth();
@@ -30,8 +30,10 @@ const MyCards: React.FC = () => {
   const [cardHolders, setCardHolders] = useState<CardHolder[]>([]);
   const [newCardHolderName, setNewCardHolderName] = useState<string>('');
   const [isAddingCardHolder, setIsAddingCardHolder] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [helpers, setDisplayedHelpers] = useState<Helper[]>([]);
   const [isAddHelperModalOpen, setIsAddHelperModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'search' | 'create'>('search');
   const [selectedCardHolder, setSelectedCardHolder] = useState<CardHolder | null>(null);
 
   useEffect(() => {
@@ -94,7 +96,19 @@ const MyCards: React.FC = () => {
     if (selectedCardHolder && helper.id) {
       try {
         await addHelperToCardHolder(selectedCardHolder.id, helper.id);
-        fetchHelpersForCardHolder(selectedCardHolder);
+        
+        // Optimistically update the UI state
+        const updatedCardHolder = {
+          ...selectedCardHolder,
+          helperIds: [...(selectedCardHolder.helperIds || []), helper.id]
+        };
+        
+        setSelectedCardHolder(updatedCardHolder);
+        setDisplayedHelpers(prev => [...prev, helper]);
+        setCardHolders(prevHolders => prevHolders.map(ch => 
+          ch.id === updatedCardHolder.id ? updatedCardHolder : ch
+        ));
+
       } catch (error) {
         console.error("Error adding helper to card holder:", error);
       }
@@ -108,7 +122,7 @@ const MyCards: React.FC = () => {
   };
 
   const handleHelperClick = (helper: Helper) => {
-    history.push(`/helper/${helper.id}`);
+    history.push(`/helper-profile/${helper.id}`);
   };
 
 
@@ -122,74 +136,104 @@ const MyCards: React.FC = () => {
           <IonTitle className="ion-text-center" style={{ color: '#ff385c', fontWeight: 'bold' }}>
             My Cards
           </IonTitle>
+          <IonButton slot="end" fill="clear" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+            <IonIcon icon={menuOutline} style={{ fontSize: '24px', color: 'var(--color-primary, #ff385c)' }} />
+          </IonButton>
         </IonToolbar>
       </IonHeader>
 
-      <IonContent fullscreen>
+      <IonContent fullscreen className="my-cards-page-content">
         <div className="my-cards-container">
-          {/* Vertical Menu */}
-          <div className="my-cards-menu">
-            <IonList>
-              {cardHolders.map((cardHolder) => (
-                <IonItem
-                  key={cardHolder.id}
-                  button
-                  onClick={() => handleSelectCardHolder(cardHolder)}
-                  style={selectedCardHolder?.id === cardHolder.id ? { fontWeight: 'bold' } : {}}
-                >
-                  {cardHolder.name}
-                </IonItem>
-              ))}
+          
+          {/* Mobile Overlay Backdrop */}
+          <div 
+            className={`sidebar-backdrop ${isSidebarOpen ? 'visible' : ''}`}
+            onClick={() => setIsSidebarOpen(false)}
+          ></div>
+
+          {/* Sliding Vertical Sidebar */}
+          <div className={`my-cards-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+            
+            <div className="sidebar-footer">
               {isAddingCardHolder ? (
-                <IonItem>
+                <div style={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '8px', padding: '4px' }}>
                   <IonInput
                     value={newCardHolderName}
                     onIonChange={(e) => setNewCardHolderName(e.detail.value!)}
-                    placeholder="New collection"
+                    placeholder="Collection Name"
+                    style={{ '--padding-start': '8px', fontSize: '14px' }}
                   />
-                  <IonButton onClick={handleAddCardHolder}>
+                  <IonButton fill="clear" size="small" onClick={handleAddCardHolder}>
                     <IonIcon icon={checkmark} />
                   </IonButton>
-                </IonItem>
+                </div>
               ) : (
-                <IonItem button onClick={() => setIsAddingCardHolder(true)}>
-                  <IonIcon icon={add} slot="start" />
-                  Add Collection
-                </IonItem>
+                <button className="sidebar-action-btn btn-secondary" onClick={() => setIsAddingCardHolder(true)}>
+                  <IonIcon icon={add} /> New Collection
+                </button>
               )}
-            </IonList>
+
+            </div>
+
+            <div className="sidebar-list">
+              {cardHolders.map((cardHolder) => (
+                <div
+                  key={cardHolder.id}
+                  className={`sidebar-item ${selectedCardHolder?.id === cardHolder.id ? 'active' : ''}`}
+                  onClick={() => {
+                    handleSelectCardHolder(cardHolder);
+                    setIsSidebarOpen(false); // Auto-close on mobile after selection
+                  }}
+                >
+                  <IonIcon icon={folderOpenOutline} />
+                  {cardHolder.name}
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Main Content */}
+          {/* Main Content (Grid) */}
           <div className="my-cards-content">
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <h2 style={{ marginRight: '8px' }}>{selectedCardHolder?.name || 'Select a collection'}</h2>
+            <div className="collection-header">
+              <h2 className="collection-title">{selectedCardHolder?.name || 'Select a collection'}</h2>
               {selectedCardHolder && (
-                <IonButton onClick={() => setIsAddHelperModalOpen(true)} fill="clear">
-                  <IonIcon icon={add} />
+                <IonButton 
+                  onClick={() => {
+                    setModalMode('search');
+                    setIsAddHelperModalOpen(true);
+                  }}
+                  color="primary"
+                  shape="round"
+                  style={{ fontWeight: 'bold' }}
+                >
+                  <IonIcon icon={add} slot="start" />
+                  Add Card
                 </IonButton>
               )}
             </div>
-            <div className="card-section">
-                {helpers.length > 0 && selectedCardHolder ? (
-                    <HelperSwiper
-                        header={selectedCardHolder.name}
-                        helpers={helpers}
-                        onHelperClick={handleHelperClick}
-                    />
-                ) : (
-                    <p>No helpers in this collection yet.</p>
-                )}
-            </div>
+            
+            {helpers.length > 0 && selectedCardHolder ? (
+              <div className="helper-grid">
+                {helpers.map(helper => (
+                  <MiniCard key={helper.id} helper={helper} onClick={() => handleHelperClick(helper)} />
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">
+                <IonIcon icon={folderOpenOutline} style={{ fontSize: '48px', color: '#ccc', marginBottom: '12px' }} />
+                <p>No contacts in this collection yet.</p>
+              </div>
+            )}
           </div>
+
         </div>
 
         <AddHelperModal
           isOpen={isAddHelperModalOpen}
           onClose={() => setIsAddHelperModalOpen(false)}
           onAddHelper={handleAddHelper}
+          initialMode={modalMode}
         />
-
       </IonContent>
     </IonPage>
   );

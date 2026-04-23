@@ -1,0 +1,54 @@
+.profile-page-container {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  padding-bottom: 24px;
+}
+
+.profile-stack-override {
+  position: relative !important;
+  height: auto !important;
+  min-height: 80vh;
+  margin: var(--spacing-lg) auto;
+  max-width: 600px;
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden; /* Fine here because we use stack-avatar now */
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-primary);
+}
+
+.profile-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-bold);
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.profile-action-btn {
+  --background: transparent;
+  --color: var(--color-text-secondary);
+  --box-shadow: none;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: var(--font-weight-bold);
+  font-size: 0.85rem;
+}
+
+.profile-quote-btn {
+  --background: var(--color-primary, #ff385c);
+  --color: white;
+  --border-radius: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: var(--font-weight-bold);
+  font-size: 0.85rem;
+  margin: 0;
+}

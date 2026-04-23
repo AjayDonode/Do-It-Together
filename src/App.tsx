@@ -12,6 +12,8 @@ import MyCards from './pages/myCards/MyCards';
 import HelperProfilePage from './pages/helperprofile/HelperProfilePage';
 import JoinProPage from './pages/join-pro/JoinProPage';
 
+import TabsLayout from './components/TabsLayout';
+
 setupIonicReact();
 
 const PrivateRoute: React.FC<{ component: React.ComponentType }> = ({
@@ -40,11 +42,12 @@ const App: React.FC = () => {
             <Route exact path="/login" component={Login} />
             <Route exact path="/register" component={Register} />
             <Route exact path="/" render={() => <Redirect to="/login" />} />
-            <Route exact path="/home" component={Home} />
-            <Route exact path="/profile" component={Profile} />
-            <Route exact path="/mycards" component={MyCards} />
-            <Route exact path="/join-pro" component={JoinProPage} />
-            <Route path="/helper-profile/:id" component={HelperProfilePage} />
+            <Route path="/tabs" component={TabsLayout} />
+            <Route exact path="/home" render={() => <Redirect to="/tabs/home" />} />
+            <Route exact path="/profile" render={() => <Redirect to="/tabs/profile" />} />
+            <Route exact path="/mycards" render={() => <Redirect to="/tabs/mycards" />} />
+            <Route exact path="/join-pro" render={() => <Redirect to="/tabs/join-pro" />} />
+            <Route path="/helper-profile/:id" render={(props: any) => <Redirect to={`/tabs/helper-profile/${props.match.params.id}`} />} />
           </IonRouterOutlet>
         </IonReactRouter>
       </AuthProvider>

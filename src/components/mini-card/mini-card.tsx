@@ -60,7 +60,17 @@ const MiniCard: React.FC<CardProps> = ({ helper, onClick }) => {
 
       {/* Stats section - description removed */}
       <IonCardContent className="m-content">
-        test content here
+        {helper.title && (
+          <p className="helper-title">{helper.title}</p>
+        )}
+        <div className="helper-meta">
+          <span className="rating">
+            <IonIcon icon={star} /> {helper.rating || '4.5'}
+          </span>
+          {helper.reviews && helper.reviews.length > 0 && (
+            <span className="reviews">({helper.reviews.length} reviews)</span>
+          )}
+        </div>
       </IonCardContent>
     </IonCard>
   );

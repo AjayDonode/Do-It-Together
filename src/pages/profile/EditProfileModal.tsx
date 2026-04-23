@@ -100,7 +100,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     }
 
     const updatedProfile: UserProfile = {
-      address: { ...address, zip: address.zip }, // If model expects number, convert back: Number(address.zip)
+      ...profileData,
+      address: { ...address, zip: address.zip },
       phoneNumber,
     };
     await handleSave(updatedProfile);

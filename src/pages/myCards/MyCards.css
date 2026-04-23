@@ -1,15 +1,125 @@
+.my-cards-page-content {
+  --background: var(--color-bg-primary, #ffffff);
+}
+
 .my-cards-container {
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
-.my-cards-menu {
+/* Responsive Sliding Drawer Sidebar */
+.my-cards-sidebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100%;
+  background: var(--color-bg-primary, #ffffff);
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.my-cards-sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  border-bottom: 1px solid #ccc;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 
-.my-cards-content {
-  padding: 10px;
+.sidebar-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Sidebar Menu Items */
+.sidebar-list {
+  flex: 1;
+  padding: 16px 0;
+  overflow-y: auto;
+}
+
+.sidebar-item {
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-secondary, #555);
+  cursor: pointer;
+  border-left: 4px solid transparent;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-item:hover {
+  background: var(--color-bg-secondary, #f8f9fa);
+}
+
+.sidebar-item.active {
+  background: rgba(255, 56, 92, 0.1);
+  color: var(--color-primary, #ff385c);
+  border-left-color: var(--color-primary, #ff385c);
+  font-weight: 700;
+}
+
+/* Sidebar Actions Footer (Now at top) */
+.sidebar-footer {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  background: var(--color-bg-secondary, #f8f9fa);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--color-primary, #ff385c);
+  color: white;
+}
+
+.btn-primary:active {
+  background: #e03150;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-text-primary, #333);
+  border: 1px solid var(--color-border, #ccc);
+}
+
+.btn-secondary:active {
+  background: #eaeaea;
 }
 
 @media (min-width: 768px) {
@@ -17,62 +127,50 @@
     flex-direction: row;
   }
 
-  .my-cards-menu {
-    width: 200px;
-    border-right: 1px solid #ccc;
-    border-bottom: none;
+  .my-cards-sidebar {
+    position: relative;
+    transform: translateX(0);
+    box-shadow: none;
+    border-right: 1px solid var(--color-border, #e0e0e0);
+    z-index: 1;
   }
 
-  .my-cards-content {
-    flex: 1;
-    padding: 10px;
+  .sidebar-backdrop {
+    display: none;
   }
 }
 
+/* Main Content Area */
+.my-cards-content {
+  flex: 1;
+  padding: 16px 16px 24px;
+  overflow-y: auto;
+}
+
+.collection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.collection-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #333);
+  margin: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-text-secondary, #666);
+}
+
+/* Responsive Grid overrides for Swiper context or actual grid */
 .helper-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
   width: 100%;
-  margin-top: 12px;
-}
-
-.helper-card {
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid #5f5b5b;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.2s;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-  min-width: 0; /* prevents overflow in grid */
-  width: 200px;
-  margin: 10px;
-}
-
-.helper-card:hover {
-  box-shadow: 0 4px 24px rgba(0,0,0,0.15) !important;
-}
-
-.card-img {
-  margin-bottom: 12px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-}
-
-.card-body {
-  text-align: left;
-  padding: 0 12px;
-}
-
-.card-body h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.1rem;
-}
-
-.card-body p {
-  color: #555;
-  font-size: 0.98rem;
 }

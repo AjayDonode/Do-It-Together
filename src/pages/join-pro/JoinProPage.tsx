@@ -314,7 +314,7 @@ const JoinProPage: React.FC = () => {
             </IonItem>
 
             <IonItem>
-              <IonRange aria-label="Dual Knobs Range" dualKnobs={true} value={{lower: formData.hourlyRate?.min , upper: formData.hourlyRate?.max}}></IonRange>
+              <IonRange aria-label="Dual Knobs Range" dualKnobs={true} value={{lower: formData.hourlyRate?.min || 0 , upper: formData.hourlyRate?.max || 100}}></IonRange>
             </IonItem>
           </>
         );
@@ -377,7 +377,7 @@ const JoinProPage: React.FC = () => {
             <IonItem>
               <IonText>
                 Services:{' '}
-                {formData.services?.map((s) => `${s.category}: ${s.subservices.join(', ')}`).join(' | ') || 'None'}
+                {formData.services?.map((s) => `${s.name}: ${(s.subcategories || []).join(', ')}`).join(' | ') || 'None'}
               </IonText>
             </IonItem>
             {/* Add more summary fields as needed */}

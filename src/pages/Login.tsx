@@ -1,20 +1,19 @@
 import {
     IonButton,
     IonContent,
-    IonInput,
-    IonItem,
-    IonLabel,
     IonPage,
     IonText,
     IonHeader,
     IonToolbar,
     IonTitle,
     IonIcon,
+    IonSpinner,
 } from '@ionic/react';
-import { logoGoogle, logoFacebook } from 'ionicons/icons';
+import { logoGoogle, logoFacebook, lockClosedOutline, mailOutline } from 'ionicons/icons';
 import { FacebookAuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { useState } from 'react';
 import { auth } from '../firebaseConfig';
+import FormField from '../components/common/FormField';
 import './Login.css';
 import { useHistory } from 'react-router';
 
@@ -26,6 +25,11 @@ const Login = () => {
     const history = useHistory();
 
     const handleLogin = async () => {
+        if (!email || !password) {
+            setError('Please fill in all fields');
+            return;
+        }
+
         setLoading(true);
         try {
             const result = await signInWithEmailAndPassword(auth, email, password);
@@ -33,8 +37,16 @@ const Login = () => {
             if (user) {
                 history.push('/home');
             }
-        } catch (err) {
-            setError('Failed to login. Please check your credentials.');
+        } catch (err: any) {
+            if (err.code === 'auth/user-not-found') {
+                setError('No account found with this email address.');
+            } else if (err.code === 'auth/wrong-password') {
+                setError('Incorrect password. Please try again.');
+            } else if (err.code === 'auth/invalid-email') {
+                setError('Invalid email address.');
+            } else {
+                setError('Failed to login. Please check your credentials.');
+            }
         } finally {
             setLoading(false);
         }
@@ -48,8 +60,12 @@ const Login = () => {
             if (user) {
                 history.push('/home');
             }
-        } catch (err) {
-            setError('Login failed. Please try again.');
+        } catch (err: any) {
+            if (err.code === 'auth/popup-closed-by-user') {
+                setError('Login cancelled.');
+            } else {
+                setError('Social login failed. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -58,9 +74,9 @@ const Login = () => {
     return (
         <IonPage>
             <IonHeader>
-                <IonToolbar>
-                    <IonTitle className="ion-text-center" style={{ color: '#ff385c', fontWeight: 'bold' }}>
-                        Do it To
+                <IonToolbar className="login-header">
+                    <IonTitle className="ion-text-center app-title">
+                        Do-It-Together
                     </IonTitle>
                 </IonToolbar>
             </IonHeader>
@@ -68,58 +84,67 @@ const Login = () => {
             <IonContent className="login-content">
                 <div className="auth-card">
                     <div className="auth-header">
-                        <IonText color="primary">
-                            <h1 className="ion-text-center">Sign in</h1>
-                        </IonText>
-                        <p className="ion-text-center">Sign in to continue</p>
+                        <h1>Welcome Back</h1>
+                        <p>Sign in to your account to continue</p>
                     </div>
 
                     {error && (
-                        <div className="error-message ion-text-center">
-                            <IonText color="danger">{error}</IonText>
+                        <div className="error-banner">
+                            <IonIcon icon={lockClosedOutline} className="error-icon" />
+                            <IonText>
+                                <p>{error}</p>
+                            </IonText>
                         </div>
                     )}
 
                     <div className="form-group">
-                        <IonItem>
-                            {/* <IonLabel position="floating">Email</IonLabel> */}
-                            <IonInput label="Email" 
-                                type="email"
-                                labelPlacement="floating" placeholder="Enter email"
-                                value={email}
-                                onIonChange={(e) => setEmail(e.detail.value!)}
-                            />
-                        </IonItem>
+                        <FormField
+                            label="Email Address"
+                            type="email"
+                            value={email}
+                            onChange={setEmail}
+                            placeholder="you@example.com"
+                            required
+                            helperText="We'll never share your email"
+                            error={email && !/\S+@\S+\.\S+/.test(email) ? 'Invalid email format' : ''}
+                        />
 
-                        <IonItem >
-                            {/* <IonLabel position="floating">Password</IonLabel> */}
-                            <IonInput 
-                                label="Password" 
-                                type="password"
-                                 labelPlacement="floating" placeholder="Enter password"
-                                value={password}
-                                onIonChange={(e) => setPassword(e.detail.value!)}
-                            />
-                        </IonItem>
+                        <FormField
+                            label="Password"
+                            type="password"
+                            value={password}
+                            onChange={setPassword}
+                            placeholder="••••••••"
+                            required
+                            helperText="Minimum 6 characters"
+                        />
                     </div>
 
                     <IonButton
                         expand="block"
                         onClick={handleLogin}
                         className="login-button"
-                        disabled={loading}
+                        disabled={loading || !email || !password}
                     >
-                        {loading ? 'Signing In...' : 'Sign In'}
+                        {loading ? (
+                            <>
+                                <IonSpinner name="dots" /> Signing In...
+                            </>
+                        ) : (
+                            <>
+                                <IonIcon slot="start" icon={lockClosedOutline} />
+                                Sign In
+                            </>
+                        )}
                     </IonButton>
 
                     <div className="separator">
-                        <span>OR</span>
+                        <span>OR CONTINUE WITH</span>
                     </div>
 
-                    <div >
-                       By clicking Continue with Facebook, Google, or Apple, you agree to the Terms of Use and Privacy Policy. We'll keep you logged in.
+                    <div className="social-note">
+                        <p>By continuing, you agree to our Terms of Use and Privacy Policy</p>
                     </div>
-
 
                     <div className="social-buttons">
                         <IonButton
@@ -130,7 +155,7 @@ const Login = () => {
                             disabled={loading}
                         >
                             <IonIcon slot="start" icon={logoGoogle} />
-                            Login with Google
+                            Google
                         </IonButton>
 
                         <IonButton
@@ -141,14 +166,14 @@ const Login = () => {
                             disabled={loading}
                         >
                             <IonIcon slot="start" icon={logoFacebook} />
-                            Login with Facebook
+                            Facebook
                         </IonButton>
                     </div>
 
                     <div className="auth-footer ion-text-center">
                         <p>
                             Don't have an account?{' '}
-                            <a href="/register" className="signup-link">Sign up</a>
+                            <a href="/register" className="signup-link">Create one</a>
                         </p>
                     </div>
                 </div>

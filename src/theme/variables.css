@@ -1,32 +1,157 @@
-/* For information on how to create your own theme, please see:
-http://ionicframework.com/docs/theming/ */
+/* ============================================
+   THEME SYSTEM - Comprehensive Design Tokens
+   ============================================ */
 
-:root {
-  --ion-color-primary: #3880ff;
-  --ion-color-secondary: #3dc2ff;
-  --ion-color-tertiary: #7044ff;
-  --ion-color-success: #10dc60;
-  --ion-color-warning: #ffce00;
-  --ion-color-danger: #f04141;
-  --ion-color-light: #f4f5f8;
-  --ion-color-medium: #989aa2;
-  --ion-color-dark: #222428;
+/* Import design tokens */
+@import './tokens.css';
 
-  /* Dark Theme Variables */
-  --ion-color-primary-dark: #1e1e1e;
-  --ion-color-secondary-dark: #2e2e2e;
+/* Import theme presets */
+@import './themes.css';
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+* {
+  box-sizing: border-box;
 }
 
-/* Light Theme */
-body.light {
-  --ion-color-primary: #3880ff;
-  --ion-color-secondary: #3dc2ff;
-  --ion-color-tertiary: #7044ff;
+html, body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Dark Theme */
-body.dark {
-  --ion-color-primary: #1e1e1e;
-  --ion-color-secondary: #2e2e2e;
-  --ion-color-tertiary: #ffffff;
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: background-color var(--transition-base),
+              color var(--transition-base);
+}
+
+/* ============================================
+   HEADINGS
+   ============================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+}
+
+h1 {
+  font-size: var(--font-size-4xl);
+  margin-bottom: var(--spacing-md);
+}
+
+h2 {
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-md);
+}
+
+h3 {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--spacing-sm);
+}
+
+h4 {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-sm);
+}
+
+h5 {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-xs);
+}
+
+h6 {
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-xs);
+}
+
+p {
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+button,
+.btn,
+ion-button {
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+  cursor: pointer;
+  user-select: none;
+}
+
+button:hover,
+.btn:hover,
+ion-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+button:active,
+.btn:active,
+ion-button:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   INTERACTIVE ELEMENTS
+   ============================================ */
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+input, textarea, select {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  transition: all var(--transition-fast);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(255, 56, 92, 0.1);
+}
+
+/* ============================================
+   SCROLLBAR STYLING (Webkit Browsers)
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
 }
