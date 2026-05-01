@@ -29,3 +29,7 @@ yarn-error.log*
 
 # Optional eslint cache
 .eslintcache
+
+# Firebase service account & seed secrets (never commit these)
+service-account.json
+.env.seed

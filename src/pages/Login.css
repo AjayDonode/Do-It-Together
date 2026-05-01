@@ -1,52 +1,61 @@
 /* src/pages/Login.css - Login Page Styles */
 
-.login-header {
-  --background: var(--color-bg-primary);
-  --border-bottom: 1px solid var(--color-border);
+.auth-page-content {
+  --background: transparent;
 }
 
-.login-header .app-title {
-  color: var(--color-text-primary);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 0;
-}
-
-.login-content {
-  background: var(--color-bg-secondary);
+.auth-wrapper {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: var(--spacing-lg);
   box-sizing: border-box;
+  position: relative;
+  z-index: 10; /* above background */
+}
+
+.auth-brand {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.auth-brand h1 {
+  color: white;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  letter-spacing: -0.02em;
 }
 
 .auth-card {
-  background: var(--color-bg-primary);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-xl);
-  box-shadow: var(--shadow-md);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-2xl);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
   max-width: 420px;
   width: 100%;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255,255,255,0.4);
 }
 
 .auth-header {
   text-align: left;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
-.auth-header h1 {
-  font-size: var(--font-size-3xl);
-  color: var(--color-text-primary);
+.auth-header h2 {
+  font-size: var(--font-size-2xl);
+  color: #1a1a1a;
   margin-bottom: var(--spacing-xs);
   font-weight: var(--font-weight-bold);
 }
 
 .auth-header p {
   font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
+  color: #666;
   margin: 0;
 }
 

@@ -18,6 +18,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { personAddOutline } from 'ionicons/icons';
 import FormField from '../components/common/FormField';
 import PasswordStrengthMeter from '../components/common/PasswordStrengthMeter';
+import AuthBackground from '../components/common/AuthBackground';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -136,20 +137,17 @@ const Register = () => {
     }
   };
 
-  return (
+    return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar className="register-header">
-          <IonTitle className="ion-text-center app-title">
-            Do-It-Together
-          </IonTitle>
-        </IonToolbar>
-      </IonHeader>
-
-      <IonContent className="register-content">
-        <div className="auth-card">
-          <div className="auth-header">
-            <h1>Create Account</h1>
+      <IonContent fullscreen className="auth-page-content">
+        <AuthBackground />
+        <div className="auth-wrapper">
+          <div className="auth-brand">
+            <h1>Do It Together</h1>
+          </div>
+          <div className="auth-card">
+            <div className="auth-header">
+              <h2>Create Account</h2>
             <p>Join the community and start helping others</p>
           </div>
 
@@ -249,6 +247,7 @@ const Register = () => {
               <a href="#" className="link">Terms of Service</a> and{' '}
               <a href="#" className="link">Privacy Policy</a>
             </p>
+          </div>
           </div>
         </div>
       </IonContent>

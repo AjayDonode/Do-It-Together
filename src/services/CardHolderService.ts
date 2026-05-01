@@ -1,8 +1,14 @@
-import { collection, addDoc, getDocs, query, where, doc, updateDoc, arrayUnion, arrayRemove, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, doc, updateDoc, arrayUnion, arrayRemove, deleteDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { CardHolder } from '../models/CardHolder';
 
 const cardHolderCollection = collection(db, 'cardHolders');
+
+export const getCardHolderById = async (id: string): Promise<CardHolder | null> => {
+  const snap = await getDoc(doc(db, 'cardHolders', id));
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...snap.data() } as CardHolder;
+};
 
 export const createCardHolder = async (userId: string, name: string): Promise<string> => {
   const docRef = await addDoc(cardHolderCollection, {

@@ -15,13 +15,14 @@ import {
 import './MyCards.css';
 import { useAuth } from '../../context/AuthContext';
 import { useHistory } from 'react-router';
-import { add, arrowBackOutline, checkmark, searchOutline, addCircleOutline, createOutline, folderOpenOutline, personAddOutline, menuOutline } from 'ionicons/icons';
+import { add, arrowBackOutline, checkmark, searchOutline, addCircleOutline, createOutline, folderOpenOutline, personAddOutline, menuOutline, shareOutline } from 'ionicons/icons';
+import { star, locationOutline } from 'ionicons/icons';
 import { Helper } from '../../models/Helper';
 import AddHelperModal from './Modal/AddHelperModal';
 import { CardHolder } from '../../models/CardHolder';
 import { createCardHolder, getCardHolders, addHelperToCardHolder } from '../../services/CardHolderService';
 import * as HelperService from '../../services/HelperService';
-import MiniCard from '../../components/mini-card/mini-card';
+import '../../components/HelperScrollRow/HelperScrollRow.css';
 
 const MyCards: React.FC = () => {
   const { currentUser } = useAuth();
@@ -122,7 +123,30 @@ const MyCards: React.FC = () => {
   };
 
   const handleHelperClick = (helper: Helper) => {
-    history.push(`/helper-profile/${helper.id}`);
+    history.push(`/tabs/helper-profile/${helper.id}`);
+  };
+
+  const handleShareCollection = async () => {
+    if (!selectedCardHolder) return;
+    const url = `https://doitto-fdce8.web.app/share/collection/${selectedCardHolder.id}`;
+    const helperList = helpers
+      .map((h, i) => `${i + 1}. ${h.name} ⭐${h.rating?.toFixed(1)} · ${h.category}`)
+      .join('\n');
+    const shareData = {
+      title: `My recommended: ${selectedCardHolder.name}`,
+      text: `Check out my list "${selectedCardHolder.name}":\n\n${helperList}`,
+      url,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(`${shareData.text}\n${url}`);
+        alert('Link copied to clipboard!');
+      }
+    } catch (err) {
+      console.error('Share failed:', err);
+    }
   };
 
 
@@ -196,26 +220,71 @@ const MyCards: React.FC = () => {
           <div className="my-cards-content">
             <div className="collection-header">
               <h2 className="collection-title">{selectedCardHolder?.name || 'Select a collection'}</h2>
-              {selectedCardHolder && (
-                <IonButton 
-                  onClick={() => {
-                    setModalMode('search');
-                    setIsAddHelperModalOpen(true);
-                  }}
-                  color="primary"
-                  shape="round"
-                  style={{ fontWeight: 'bold' }}
-                >
-                  <IonIcon icon={add} slot="start" />
-                  Add Card
-                </IonButton>
-              )}
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                {selectedCardHolder && helpers.length > 0 && (
+                  <IonButton
+                    fill="clear"
+                    size="small"
+                    onClick={handleShareCollection}
+                    title="Share this collection"
+                  >
+                    <IonIcon icon={shareOutline} slot="icon-only" style={{ color: '#a855f7' }} />
+                  </IonButton>
+                )}
+                {selectedCardHolder && (
+                  <IonButton
+                    onClick={() => {
+                      setModalMode('search');
+                      setIsAddHelperModalOpen(true);
+                    }}
+                    color="primary"
+                    shape="round"
+                    style={{ fontWeight: 'bold' }}
+                  >
+                    <IonIcon icon={add} slot="start" />
+                    Add Card
+                  </IonButton>
+                )}
+              </div>
             </div>
             
             {helpers.length > 0 && selectedCardHolder ? (
               <div className="helper-grid">
                 {helpers.map(helper => (
-                  <MiniCard key={helper.id} helper={helper} onClick={() => handleHelperClick(helper)} />
+                  <div
+                    key={helper.id}
+                    className="hsr-card"
+                    onClick={() => handleHelperClick(helper)}
+                  >
+                    <div className="hsr-banner-wrap">
+                      <img
+                        className="hsr-banner"
+                        src={helper.banner || helper.avatar || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&q=80'}
+                        alt={helper.name}
+                      />
+                      <div className="hsr-rating-pill">
+                        <IonIcon icon={star} />
+                        <span>{helper.rating?.toFixed(1) ?? '–'}</span>
+                      </div>
+                    </div>
+                    <div className="hsr-body">
+                      <div className="hsr-avatar-wrap">
+                        <img
+                          className="hsr-avatar"
+                          src={helper.avatar || 'https://www.gravatar.com/avatar?d=mp'}
+                          alt={helper.name}
+                        />
+                      </div>
+                      <p className="hsr-name">{helper.name}</p>
+                      <p className="hsr-category">{helper.category}</p>
+                      {helper.zipcodes?.[0] && (
+                        <p className="hsr-location">
+                          <IonIcon icon={locationOutline} />
+                          {helper.zipcodes[0]}
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : (

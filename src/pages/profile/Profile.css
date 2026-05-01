@@ -98,13 +98,17 @@
 .profile-name h1 {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #333;
+  color: var(--color-text-primary, #333);
   margin-top: 10px;
 }
 
 .profile-email p {
   font-size: 1rem;
-  color: #666;
+  color: var(--color-text-secondary, #666);
+}
+
+.modal-info p {
+  color: var(--color-text-secondary, #666);
 }
 
 .profile-details {

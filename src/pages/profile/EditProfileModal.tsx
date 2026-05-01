@@ -23,7 +23,6 @@ import { UserProfile, Address } from '../../models/UserProfile'; // Your custom 
 import { usStates } from '../../common/AppConstant'; // Moved to common constants file
 import './EditProfileModal.css';
 import { closeOutline } from 'ionicons/icons';
-import { arrowBackOutline, createOutline } from 'ionicons/icons';
 
 // Updated Props Interface: Make currentUser nullable
 export interface EditProfileModalProps {

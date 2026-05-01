@@ -1,0 +1,164 @@
+.hsr-section {
+  margin: 0 0 var(--spacing-xl);
+  padding: 0;
+}
+
+.hsr-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.hsr-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.hsr-badge {
+  background: linear-gradient(135deg, #ff6b35, #f7c948);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  margin-left: auto;
+}
+
+.hsr-scroll-track {
+  display: flex;
+  gap: var(--spacing-md);
+  overflow-x: auto;
+  padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-lg);
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.hsr-scroll-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Card ── */
+.hsr-card {
+  flex: 0 0 160px;
+  width: 160px;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hsr-card:hover,
+.hsr-card:active {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Banner ── */
+.hsr-banner-wrap {
+  position: relative;
+  width: 100%;
+  height: 90px;
+  overflow: hidden;
+}
+
+.hsr-banner {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hsr-rating-pill {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  color: #f7c948;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 7px;
+  border-radius: 999px;
+}
+
+.hsr-rating-pill ion-icon {
+  font-size: 0.75rem;
+}
+
+/* ── Body ── */
+.hsr-body {
+  padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.hsr-avatar-wrap {
+  margin-top: -26px;
+  margin-bottom: var(--spacing-xs);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2.5px solid var(--color-bg-primary);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.hsr-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hsr-name {
+  margin: 0 0 2px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.hsr-category {
+  margin: 0 0 4px;
+  font-size: 0.7rem;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.hsr-location {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0;
+  font-size: 0.65rem;
+  color: var(--color-text-secondary);
+}
+
+.hsr-location ion-icon {
+  font-size: 0.7rem;
+}
+
+.hsr-empty {
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}

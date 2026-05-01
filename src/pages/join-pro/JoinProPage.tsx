@@ -28,6 +28,8 @@ import { UserProfile } from '../../models/UserProfile';
 import { ProDetails, Service } from '../../models/Helper'; // Adjust path to your models
 import './JoinPro.css';
 import ProServicesService from '../../services/ProServicesService';
+import FormField from '../../components/common/FormField';
+import AuthBackground from '../../components/common/AuthBackground';
 
 const JoinProPage: React.FC = () => {
   const { currentUser } = useAuth(); // Get current user from context
@@ -150,18 +152,26 @@ const JoinProPage: React.FC = () => {
       case 1:
         return (
           <>
-            <IonItem>
-              <IonLabel position="floating">Company Name *</IonLabel>
-              <IonInput value={formData.companyName} onIonChange={(e) => handleChange('companyName', e.detail.value!)} required />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="floating">Bio/Description</IonLabel>
-              <IonTextarea value={formData.bio} onIonChange={(e) => handleChange('bio', e.detail.value!)} />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="floating">Website URL</IonLabel>
-              <IonInput value={formData.websiteUrl} onIonChange={(e) => handleChange('websiteUrl', e.detail.value!)} />
-            </IonItem>
+            <FormField
+              label="Company Name"
+              value={formData.companyName || ''}
+              onChange={(val) => handleChange('companyName', val)}
+              required
+              placeholder="e.g. Acme Plumbing"
+            />
+            <FormField
+              label="Bio/Description"
+              type="textarea"
+              value={formData.bio || ''}
+              onChange={(val) => handleChange('bio', val)}
+              placeholder="Tell us about your business..."
+            />
+            <FormField
+              label="Website URL"
+              value={formData.websiteUrl || ''}
+              onChange={(val) => handleChange('websiteUrl', val)}
+              placeholder="https://example.com"
+            />
           </>
         );
       case 2:
@@ -227,27 +237,29 @@ const JoinProPage: React.FC = () => {
 
         return (
           <>
-            <IonItem>
-              <IonLabel>Service Category *</IonLabel>
-              <IonIcon icon={searchOutline} slot="start" />
-              <IonInput
-                value={searchText}
-                onIonInput={handleSearchChange} // Note: onIonInput for live changes (Ionic's event)
-                onIonFocus={handleCategoryFocus} // Lazy load on focus
-                placeholder={isLoadingCategories ? 'Loading...' : 'Search or add a category'}
-                disabled={isLoadingCategories}
-              />
-              {showAddButton && (
-                <IonButton slot="end" onClick={handleAddNewCategory} disabled={isLoadingCategories}>
-                  <IonIcon icon={checkmarkOutline} />
-                </IonButton>
-              )}
+            <IonItem className="form-item" lines="none">
+              <IonLabel position="stacked" className="form-label">Service Category *</IonLabel>
+              <div style={{ display: 'flex', width: '100%', alignItems: 'center' }}>
+                <IonIcon icon={searchOutline} style={{ marginRight: '8px', color: 'var(--ion-color-medium)' }} />
+                <IonInput
+                  value={searchText}
+                  onIonInput={handleSearchChange}
+                  onIonFocus={handleCategoryFocus}
+                  placeholder={isLoadingCategories ? 'Loading...' : 'Search or add a category'}
+                  disabled={isLoadingCategories}
+                  className="form-input"
+                />
+                {showAddButton && (
+                  <IonButton fill="clear" onClick={handleAddNewCategory} disabled={isLoadingCategories}>
+                    <IonIcon icon={checkmarkOutline} />
+                  </IonButton>
+                )}
+              </div>
             </IonItem>
-            {/* Display currently selected category */}
             {selectedCategory && (
-              <IonItem lines="none">
-                <IonLabel>Selected: {selectedCategory}</IonLabel>
-                <IonButton slot="end" fill="clear" onClick={() => setSelectedCategory('')}>
+              <IonItem className="form-item" lines="none" style={{ marginTop: '8px' }}>
+                <IonLabel className="form-label">Selected: <span style={{color: '#ff385c'}}>{selectedCategory}</span></IonLabel>
+                <IonButton slot="end" fill="clear" size="small" onClick={() => setSelectedCategory('')}>
                   Clear
                 </IonButton>
               </IonItem>
@@ -273,13 +285,14 @@ const JoinProPage: React.FC = () => {
               </IonList>
             )}
             {selectedCategory && (
-              <IonItem>
-                <IonLabel>Sub-Services *</IonLabel>
+              <IonItem className="form-item" lines="none" style={{ marginTop: '8px' }}>
+                <IonLabel position="stacked" className="form-label">Sub-Services *</IonLabel>
                 <IonSelect
                   multiple
                   value={selectedSubservices}
                   onIonChange={(e) => setSelectedSubservices(e.detail.value)}
                   placeholder="Select sub-services"
+                  className="form-input"
                 >
                   {currentSubs.map((sub) => (
                     <IonSelectOption key={sub} value={sub}>
@@ -292,26 +305,39 @@ const JoinProPage: React.FC = () => {
             <IonButton expand="block" onClick={addService} disabled={!selectedCategory || selectedSubservices.length === 0 || isLoadingCategories}>
               Add Service
             </IonButton>
-            <IonList>
+            <IonList style={{ background: 'transparent' }}>
               {selectedServices.map((service, index) => (
-                <IonItem key={index}>
-                  <IonLabel>
-                    {service.category}: {service.subservices.join(', ')}
+                <IonItem key={index} className="form-item" lines="none" style={{ marginTop: '4px' }}>
+                  <IonLabel className="form-label" style={{ whiteSpace: 'normal' }}>
+                    <strong style={{color: '#ff385c'}}>{service.category}:</strong> {service.subservices.join(', ')}
                   </IonLabel>
-                  <IonButton slot="end" fill="clear" onClick={() => removeService(index)}>
+                  <IonButton slot="end" fill="clear" color="danger" size="small" onClick={() => removeService(index)}>
                     Remove
                   </IonButton>
                 </IonItem>
               ))}
             </IonList>
-            <IonItem>
-              <IonLabel position="floating">Hourly Rate Min</IonLabel>
-              <IonInput type="number" value={formData.hourlyRate?.min} onIonChange={(e) => handleChange('hourlyRate', { ...formData.hourlyRate, min: parseInt(e.detail.value!, 10) })} />
-            </IonItem>
-            <IonItem>
-              <IonLabel position="floating">Hourly Rate Max</IonLabel>
-              <IonInput type="number" value={formData.hourlyRate?.max} onIonChange={(e) => handleChange('hourlyRate', { ...formData.hourlyRate, max: parseInt(e.detail.value!, 10) })} />
-            </IonItem>
+            
+            <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
+              <div style={{ flex: 1 }}>
+                <FormField
+                  label="Hourly Rate Min"
+                  type="number"
+                  value={formData.hourlyRate?.min?.toString() || ''}
+                  onChange={(val) => handleChange('hourlyRate', { ...formData.hourlyRate, min: parseInt(val, 10) || 0 })}
+                  placeholder="0"
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <FormField
+                  label="Hourly Rate Max"
+                  type="number"
+                  value={formData.hourlyRate?.max?.toString() || ''}
+                  onChange={(val) => handleChange('hourlyRate', { ...formData.hourlyRate, max: parseInt(val, 10) || 0 })}
+                  placeholder="100"
+                />
+              </div>
+            </div>
 
             <IonItem>
               <IonRange aria-label="Dual Knobs Range" dualKnobs={true} value={{lower: formData.hourlyRate?.min || 0 , upper: formData.hourlyRate?.max || 100}}></IonRange>
@@ -321,22 +347,23 @@ const JoinProPage: React.FC = () => {
       case 3:
         return (
           <>
-            <IonItem>
-              <IonLabel position="floating">Availability (e.g., Mon-Fri 8AM-5PM)</IonLabel>
-              <IonInput value={formData.availability} onIonChange={(e) => handleChange('availability', e.detail.value!)} />
-            </IonItem>
-            <IonItem>
-              <IonLabel>Service Areas (Cities/Zips) *</IonLabel>
-              <IonSelect multiple value={formData.serviceAreas} onIonChange={(e) => handleChange('serviceAreas', e.detail.value)}>
-                {/* You can make this dynamic; for now, example options */}
+            <FormField
+              label="Availability"
+              value={formData.availability || ''}
+              onChange={(val) => handleChange('availability', val)}
+              placeholder="e.g., Mon-Fri 8AM-5PM"
+            />
+            <IonItem className="form-item" lines="none" style={{ marginTop: '8px' }}>
+              <IonLabel position="stacked" className="form-label">Service Areas (Cities/Zips) *</IonLabel>
+              <IonSelect multiple value={formData.serviceAreas} onIonChange={(e) => handleChange('serviceAreas', e.detail.value)} className="form-input">
                 <IonSelectOption value="Seattle">Seattle</IonSelectOption>
                 <IonSelectOption value="98101">98101</IonSelectOption>
                 <IonSelectOption value="Portland">Portland</IonSelectOption>
               </IonSelect>
             </IonItem>
-            <IonItem>
-              <IonLabel>Languages Spoken</IonLabel>
-              <IonSelect multiple value={formData.languages} onIonChange={(e) => handleChange('languages', e.detail.value)}>
+            <IonItem className="form-item" lines="none" style={{ marginTop: '8px' }}>
+              <IonLabel position="stacked" className="form-label">Languages Spoken</IonLabel>
+              <IonSelect multiple value={formData.languages} onIonChange={(e) => handleChange('languages', e.detail.value)} className="form-input">
                 {languageOptions.map((opt) => <IonSelectOption key={opt} value={opt}>{opt}</IonSelectOption>)}
               </IonSelect>
             </IonItem>
@@ -345,20 +372,24 @@ const JoinProPage: React.FC = () => {
       case 4:
         return (
           <>
-            <IonItem>
-              <IonLabel>Liability Insurance</IonLabel>
-              <IonSelect value={formData.insurance} onIonChange={(e) => handleChange('insurance', e.detail.value === 'true')}>
+            <IonItem className="form-item" lines="none">
+              <IonLabel position="stacked" className="form-label">Liability Insurance</IonLabel>
+              <IonSelect value={formData.insurance} onIonChange={(e) => handleChange('insurance', e.detail.value === 'true')} className="form-input">
                 <IonSelectOption value="true">Yes</IonSelectOption>
                 <IonSelectOption value="false">No</IonSelectOption>
               </IonSelect>
             </IonItem>
-            <IonItem>
-              <IonLabel>Certifications (comma-separated)</IonLabel>
-              <IonInput value={formData.certifications?.join(', ')} onIonChange={(e) => handleChange('certifications', e.detail.value!.split(', ').filter(Boolean))} />
-            </IonItem>
-            <IonItem>
-              <IonLabel>Background Checked</IonLabel>
-              <IonSelect value={formData.backgroundChecked} onIonChange={(e) => handleChange('backgroundChecked', e.detail.value === 'true')}>
+            <div style={{ marginTop: '8px' }}>
+              <FormField
+                label="Certifications (comma-separated)"
+                value={formData.certifications?.join(', ') || ''}
+                onChange={(val) => handleChange('certifications', val.split(', ').filter(Boolean))}
+                placeholder="e.g. Master Plumber, OSHA 30"
+              />
+            </div>
+            <IonItem className="form-item" lines="none" style={{ marginTop: '8px' }}>
+              <IonLabel position="stacked" className="form-label">Background Checked</IonLabel>
+              <IonSelect value={formData.backgroundChecked} onIonChange={(e) => handleChange('backgroundChecked', e.detail.value === 'true')} className="form-input">
                 <IonSelectOption value="true">Yes</IonSelectOption>
                 <IonSelectOption value="false">No</IonSelectOption>
               </IonSelect>
@@ -391,28 +422,52 @@ const JoinProPage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Join as Pro</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="joinpro-content">
-        <div className="joinpro-card">
-          <div className="joinpro-header">
-            {/* <IonText color="primary">
-              <h1 className="ion-text-center">Join as Pro</h1>
-            </IonText> */}
-            <p className="ion-text-center">Complete the steps to upgrade your account</p>
+      <IonContent fullscreen className="auth-page-content">
+        <AuthBackground />
+        
+        <div className="auth-wrapper" style={{ maxWidth: '600px' }}>
+          <div className="auth-brand" style={{ marginBottom: '16px' }}>
+            <h1 style={{ cursor: 'pointer' }} onClick={() => router.push('/profile')}>Do It Together</h1>
           </div>
+          
+          <div className="auth-card">
+            <div className="auth-header">
+              <h2>Join as Pro</h2>
+              <p>Complete the steps to upgrade your account</p>
+            </div>
 
-          <IonProgressBar value={currentStep / totalSteps} />
-          <h2>Step {currentStep} of {totalSteps}</h2>
-          <div className="form-group">
-            {renderStep()}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-            {currentStep > 1 && <IonButton onClick={prevStep}>Back</IonButton>}
-            {currentStep < totalSteps && <IonButton onClick={nextStep}>Next</IonButton>}
+            <IonProgressBar value={currentStep / totalSteps} style={{ marginBottom: '16px', borderRadius: '4px', height: '8px', '--background': 'rgba(0,0,0,0.05)', '--progress-background': '#ff385c' }} />
+            <h3 style={{ color: 'var(--ion-color-dark)', marginBottom: '24px', fontWeight: 'bold' }}>Step {currentStep} of {totalSteps}</h3>
+            
+            <div className="form-group" style={{ textAlign: 'left' }}>
+              {renderStep()}
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', gap: '16px' }}>
+              <IonButton 
+                fill="outline" 
+                color="medium"
+                onClick={prevStep}
+                style={{ flex: currentStep > 1 ? 1 : 0, display: currentStep > 1 ? 'block' : 'none' }}
+              >
+                Back
+              </IonButton>
+              <IonButton 
+                expand="block" 
+                color="primary"
+                onClick={currentStep < totalSteps ? nextStep : undefined}
+                style={{ flex: 2, margin: 0 }}
+                disabled={isSubmitting}
+              >
+                {currentStep < totalSteps ? 'Next Step' : 'Loading...'}
+              </IonButton>
+            </div>
+            
+            <div style={{ marginTop: '24px', textAlign: 'center' }}>
+              <IonButton fill="clear" color="medium" size="small" onClick={() => router.push('/profile')}>
+                Cancel
+              </IonButton>
+            </div>
           </div>
         </div>
         <IonToast

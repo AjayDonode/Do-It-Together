@@ -6,13 +6,27 @@ import {
   IonTitle,
   IonToolbar,
   IonButton,
-  IonInput,
   IonIcon,
-  IonText,
+  IonInput,
+  useIonRouter,
   IonToast,
-  useIonRouter
+  IonText
 } from '@ionic/react';
-import { brushOutline, hammerOutline, cubeOutline, leafOutline, arrowForwardOutline, warning, arrowBackOutline, waterOutline, flashOutline, colorFillOutline, constructOutline, laptopOutline, carOutline } from 'ionicons/icons';
+import { 
+  arrowForwardOutline, 
+  arrowBackOutline, 
+  brushOutline, 
+  hammerOutline, 
+  cubeOutline, 
+  leafOutline, 
+  waterOutline, 
+  flashOutline, 
+  colorFillOutline, 
+  constructOutline, 
+  laptopOutline, 
+  carOutline,
+  warning
+} from 'ionicons/icons';
 import './MagicSearch.css';
 import * as HelperService from '../services/HelperService';
 import StackedCards from '../components/StackedCards/StackedCards';
@@ -170,7 +184,7 @@ const MagicSearch: React.FC = () => {
               {hasSearched && helpers.length === 0 ? (
                 <div className="no-results-container">
                   <IonIcon icon={warning} className="no-results-icon" />
-                  <IonText style={{ fontWeight: 'bold', marginTop: '1rem' }}>
+                  <IonText color="dark" style={{ fontWeight: 'bold', marginTop: '1rem' }}>
                     <p>No helpers found for this category in {zipcode}.</p>
                   </IonText>
                   <IonButton fill="outline" color="primary" onClick={() => setStep(2)} style={{ marginTop: '1rem' }}>

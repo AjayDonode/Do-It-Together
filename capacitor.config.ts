@@ -1,9 +1,12 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.example.app',
-  appName: 'Do-It-To',
-  webDir: 'build'
+  appId: 'com.doittogether.app',
+  appName: 'Do It Together',
+  webDir: 'dist',
+  ios: {
+    contentInset: 'always',
+  }
 };
 
 export default config;

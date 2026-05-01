@@ -13,6 +13,7 @@ import HelperProfilePage from './pages/helperprofile/HelperProfilePage';
 import JoinProPage from './pages/join-pro/JoinProPage';
 
 import TabsLayout from './components/TabsLayout';
+import ShareCollectionPage from './pages/share/ShareCollectionPage';
 
 setupIonicReact();
 
@@ -48,6 +49,9 @@ const App: React.FC = () => {
             <Route exact path="/mycards" render={() => <Redirect to="/tabs/mycards" />} />
             <Route exact path="/join-pro" render={() => <Redirect to="/tabs/join-pro" />} />
             <Route path="/helper-profile/:id" render={(props: any) => <Redirect to={`/tabs/helper-profile/${props.match.params.id}`} />} />
+            {/* Public share pages — no auth required and NO footer tabs */}
+            <Route exact path="/share/collection/:collectionId" component={ShareCollectionPage} />
+            <Route exact path="/share/helper/:id" component={HelperProfilePage} />
           </IonRouterOutlet>
         </IonReactRouter>
       </AuthProvider>

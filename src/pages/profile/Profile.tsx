@@ -18,12 +18,15 @@ import {
   IonItem,
   IonLabel,
   IonInput,
+  IonSpinner,
 } from '@ionic/react';
 import './Profile.css';
 import { useAuth } from '../../context/AuthContext';
 import { useHistory } from 'react-router';
-import { arrowBackOutline, createOutline, logOutOutline } from 'ionicons/icons';
+import { arrowBackOutline, createOutline, logOutOutline, camera } from 'ionicons/icons';
 import { getAuth, signOut } from 'firebase/auth';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../firebaseConfig';
 import UserProfileService from '../../services/UserProfileService';
 import EditProfileModal from './EditProfileModal';
 import { UserProfile, Address } from '../../models/UserProfile'; // Assuming renamed as per previous fix
@@ -47,6 +50,10 @@ const Profile: React.FC = () => {
   const [contactNumber, setContactNumber] = useState('');
   const [proEmail, setProEmail] = useState('');
   const [url, setUrl] = useState('');
+
+  // Upload states
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
 
   const handleBackToHome = () => {
     history.push('/home');
@@ -83,6 +90,45 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'banner') => {
+    const file = e.target.files?.[0];
+    if (!file || !currentUser) return;
+
+    if (type === 'avatar') setUploadingAvatar(true);
+    else setUploadingBanner(true);
+
+    try {
+      const storageRef = ref(storage, `users/${currentUser.uid}/${type}_${Date.now()}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        'state_changed',
+        null,
+        (error) => {
+          console.error('Upload failed:', error);
+          if (type === 'avatar') setUploadingAvatar(false);
+          else setUploadingBanner(false);
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          const updatedProfile = { ...profileData };
+          if (type === 'avatar') {
+            updatedProfile.avatarUrl = downloadURL;
+            setUploadingAvatar(false);
+          } else {
+            updatedProfile.bannerUrl = downloadURL;
+            setUploadingBanner(false);
+          }
+          await handleSave(updatedProfile);
+        }
+      );
+    } catch (err) {
+      console.error(err);
+      if (type === 'avatar') setUploadingAvatar(false);
+      else setUploadingBanner(false);
+    }
+  };
+
   const handleOpenJoinPro = () => {
     // setIsJoinProOpen(true);
     // setTimeout(() => setAnimationClass('slide-in'), 0);
@@ -113,6 +159,20 @@ const Profile: React.FC = () => {
     ? `${profileData.address.street}, ${profileData.address.city}, ${profileData.address.state} ${profileData.address.zip}`
     : 'Not provided';
 
+  // Determine the display name (Firestore first, then Auth, then fallback)
+  const displayName = profileData.firstName && profileData.lastName 
+    ? `${profileData.firstName} ${profileData.lastName}`
+    : profileData.firstName || currentUser?.displayName || 'Guest User';
+
+  // Determine the best avatar to show
+  const getAvatar = () => {
+    if (profileData.avatarUrl) return profileData.avatarUrl;
+    if (currentUser?.photoURL) return currentUser.photoURL;
+    // Generate an initial-based avatar using ui-avatars.com
+    const nameForAvatar = profileData.firstName || currentUser?.displayName || 'Guest';
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(nameForAvatar)}&background=random&color=fff&size=150`;
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -136,38 +196,66 @@ const Profile: React.FC = () => {
             <IonCol size="12" size-md="4" >
               <IonCard className="profile-card no-padding-card">
                 <div className="banner-avatar-container">
-                  <img
-                    className="modal-banner"
-                    src={profileData?.bannerUrl || 'https://www.gravatar.com/avatar?d=mp'}
-                    alt="Banner"
-                  />
+                  <input type="file" id="banner-upload" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageUpload(e, 'banner')} />
+                  <input type="file" id="avatar-upload" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageUpload(e, 'avatar')} />
+
+                  <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                    <img
+                      className="modal-banner"
+                      src={profileData?.bannerUrl || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80'}
+                      alt="Banner"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div 
+                      onClick={() => document.getElementById('banner-upload')?.click()}
+                      style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.6)', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                    >
+                      {uploadingBanner ? <IonSpinner name="crescent" style={{ width: '20px', height: '20px', color: 'white' }} /> : <IonIcon icon={camera} style={{ color: 'white', fontSize: '20px' }} />}
+                    </div>
+                  </div>
+
                   <IonAvatar className="modal-avatar">
-                    <img src={currentUser?.photoURL || 'https://www.gravatar.com/avatar?d=mp'} alt="Avatar" />
+                    <img src={getAvatar()} alt="Avatar" referrerPolicy="no-referrer" />
+                    <div 
+                      onClick={() => document.getElementById('avatar-upload')?.click()}
+                      style={{ position: 'absolute', bottom: 0, right: 0, background: 'var(--ion-color-primary)', borderRadius: '50%', width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '2px solid white', zIndex: 10 }}
+                    >
+                      {uploadingAvatar ? <IonSpinner name="crescent" style={{ width: '16px', height: '16px', color: 'white' }} /> : <IonIcon icon={camera} style={{ color: 'white', fontSize: '14px' }} />}
+                    </div>
                   </IonAvatar>
                 </div>
-                <IonCardContent className="no-padding-card-content">
-                  <div>
-                    <IonCardTitle style={{ marginTop: 8 }}>{currentUser?.displayName || 'Guest User'}</IonCardTitle>
+                <IonCardContent className="no-padding-card-content" style={{ textAlign: 'center' }}>
+                  <div style={{ marginTop: '40px' }}>
+                    <IonCardTitle style={{ marginTop: 8 }}>{displayName}</IonCardTitle>
                   </div>
                   <div className="modal-info">
                     <p>Email: {currentUser?.email || 'Not provided'}</p> {/* Added fallback for safety */}
                     <p>Phone Number: {profileData.phoneNumber || 'Not provided'}</p> {/* Added fallback */}
                     <p>Address: {formattedAddress}</p> {/* Now a string – fixes the error */}
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '8px', marginTop: '20px' }}>
                     <IonButton
                       color="primary"
+                      size="small"
+                      fill="outline"
                       onClick={() => setIsEditModalOpen(true)}
                     >
-                      <IonIcon icon={createOutline} style={{ marginRight: '8px' }} />
+                      <IonIcon icon={createOutline} style={{ marginRight: '4px' }} />
                       Edit Profile
                     </IonButton>
                     <IonButton
                       color="secondary"
+                      size="small"
+                      fill="outline"
                       onClick={handleOpenJoinPro}
-                      style={{ marginLeft: '8px' }}
                     >
-                      Join Pro
+                      Register as Business
+                    </IonButton>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
+                    <IonButton fill="clear" color="danger" size="small" onClick={handleLogout}>
+                      <IonIcon icon={logOutOutline} slot="start" />
+                      Log Out
                     </IonButton>
                   </div>
                 </IonCardContent>
@@ -187,7 +275,7 @@ const Profile: React.FC = () => {
                     </>
                   ) : (
                     <div className={`join-pro-form ${animationClass}`}>
-                      <IonCardTitle>Join Pro</IonCardTitle>
+                      <IonCardTitle>Register as Business</IonCardTitle>
                       <IonItem>
                         <IonLabel position="floating">Company Name</IonLabel>
                         <IonInput

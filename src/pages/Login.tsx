@@ -12,8 +12,10 @@ import {
 import { logoGoogle, logoFacebook, lockClosedOutline, mailOutline } from 'ionicons/icons';
 import { FacebookAuthProvider, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { useState } from 'react';
-import { auth } from '../firebaseConfig';
+import { auth, db } from '../firebaseConfig';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import FormField from '../components/common/FormField';
+import AuthBackground from '../components/common/AuthBackground';
 import './Login.css';
 import { useHistory } from 'react-router';
 
@@ -58,6 +60,19 @@ const Login = () => {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
             if (user) {
+                // Check if user exists in Firestore, if not create them
+                const userRef = doc(db, 'users', user.uid);
+                const userSnap = await getDoc(userRef);
+                if (!userSnap.exists()) {
+                    const nameParts = user.displayName?.split(' ') || [];
+                    await setDoc(userRef, {
+                        uid: user.uid,
+                        email: user.email,
+                        firstName: nameParts[0] || 'Google',
+                        lastName: nameParts.slice(1).join(' ') || 'User',
+                        createdAt: new Date(),
+                    });
+                }
                 history.push('/home');
             }
         } catch (err: any) {
@@ -73,18 +88,15 @@ const Login = () => {
 
     return (
         <IonPage>
-            <IonHeader>
-                <IonToolbar className="login-header">
-                    <IonTitle className="ion-text-center app-title">
-                        Do-It-Together
-                    </IonTitle>
-                </IonToolbar>
-            </IonHeader>
-
-            <IonContent className="login-content">
-                <div className="auth-card">
-                    <div className="auth-header">
-                        <h1>Welcome Back</h1>
+            <IonContent fullscreen className="auth-page-content">
+                <AuthBackground />
+                <div className="auth-wrapper">
+                    <div className="auth-brand">
+                        <h1>Do It Together</h1>
+                    </div>
+                    <div className="auth-card">
+                        <div className="auth-header">
+                            <h2>Welcome Back</h2>
                         <p>Sign in to your account to continue</p>
                     </div>
 
@@ -175,6 +187,7 @@ const Login = () => {
                             Don't have an account?{' '}
                             <a href="/register" className="signup-link">Create one</a>
                         </p>
+                        </div>
                     </div>
                 </div>
             </IonContent>
