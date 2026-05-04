@@ -54,6 +54,22 @@ const JoinProPage: React.FC = () => {
   const [filteredCategories, setFilteredCategories] = useState<Service[]>([]);
   const [showAddButton, setShowAddButton] = useState(false);
 
+  // Service Areas state
+  const [serviceAreaInput, setServiceAreaInput] = useState('');
+  const [filteredAreas, setFilteredAreas] = useState<string[]>([]);
+  const [showAddArea, setShowAddArea] = useState(false);
+
+  const KNOWN_AREAS = [
+    'San Francisco', 'San Jose', 'Oakland', 'Los Angeles', 'San Diego',
+    'Sacramento', 'Fresno', 'Long Beach', 'Bakersfield', 'Anaheim',
+    'Seattle', 'Portland', 'Bellevue', 'Tacoma', 'Spokane',
+    'New York', 'Brooklyn', 'Queens', 'Bronx', 'Newark',
+    'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'Dallas',
+    'Austin', 'Denver', 'Boston', 'Atlanta', 'Miami',
+    'Las Vegas', 'Nashville', 'Minneapolis', 'Detroit', 'Charlotte',
+    '94105', '94103', '10001', '90001', '60601', '77001', '98101', '85001',
+  ];
+
   const languageOptions = ['English', 'Spanish', 'French', 'Other'];
 
   // Fetch existing profile on mount
@@ -74,7 +90,7 @@ const JoinProPage: React.FC = () => {
   }, [selectedServices]);
 
   const addService = () => {
-    if (selectedCategory && selectedSubservices.length > 0) {
+    if (selectedCategory) {
       setSelectedServices((prev) => [
         ...prev,
         { category: selectedCategory, subservices: selectedSubservices },
@@ -82,7 +98,7 @@ const JoinProPage: React.FC = () => {
       setSelectedCategory(''); // Reset selections
       setSelectedSubservices([]);
     } else {
-      setToastMessage('Please select a category and at least one sub-service.');
+      setToastMessage('Please select a category first.');
       setToastColor('danger');
     }
   };
@@ -124,21 +140,42 @@ const JoinProPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Update profile with proDetails and set role to 'pro'
+      // Map selectedServices → Service[] shape expected by ProDetails
+      const mappedServices: Service[] = selectedServices.map((s, i) => ({
+        id: `service-${i}-${Date.now()}`,
+        name: s.category,
+        subcategories: s.subservices,
+      }));
+
+      const proDetails: ProDetails = {
+        companyName: formData.companyName || '',
+        bio: formData.bio || '',
+        websiteUrl: formData.websiteUrl,
+        serviceAreas: (formData.serviceAreas as string[]) || [],
+        services: mappedServices,
+        yearsInBusiness: formData.yearsInBusiness || 0,
+        hourlyRate: formData.hourlyRate,
+        availability: formData.availability || '',
+        languages: formData.languages || [],
+        insurance: formData.insurance ?? false,
+        certifications: formData.certifications || [],
+        backgroundChecked: formData.backgroundChecked ?? false,
+      };
+
       const updatedProfile: UserProfile = {
         ...existingProfile,
-        proDetails: formData as ProDetails, // Cast since all fields are collected
-        // Assuming you have a way to update User role (e.g., via Firebase function or separate update)
+        role: 'pro',
+        proDetails,
       };
-      console.log('Updated Profile:', updatedProfile);
-      await UserProfileService.updateUserProfile(updatedProfile);
-      // Optionally update User role in auth or a users collection
-      // e.g., await updateUserRole(currentUser.uid, 'pro');
+
+      console.log('Submitting profile:', updatedProfile);
+      await UserProfileService.updateUserProfile(currentUser.uid, updatedProfile);
 
       setToastMessage('Successfully joined as Pro!');
       setToastColor('success');
-      router.push('/profile'); // Redirect back to profile
+      router.push('/profile');
     } catch (error) {
+      console.error('Submit error:', error);
       setToastMessage('Error submitting. Please try again.');
       setToastColor('danger');
     } finally {
@@ -286,23 +323,29 @@ const JoinProPage: React.FC = () => {
             )}
             {selectedCategory && (
               <IonItem className="form-item" lines="none" style={{ marginTop: '8px' }}>
-                <IonLabel position="stacked" className="form-label">Sub-Services *</IonLabel>
-                <IonSelect
-                  multiple
-                  value={selectedSubservices}
-                  onIonChange={(e) => setSelectedSubservices(e.detail.value)}
-                  placeholder="Select sub-services"
-                  className="form-input"
-                >
-                  {currentSubs.map((sub) => (
-                    <IonSelectOption key={sub} value={sub}>
-                      {sub}
-                    </IonSelectOption>
-                  ))}
-                </IonSelect>
+                <IonLabel position="stacked" className="form-label">Sub-Services (optional)</IonLabel>
+                {currentSubs.length > 0 ? (
+                  <IonSelect
+                    multiple
+                    value={selectedSubservices}
+                    onIonChange={(e) => setSelectedSubservices(e.detail.value)}
+                    placeholder="Select sub-services"
+                    className="form-input"
+                  >
+                    {currentSubs.map((sub) => (
+                      <IonSelectOption key={sub} value={sub}>
+                        {sub}
+                      </IonSelectOption>
+                    ))}
+                  </IonSelect>
+                ) : (
+                  <IonText color="medium" style={{ fontSize: '13px', paddingTop: '8px' }}>
+                    No sub-services defined for this category. You can still add it.
+                  </IonText>
+                )}
               </IonItem>
             )}
-            <IonButton expand="block" onClick={addService} disabled={!selectedCategory || selectedSubservices.length === 0 || isLoadingCategories}>
+            <IonButton expand="block" onClick={addService} disabled={!selectedCategory || isLoadingCategories}>
               Add Service
             </IonButton>
             <IonList style={{ background: 'transparent' }}>
@@ -345,6 +388,41 @@ const JoinProPage: React.FC = () => {
           </>
         );
       case 3:
+        const currentAreas = (formData.serviceAreas || []) as string[];
+
+        const handleAreaInput = (val: string) => {
+          setServiceAreaInput(val);
+          if (!val.trim()) {
+            setFilteredAreas([]);
+            setShowAddArea(false);
+            return;
+          }
+          const lower = val.trim().toLowerCase();
+          const alreadyAdded = currentAreas.map((a) => a.toLowerCase());
+          const matches = KNOWN_AREAS.filter(
+            (a) => a.toLowerCase().includes(lower) && !alreadyAdded.includes(a.toLowerCase())
+          );
+          setFilteredAreas(matches);
+          const hasExact = KNOWN_AREAS.some((a) => a.toLowerCase() === lower);
+          setShowAddArea(!hasExact && val.trim().length > 1);
+        };
+
+        const selectArea = (area: string) => {
+          if (currentAreas.map((a) => a.toLowerCase()).includes(area.toLowerCase())) {
+            setToastMessage(`"${area}" is already added.`);
+            setToastColor('danger');
+          } else {
+            handleChange('serviceAreas', [...currentAreas, area]);
+          }
+          setServiceAreaInput('');
+          setFilteredAreas([]);
+          setShowAddArea(false);
+        };
+
+        const removeServiceArea = (area: string) => {
+          handleChange('serviceAreas', currentAreas.filter((a) => a !== area));
+        };
+
         return (
           <>
             <FormField
@@ -353,14 +431,95 @@ const JoinProPage: React.FC = () => {
               onChange={(val) => handleChange('availability', val)}
               placeholder="e.g., Mon-Fri 8AM-5PM"
             />
+
+            {/* Service Areas typeahead */}
             <IonItem className="form-item" lines="none" style={{ marginTop: '8px' }}>
-              <IonLabel position="stacked" className="form-label">Service Areas (Cities/Zips) *</IonLabel>
-              <IonSelect multiple value={formData.serviceAreas} onIonChange={(e) => handleChange('serviceAreas', e.detail.value)} className="form-input">
-                <IonSelectOption value="Seattle">Seattle</IonSelectOption>
-                <IonSelectOption value="98101">98101</IonSelectOption>
-                <IonSelectOption value="Portland">Portland</IonSelectOption>
-              </IonSelect>
+              <IonLabel position="stacked" className="form-label">Service Areas (Cities / Zip Codes) *</IonLabel>
+              <div style={{ display: 'flex', width: '100%', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+                <IonIcon icon={searchOutline} style={{ color: 'var(--ion-color-medium)' }} />
+                <IonInput
+                  value={serviceAreaInput}
+                  onIonInput={(e) => handleAreaInput(e.detail.value || '')}
+                  placeholder="Search city or zip code…"
+                  className="form-input"
+                  style={{ flex: 1 }}
+                />
+                {showAddArea && (
+                  <IonButton fill="clear" size="small" onClick={() => selectArea(serviceAreaInput.trim())}>
+                    <IonIcon icon={checkmarkOutline} />
+                  </IonButton>
+                )}
+              </div>
             </IonItem>
+
+            {/* Typeahead dropdown */}
+            {filteredAreas.length > 0 && serviceAreaInput && (
+              <IonList
+                style={{
+                  position: 'absolute', zIndex: 20,
+                  background: 'white', border: '1px solid #e0e0e0',
+                  borderRadius: '8px', boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
+                  maxHeight: '200px', overflowY: 'auto', width: 'calc(100% - 32px)',
+                }}
+              >
+                {filteredAreas.map((area) => (
+                  <IonItem key={area} button onClick={() => selectArea(area)} lines="none">
+                    <IonLabel style={{ fontSize: '14px' }}>{area}</IonLabel>
+                  </IonItem>
+                ))}
+                {showAddArea && (
+                  <IonItem button onClick={() => selectArea(serviceAreaInput.trim())} lines="none"
+                    style={{ borderTop: '1px solid #f0f0f0' }}
+                  >
+                    <IonIcon icon={checkmarkOutline} slot="start" color="primary" />
+                    <IonLabel color="primary" style={{ fontSize: '14px' }}>
+                      Add "{serviceAreaInput.trim()}"
+                    </IonLabel>
+                  </IonItem>
+                )}
+              </IonList>
+            )}
+
+            {/* If no suggestions and user typed but no match, show add option standalone */}
+            {filteredAreas.length === 0 && showAddArea && serviceAreaInput && (
+              <IonList style={{ position: 'absolute', zIndex: 20, background: 'white',
+                border: '1px solid #e0e0e0', borderRadius: '8px',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.1)', width: 'calc(100% - 32px)' }}
+              >
+                <IonItem button onClick={() => selectArea(serviceAreaInput.trim())} lines="none">
+                  <IonIcon icon={checkmarkOutline} slot="start" color="primary" />
+                  <IonLabel color="primary" style={{ fontSize: '14px' }}>
+                    Add "{serviceAreaInput.trim()}"
+                  </IonLabel>
+                </IonItem>
+              </IonList>
+            )}
+
+            {/* Selected area chips */}
+            {currentAreas.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '8px 16px', marginTop: '8px' }}>
+                {currentAreas.map((area) => (
+                  <div key={area} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '6px',
+                    background: 'rgba(255,56,92,0.12)', color: '#ff385c',
+                    borderRadius: '20px', padding: '4px 12px',
+                    fontSize: '13px', fontWeight: 500,
+                  }}>
+                    {area}
+                    <span onClick={() => removeServiceArea(area)}
+                      style={{ cursor: 'pointer', fontWeight: 700, fontSize: '15px', lineHeight: 1 }}
+                    >×</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {currentAreas.length === 0 && !serviceAreaInput && (
+              <IonText color="medium" style={{ fontSize: '13px', padding: '4px 16px', display: 'block' }}>
+                Search above to add cities or zip codes.
+              </IonText>
+            )}
+
             <IonItem className="form-item" lines="none" style={{ marginTop: '8px' }}>
               <IonLabel position="stacked" className="form-label">Languages Spoken</IonLabel>
               <IonSelect multiple value={formData.languages} onIonChange={(e) => handleChange('languages', e.detail.value)} className="form-input">
@@ -396,25 +555,70 @@ const JoinProPage: React.FC = () => {
             </IonItem>
           </>
         );
-      case 5:
-        return (
-          <IonList>
-            <IonItem>
-              <IonLabel>Review Your Info</IonLabel>
-            </IonItem>
-            <IonItem>
-              <IonText>Company: {formData.companyName}</IonText>
-            </IonItem>
-            <IonItem>
-              <IonText>
-                Services:{' '}
-                {formData.services?.map((s) => `${s.name}: ${(s.subcategories || []).join(', ')}`).join(' | ') || 'None'}
-              </IonText>
-            </IonItem>
-            {/* Add more summary fields as needed */}
-            <IonButton expand="block" onClick={handleSubmit} disabled={isSubmitting}>Submit and Join as Pro</IonButton>
-          </IonList>
+      case 5: {
+        const reviewRow = (label: string, value: string | undefined | null) => (
+          <div style={{ marginBottom: '10px', padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+            <div style={{ fontSize: '11px', fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '2px' }}>
+              {label}
+            </div>
+            <div style={{ fontSize: '15px', fontWeight: 500, color: value ? '#1a1a1a' : '#bbb', fontStyle: value ? 'normal' : 'italic' }}>
+              {value || 'Not provided'}
+            </div>
+          </div>
         );
+
+        const sectionTitle = (title: string) => (
+          <div style={{ fontWeight: 700, color: '#ff385c', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '20px', marginBottom: '6px', paddingBottom: '4px', borderBottom: '2px solid rgba(255,56,92,0.15)' }}>
+            {title}
+          </div>
+        );
+
+        return (
+          <div style={{ color: '#1a1a1a' }}>
+            <p style={{ color: '#666', marginBottom: '16px', fontSize: '14px', textAlign: 'center' }}>
+              Please review your information before submitting.
+            </p>
+
+            {sectionTitle('Business Info')}
+            {reviewRow('Company Name', formData.companyName)}
+            {reviewRow('Bio', formData.bio)}
+            {reviewRow('Website', formData.websiteUrl)}
+
+            {sectionTitle('Services')}
+            {selectedServices.length > 0 ? selectedServices.map((s, i) => (
+              <div key={i} style={{ marginBottom: '8px', padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                <div style={{ fontSize: '15px', fontWeight: 600, color: '#1a1a1a' }}>{s.category}</div>
+                {s.subservices.length > 0 && (
+                  <div style={{ fontSize: '13px', color: '#666', marginTop: '2px' }}>{s.subservices.join(', ')}</div>
+                )}
+              </div>
+            )) : (
+              <div style={{ fontSize: '14px', color: '#bbb', fontStyle: 'italic', padding: '8px 0' }}>No services added</div>
+            )}
+
+            {(formData.hourlyRate?.min || formData.hourlyRate?.max) && (
+              <>
+                {sectionTitle('Hourly Rate')}
+                {reviewRow('Rate Range', `$${formData.hourlyRate?.min ?? 0} – $${formData.hourlyRate?.max ?? 0} /hr`)}
+              </>
+            )}
+
+            {sectionTitle('Availability & Coverage')}
+            {reviewRow('Availability', formData.availability)}
+            {reviewRow('Service Areas', (formData.serviceAreas as string[] | undefined)?.join(', '))}
+            {reviewRow('Languages', formData.languages?.join(', '))}
+
+            {sectionTitle('Trust & Safety')}
+            {reviewRow('Liability Insurance', formData.insurance === true ? 'Yes' : formData.insurance === false ? 'No' : undefined)}
+            {reviewRow('Background Checked', formData.backgroundChecked === true ? 'Yes' : formData.backgroundChecked === false ? 'No' : undefined)}
+            {reviewRow('Certifications', formData.certifications?.join(', '))}
+
+            <IonButton expand="block" onClick={handleSubmit} disabled={isSubmitting} style={{ marginTop: '24px' }}>
+              {isSubmitting ? 'Submitting…' : 'Submit and Join as Pro'}
+            </IonButton>
+          </div>
+        );
+      }
       default:
         return null;
     }
@@ -425,7 +629,7 @@ const JoinProPage: React.FC = () => {
       <IonContent fullscreen className="auth-page-content">
         <AuthBackground />
         
-        <div className="auth-wrapper" style={{ maxWidth: '600px' }}>
+        <div className="auth-wrapper">
           <div className="auth-brand" style={{ marginBottom: '16px' }}>
             <h1 style={{ cursor: 'pointer' }} onClick={() => router.push('/profile')}>Do It Together</h1>
           </div>
@@ -439,35 +643,39 @@ const JoinProPage: React.FC = () => {
             <IonProgressBar value={currentStep / totalSteps} style={{ marginBottom: '16px', borderRadius: '4px', height: '8px', '--background': 'rgba(0,0,0,0.05)', '--progress-background': '#ff385c' }} />
             <h3 style={{ color: 'var(--ion-color-dark)', marginBottom: '24px', fontWeight: 'bold' }}>Step {currentStep} of {totalSteps}</h3>
             
-            <div className="form-group" style={{ textAlign: 'left' }}>
+            <div className="form-group">
               {renderStep()}
             </div>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', gap: '16px' }}>
-              <IonButton 
-                fill="outline" 
+              <IonButton
+                fill="outline"
                 color="medium"
                 onClick={prevStep}
                 style={{ flex: currentStep > 1 ? 1 : 0, display: currentStep > 1 ? 'block' : 'none' }}
               >
                 Back
               </IonButton>
-              <IonButton 
-                expand="block" 
-                color="primary"
-                onClick={currentStep < totalSteps ? nextStep : undefined}
-                style={{ flex: 2, margin: 0 }}
-                disabled={isSubmitting}
-              >
-                {currentStep < totalSteps ? 'Next Step' : 'Loading...'}
-              </IonButton>
+              {currentStep < totalSteps && (
+                <IonButton
+                  expand="block"
+                  color="primary"
+                  onClick={nextStep}
+                  style={{ flex: 2, margin: 0 }}
+                  disabled={isSubmitting}
+                >
+                  Next Step
+                </IonButton>
+              )}
             </div>
             
-            <div style={{ marginTop: '24px', textAlign: 'center' }}>
-              <IonButton fill="clear" color="medium" size="small" onClick={() => router.push('/profile')}>
-                Cancel
-              </IonButton>
-            </div>
+            {currentStep < totalSteps && (
+              <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                <IonButton fill="clear" color="medium" size="small" onClick={() => router.push('/profile')}>
+                  Cancel
+                </IonButton>
+              </div>
+            )}
           </div>
         </div>
         <IonToast

@@ -5,8 +5,15 @@ import { UserProfile } from '../models/UserProfile';
 
 
 class UserProfileService {
-  static updateUserProfile(updatedProfile: UserProfile) {
-    throw new Error('Method not implemented.');
+  static async updateUserProfile(userId: string, updatedProfile: UserProfile) {
+    try {
+      const userDocRef = doc(db, 'users', userId);
+      await setDoc(userDocRef, updatedProfile, { merge: true });
+      console.log('Profile updated successfully');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
   }
   static async saveProfile(userId: string, profileData: UserProfile) {
     try {

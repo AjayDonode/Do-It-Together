@@ -26,11 +26,11 @@ import admin from 'firebase-admin';
 // ─── CONFIG ──────────────────────────────────────────────────
 // ZIP codes to crawl
 const ZIP_CODES = [
-  '95391', // San Francisco, CA – Downtown / Civic Center
-  '95336', // San Francisco, CA – SoMa
-  '95388', // San Francisco, CA – Embarcadero / Financial District South
-  '95366', // San Francisco, CA – Potrero Hill / Dogpatch
-  '95337', // San Francisco, CA – Mission District
+  '93644', // San Francisco, CA – Downtown / Civic Center
+  '93643', // San Francisco, CA – SoMa
+  '93645', // San Francisco, CA – Embarcadero / Financial District South
+  '93653', // San Francisco, CA – Potrero Hill / Dogpatch
+
 ];
 
 // Yelp category aliases → your app's category label

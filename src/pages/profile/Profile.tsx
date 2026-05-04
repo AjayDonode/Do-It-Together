@@ -225,8 +225,22 @@ const Profile: React.FC = () => {
                   </IonAvatar>
                 </div>
                 <IonCardContent className="no-padding-card-content" style={{ textAlign: 'center' }}>
-                  <div style={{ marginTop: '40px' }}>
+                  <div style={{ marginTop: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     <IonCardTitle style={{ marginTop: 8 }}>{displayName}</IonCardTitle>
+                    {profileData.role === 'pro' && (
+                      <span style={{
+                        background: 'linear-gradient(135deg, #ff385c, #ff6b35)',
+                        color: 'white',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        letterSpacing: '0.8px',
+                        padding: '3px 9px',
+                        borderRadius: '20px',
+                        textTransform: 'uppercase',
+                        verticalAlign: 'middle',
+                        marginTop: '8px',
+                      }}>Pro</span>
+                    )}
                   </div>
                   <div className="modal-info">
                     <p>Email: {currentUser?.email || 'Not provided'}</p> {/* Added fallback for safety */}
@@ -243,15 +257,19 @@ const Profile: React.FC = () => {
                       <IonIcon icon={createOutline} style={{ marginRight: '4px' }} />
                       Edit Profile
                     </IonButton>
-                    <IonButton
-                      color="secondary"
-                      size="small"
-                      fill="outline"
-                      onClick={handleOpenJoinPro}
-                    >
-                      Register as Business
-                    </IonButton>
+                    {profileData.role !== 'pro' && (
+                      <IonButton
+                        color="secondary"
+                        size="small"
+                        fill="outline"
+                        onClick={handleOpenJoinPro}
+                      >
+                        Register as Business
+                      </IonButton>
+                    )}
                   </div>
+
+
                   <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
                     <IonButton fill="clear" color="danger" size="small" onClick={handleLogout}>
                       <IonIcon icon={logOutOutline} slot="start" />
@@ -262,56 +280,85 @@ const Profile: React.FC = () => {
               </IonCard>
             </IonCol>
 
-            {/* Right Section: Additional content (2/3 on md+, full width under left on mobile) */}
             <IonCol size="12" size-md="8">
               <IonCard className="right-section-card">
                 <IonCardContent>
-                  {!isJoinProOpen ? (
-                    <>
-                      {/* Placeholder content – replace with actual features, e.g., recent activity, settings, etc. */}
-                      <IonCardTitle>Additional Profile Information</IonCardTitle>
-                      <p>This section can include more details, such as account settings, recent activity, or other user data.</p>
-                      {/* Add more components here as needed */}
-                    </>
-                  ) : (
-                    <div className={`join-pro-form ${animationClass}`}>
-                      <IonCardTitle>Register as Business</IonCardTitle>
-                      <IonItem>
-                        <IonLabel position="floating">Company Name</IonLabel>
-                        <IonInput
-                          value={companyName}
-                          onIonChange={(e) => setCompanyName(e.detail.value!)}
-                        ></IonInput>
-                      </IonItem>
-                      <IonItem>
-                        <IonLabel position="floating">Contact Number</IonLabel>
-                        <IonInput
-                          type="tel"
-                          value={contactNumber}
-                          onIonChange={(e) => setContactNumber(e.detail.value!)}
-                        ></IonInput>
-                      </IonItem>
-                      <IonItem>
-                        <IonLabel position="floating">Email</IonLabel>
-                        <IonInput
-                          type="email"
-                          value={proEmail}
-                          onIonChange={(e) => setProEmail(e.detail.value!)}
-                        ></IonInput>
-                      </IonItem>
-                      <IonItem>
-                        <IonLabel position="floating">URL</IonLabel>
-                        <IonInput
-                          type="url"
-                          value={url}
-                          onIonChange={(e) => setUrl(e.detail.value!)}
-                        ></IonInput>
-                      </IonItem>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-                        <IonButton color="primary" onClick={handleSavePro}>Save</IonButton>
-                        <IonButton onClick={handleCloseJoinPro} fill="clear">Cancel</IonButton>
+                  {profileData.role === 'pro' && profileData.proDetails ? (
+                    // ── Business Profile Panel ──
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                        <div style={{
+                          background: 'linear-gradient(135deg, #ff385c, #ff6b35)',
+                          borderRadius: '10px', padding: '8px 14px',
+                          color: 'white', fontWeight: 700, fontSize: '14px', letterSpacing: '0.5px',
+                        }}>✦ Business Profile</div>
+                        <span style={{ color: '#888', fontSize: '13px' }}>Your public pro listing</span>
+                      </div>
+
+                      {/* Company Info */}
+                      <div style={{ marginBottom: '16px', padding: '16px', background: 'rgba(255,56,92,0.04)', borderRadius: '12px', border: '1px solid rgba(255,56,92,0.12)' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 700, color: '#ff385c', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px' }}>Company</div>
+                        <div style={{ fontSize: '18px', fontWeight: 700, color: '#1a1a1a' }}>{profileData.proDetails.companyName}</div>
+                        {profileData.proDetails.bio && <p style={{ fontSize: '14px', color: '#555', margin: '6px 0 0' }}>{profileData.proDetails.bio}</p>}
+                        {profileData.proDetails.websiteUrl && (
+                          <a href={profileData.proDetails.websiteUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#ff385c', display: 'block', marginTop: '6px' }}>
+                            🔗 {profileData.proDetails.websiteUrl}
+                          </a>
+                        )}
+                      </div>
+
+                      {/* Services */}
+                      {profileData.proDetails.services?.length > 0 && (
+                        <div style={{ marginBottom: '16px' }}>
+                          <div style={{ fontSize: '11px', fontWeight: 700, color: '#ff385c', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px' }}>Services</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {profileData.proDetails.services.map((s, i) => (
+                              <span key={i} style={{
+                                background: '#f5f5f5', borderRadius: '20px',
+                                padding: '4px 12px', fontSize: '13px', color: '#333', fontWeight: 500,
+                              }}>{s.name}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Service Areas */}
+                      {profileData.proDetails.serviceAreas?.length > 0 && (
+                        <div style={{ marginBottom: '16px' }}>
+                          <div style={{ fontSize: '11px', fontWeight: 700, color: '#ff385c', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px' }}>Service Areas</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {profileData.proDetails.serviceAreas.map((area, i) => (
+                              <span key={i} style={{
+                                background: 'rgba(255,56,92,0.08)', color: '#ff385c',
+                                borderRadius: '20px', padding: '4px 12px', fontSize: '13px', fontWeight: 500,
+                              }}>📍 {area}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Trust badges */}
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {profileData.proDetails.insurance && (
+                          <span style={{ background: '#e8f5e9', color: '#2e7d32', borderRadius: '20px', padding: '4px 12px', fontSize: '12px', fontWeight: 600 }}>✓ Insured</span>
+                        )}
+                        {profileData.proDetails.backgroundChecked && (
+                          <span style={{ background: '#e3f2fd', color: '#1565c0', borderRadius: '20px', padding: '4px 12px', fontSize: '12px', fontWeight: 600 }}>✓ Background Checked</span>
+                        )}
+                        {profileData.proDetails.availability && (
+                          <span style={{ background: '#f3e5f5', color: '#6a1b9a', borderRadius: '20px', padding: '4px 12px', fontSize: '12px', fontWeight: 600 }}>🕐 {profileData.proDetails.availability}</span>
+                        )}
                       </div>
                     </div>
+                  ) : (
+                    // ── Regular user CTA ──
+                    <>
+                      <IonCardTitle>Additional Profile Information</IonCardTitle>
+                      <p style={{ color: '#666', marginTop: '8px' }}>Grow your business by registering as a Pro. Unlock your business profile, get discovered by customers, and manage service bookings.</p>
+                      <IonButton color="secondary" size="small" fill="solid" style={{ marginTop: '16px' }} onClick={handleOpenJoinPro}>
+                        ✦ Register as Business
+                      </IonButton>
+                    </>
                   )}
                 </IonCardContent>
               </IonCard>
