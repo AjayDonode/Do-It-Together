@@ -127,10 +127,10 @@ const ChatPage: React.FC = () => {
 
             {messages.length === 0 && (
               <div className="chat-empty">
-                <p>👋 Send a message to request a quote!</p>
+                <p>👋 Say hi and start the conversation!</p>
                 <div className="chat-quick-prompts">
                   {[
-                    `Hi, I'd like to get a quote for your services.`,
+                    `Hi, I'm interested in your services!`,
                     `What are your availability and rates?`,
                     `Do you offer free estimates?`,
                   ].map((prompt) => (

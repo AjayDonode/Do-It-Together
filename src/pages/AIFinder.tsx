@@ -27,44 +27,40 @@ interface ChatMessage {
 }
 
 /* ────────────────────────────────────────────────────────────
-   Category normalizer
-   Maps any fuzzy label Gemini might produce → exact Firestore value
+   Build system prompt dynamically from live category list
 ──────────────────────────────────────────────────────────── */
-const CATEGORY_ALIASES: [RegExp, string][] = [
-  [/clean|maid|housekeep|sanitiz|disinfect|janitorial|deep.?clean|spring.?clean/i, 'Cleaning'],
-  [/plumb|pipe|drain|leak|faucet|toilet|water.?heat/i,                            'Plumbing'],
-  [/electric|wiring|outlet|breaker|panel|light.?install/i,                        'Electricians'],
-  [/landscap|garden|lawn|yard|mow|trim|mulch|shrub|tree/i,                       'Landscaping'],
-  [/paint|stain|wall|ceiling|exterior|interior.?coat/i,                           'Painting'],
-  [/handyman|repair|fix|general|assembly|furniture/i,                             'Handyman'],
-  [/mov|relocat|haul|truck|pack|unpack/i,                                         'Moving'],
-  [/carpen|wood|cabinet|deck|trim|floor|install/i,                                'Carpentry'],
-  [/hvac|heat|cool|ac |air.?condit|furnace|duct/i,                               'HVAC'],
-  [/pest|bug|roach|termite|extermina|rodent|ant/i,                               'Pest Control'],
-];
+function buildSystemPrompt(categories: string[]): string {
+  const list = categories.length > 0
+    ? categories.join(', ')
+    : 'various home and local services';
+  return `You are a friendly AI assistant for "Do It Together", a local services app that connects people with vetted helpers.
 
-function normalizeCategory(raw: string): string {
-  for (const [pattern, canonical] of CATEGORY_ALIASES) {
-    if (pattern.test(raw)) return canonical;
-  }
-  return raw; // fallback: pass Gemini's value as-is
-}
-
-/* ────────────────────────────────────────────────────────────
-   System prompt — tells Gemini how to behave
-──────────────────────────────────────────────────────────── */
-const SYSTEM_PROMPT = `You are a friendly AI assistant for "Do It Together", a local home-services app that connects people with vetted helpers like plumbers, electricians, cleaners, landscapers, etc.
+Available service categories (from the database): ${list}
 
 Your job:
 1. Have a warm, natural conversation to understand what service the user needs and their ZIP code.
-2. Ask clarifying questions if the request is vague (e.g., "What specifically needs fixing?").
-3. Once you have BOTH a ZIP code (5-digit US zip) AND a service category, output a search trigger on its own line, in EXACTLY this format (nothing else on that line):
+2. Ask clarifying questions if the request is vague.
+3. Once you have BOTH a ZIP code (5-digit US zip) AND a service category that matches one of the available categories above, output a search trigger on its own line in EXACTLY this format:
    [SEARCH zip=XXXXX category=CATEGORY]
-   Where CATEGORY is one of: Plumbing, Electricians, Landscaping, Cleaning, Painting, Handyman, Moving, Carpentry, HVAC, Pest Control
-4. After the [SEARCH ...] line, also write a brief human-friendly message like "Let me look that up for you! 🔍"
-5. If the user says something completely unrelated to home services or finding help, gently redirect them.
+   Where CATEGORY must be one of the exact values listed above.
+4. After the [SEARCH ...] line, write a brief human-friendly message like "Let me look that up for you! 🔍"
+5. If the user asks for a service NOT in the available categories, let them know it's not currently available and suggest the closest match from the list.
 6. Keep responses concise — 2–4 sentences max. Use emojis occasionally for warmth.
-7. If the user says they want to search again or try something different, help them restart.`;
+7. If the user wants to search again or try something different, help them restart.`;
+}
+
+/** Normalize a Gemini-produced category string to the closest known category */
+function normalizeCategory(raw: string, categories: string[]): string {
+  const lower = raw.toLowerCase().trim();
+  // Exact match first (case-insensitive)
+  const exact = categories.find(c => c.toLowerCase() === lower);
+  if (exact) return exact;
+  // Partial match — category name contains the raw term or vice versa
+  const partial = categories.find(
+    c => c.toLowerCase().includes(lower) || lower.includes(c.toLowerCase())
+  );
+  return partial ?? raw;
+}
 
 /* ────────────────────────────────────────────────────────────
    Component
@@ -73,6 +69,21 @@ const AIFinder: React.FC = () => {
   const router = useIonRouter();
   const contentRef = useRef<HTMLIonContentElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Live categories fetched from Firestore
+  const [categories, setCategories] = useState<string[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+
+  // Fetch distinct categories on mount
+  useEffect(() => {
+    HelperService.getDistinctCategories().then((cats) => {
+      setCategories(cats);
+      setCategoriesLoading(false);
+    });
+  }, []);
+
+  // Derived: system prompt built from live categories
+  const systemPrompt = buildSystemPrompt(categories);
 
   // UI messages (what the user sees)
   const [messages, setMessages] = useState<ChatMessage[]>([{
@@ -130,7 +141,7 @@ const AIFinder: React.FC = () => {
 
     try {
       // 1. Get Gemini's reply
-      const rawReply = await geminiChat(newHistory, SYSTEM_PROMPT);
+      const rawReply = await geminiChat(newHistory, systemPrompt);
       appendHistory('user', userText);
 
       // 2. Check for search intent
@@ -139,7 +150,7 @@ const AIFinder: React.FC = () => {
 
       if (intent) {
         // Normalize Gemini's category label → exact Firestore value
-        const resolvedCategory = normalizeCategory(intent.category);
+        const resolvedCategory = normalizeCategory(intent.category, categories);
         console.log(`[Search] Gemini said: "${intent.category}" → resolved: "${resolvedCategory}", zip: ${intent.zip}`);
 
         // Show the "searching…" message immediately
@@ -157,7 +168,7 @@ const AIFinder: React.FC = () => {
           const noResultsContext = `[SYSTEM: Firestore search returned 0 results for category="${resolvedCategory}" zip="${intent.zip}". Tell the user no results were found and offer to try a different category or zip code.]`;
           const followUp = await geminiChat(
             [...newHistory, { role: 'model', parts: [{ text: rawReply }] }, { role: 'user', parts: [{ text: noResultsContext }] }],
-            SYSTEM_PROMPT
+            systemPrompt
           );
           followUpText = followUp;
           appendHistory('user', noResultsContext);
@@ -171,7 +182,7 @@ const AIFinder: React.FC = () => {
           const resultsContext = `[SYSTEM: Found ${results.length} ${resolvedCategory} helpers near zip ${intent.zip}. Top results:\n${resultsSummary}\nWrite a friendly 2-3 sentence summary. Mention the count, the category, and encourage tapping a card to see full details.]`;
           const followUp = await geminiChat(
             [...newHistory, { role: 'model', parts: [{ text: rawReply }] }, { role: 'user', parts: [{ text: resultsContext }] }],
-            SYSTEM_PROMPT
+            systemPrompt
           );
           followUpText = followUp;
           appendHistory('user', resultsContext);
@@ -230,6 +241,12 @@ const AIFinder: React.FC = () => {
       </IonHeader>
 
       <IonContent ref={contentRef} className="magic-chat-content">
+        {categoriesLoading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', flexDirection: 'column', gap: '12px' }}>
+            <IonIcon icon={sparklesOutline} style={{ fontSize: '2rem', color: 'var(--color-primary)' }} />
+            <p style={{ color: '#888', fontSize: '14px' }}>Loading available services…</p>
+          </div>
+        ) : (
         <div className="chat-messages">
           {messages.map((msg) => (
             <div key={msg.id} className={`chat-bubble-wrap ${msg.role}`}>
@@ -300,6 +317,7 @@ const AIFinder: React.FC = () => {
             </div>
           )}
         </div>
+        )}
       </IonContent>
 
       {/* ── Input bar ── */}

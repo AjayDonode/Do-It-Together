@@ -33,42 +33,55 @@ export const getHelperById = async (id: string): Promise<Helper | null> => {
   }
 };
 
-export const getHelpers = async (): Promise<Helper[]> => {
-  const helpers: Helper[] = [];
+export const getDistinctCategories = async (): Promise<string[]> => {
   try {
     const querySnapshot = await getDocs(helperCollection);
+    const cats = new Set<string>();
     querySnapshot.forEach((doc) => {
-      const data = doc.data() as Helper;
-      helpers.push({ ...data, id: doc.id }); 
+      const cat = (doc.data() as Helper).category;
+      if (cat) cats.add(cat.trim());
     });
+    return Array.from(cats).sort();
   } catch (error) {
-    console.error('Error fetching helpers:', error);
+    console.error('Error fetching categories:', error);
+    return [];
   }
+};
+
+
+
+export const searchHelpers = async (category: string, location: string): Promise<Helper[]> => {
+  const { normalizeSearchLocation } = await import('../utils/locationUtils');
+  const locationToken = normalizeSearchLocation(location);
+
+  const runQuery = async (locationField: string): Promise<Helper[]> => {
+    const results: Helper[] = [];
+    try {
+      const q = category
+        ? query(helperCollection,
+            where('category', '==', category),
+            where(locationField, 'array-contains', locationToken))
+        : query(helperCollection,
+            where(locationField, 'array-contains', locationToken));
+      const snap = await getDocs(q);
+      snap.forEach(doc => results.push({ ...(doc.data() as Helper), id: doc.id }));
+    } catch (err) {
+      console.error(`searchHelpers [${locationField}] error:`, err);
+    }
+    return results;
+  };
+
+  // Try the new denormalized serviceAreas field first
+  let helpers = await runQuery('serviceAreas');
+
+  // Fall back to legacy zipcodes for Yelp-seeded records
+  if (helpers.length === 0) {
+    helpers = await runQuery('zipcodes');
+  }
+
   return helpers;
 };
 
-export const searchHelpers = async (queryString: string, zipcode: string): Promise<Helper[]> => {
-  const helpers: Helper[] = [];
-  try {
-    let q: any = null;
-    if (!queryString) {
-      q = query(helperCollection,
-        where('zipcodes', 'array-contains', zipcode));
-    } else {
-      q = query(helperCollection,
-        where('category', '==', queryString),
-        where('zipcodes', 'array-contains', zipcode));
-    }
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-      const data = doc.data() as Helper;
-      helpers.push({ ...data, id: doc.id });
-    });
-  } catch (error) {
-    console.error('Error searching helpers:', error);
-  }
-  return helpers;
-};
 
 export const updateHelper = async (id: string, updatedHelper: Partial<Helper>): Promise<void> => {
   try {

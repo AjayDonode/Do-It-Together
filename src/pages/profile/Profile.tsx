@@ -29,7 +29,8 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebaseConfig';
 import UserProfileService from '../../services/UserProfileService';
 import EditProfileModal from './EditProfileModal';
-import { UserProfile, Address } from '../../models/UserProfile'; // Assuming renamed as per previous fix
+import EditProProfileModal from './EditProProfileModal';
+import { UserProfile, Address } from '../../models/UserProfile';
 
 const Profile: React.FC = () => {
   const { currentUser } = useAuth();
@@ -45,6 +46,7 @@ const Profile: React.FC = () => {
   const [profileData, setProfileData] = useState<UserProfile>(initialProfile);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isJoinProOpen, setIsJoinProOpen] = useState(false);
+  const [isEditProOpen, setIsEditProOpen] = useState(false);
   const [animationClass, setAnimationClass] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [contactNumber, setContactNumber] = useState('');
@@ -293,6 +295,16 @@ const Profile: React.FC = () => {
                           color: 'white', fontWeight: 700, fontSize: '14px', letterSpacing: '0.5px',
                         }}>✦ Business Profile</div>
                         <span style={{ color: '#888', fontSize: '13px' }}>Your public pro listing</span>
+                        <IonButton
+                          fill="outline"
+                          size="small"
+                          color="primary"
+                          style={{ marginLeft: 'auto', '--border-radius': '20px' }}
+                          onClick={() => setIsEditProOpen(true)}
+                        >
+                          <IonIcon icon={createOutline} slot="start" />
+                          Edit
+                        </IonButton>
                       </div>
 
                       {/* Company Info */}
@@ -327,7 +339,7 @@ const Profile: React.FC = () => {
                         <div style={{ marginBottom: '16px' }}>
                           <div style={{ fontSize: '11px', fontWeight: 700, color: '#ff385c', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px' }}>Service Areas</div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                            {profileData.proDetails.serviceAreas.map((area, i) => (
+                            {(profileData.proDetails.rawServiceAreas ?? profileData.proDetails.serviceAreas).map((area, i) => (
                               <span key={i} style={{
                                 background: 'rgba(255,56,92,0.08)', color: '#ff385c',
                                 borderRadius: '20px', padding: '4px 12px', fontSize: '13px', fontWeight: 500,
@@ -373,6 +385,17 @@ const Profile: React.FC = () => {
           profileData={profileData}
           handleSave={handleSave}
         />
+
+        {/* Edit Pro Profile Modal */}
+        {profileData.role === 'pro' && currentUser && (
+          <EditProProfileModal
+            isOpen={isEditProOpen}
+            onClose={() => setIsEditProOpen(false)}
+            currentUserId={currentUser.uid}
+            existingProfile={profileData}
+            onSaved={(updated) => setProfileData(updated)}
+          />
+        )}
       </IonContent>
     </IonPage>
   );

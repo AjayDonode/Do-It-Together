@@ -147,11 +147,18 @@ const JoinProPage: React.FC = () => {
         subcategories: s.subservices,
       }));
 
+      // Expand service areas: ["San Francisco", "94105"] →
+      // ["San Francisco", "san francisco", "94102", "94103", …, "94105", …]
+      const { expandServiceAreas } = await import('../../utils/locationUtils');
+      const rawAreas = (formData.serviceAreas as string[]) || [];
+      const expandedAreas = expandServiceAreas(rawAreas);
+
       const proDetails: ProDetails = {
         companyName: formData.companyName || '',
         bio: formData.bio || '',
         websiteUrl: formData.websiteUrl,
-        serviceAreas: (formData.serviceAreas as string[]) || [],
+        rawServiceAreas: rawAreas,       // original user input — safe to edit later
+        serviceAreas: expandedAreas,     // expanded search index
         services: mappedServices,
         yearsInBusiness: formData.yearsInBusiness || 0,
         hourlyRate: formData.hourlyRate,
@@ -182,6 +189,7 @@ const JoinProPage: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+
 
   // Render step content
   const renderStep = () => {

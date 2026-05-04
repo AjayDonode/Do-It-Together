@@ -14,7 +14,8 @@ export interface Helper {
   rating: number;        // Average rating (e.g., 4.5)
   ratingCount: number;   // Number of ratings received
   reviews: Review[];     // Array of reviews
-  zipcodes?: string[];   // Optional location field
+  zipcodes?: string[];   // Legacy: zip codes only (Yelp seed data)
+  serviceAreas?: string[]; // Denormalized: city names + zips expanded at write time for array-contains search
   category: string;
   tags: string[];
   // ── Fields populated by Yelp seed ──
@@ -34,7 +35,8 @@ export interface ProDetails {
   companyName: string; // Required for Pros
   bio:string
   websiteUrl?: string; // Optional URL, validated
-  serviceAreas: string[]; // Array of zips/cities (e.g., ['Seattle', '98101']), required for search matching
+  serviceAreas: string[]; // Expanded search index: city names + all associated zips (write-time denormalized)
+  rawServiceAreas?: string[]; // What the user actually typed — used to pre-fill the edit form
   services:Service[]
   yearsInBusiness: number; // Required, validated as positive integer
   hourlyRate?: { min: number; max: number }; // Optional range

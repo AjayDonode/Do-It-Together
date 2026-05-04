@@ -412,10 +412,10 @@ const HelperProfilePage = () => {
                     className="profile-quote-btn"
                     onClick={helper.claimed ? handleRequestQuote : undefined}
                     disabled={!helper.claimed}
-                    title={helper.claimed ? 'Request a quote' : 'This business has not been claimed yet'}
+                    title={helper.claimed ? 'Send a message' : 'This business has not been claimed yet'}
                   >
                     <IonIcon icon={sendOutline} slot="start" style={{ marginRight: '6px' }} />
-                    Request Quote
+                    Message
                   </IonButton>
                 ) : (
                   <IonButton
