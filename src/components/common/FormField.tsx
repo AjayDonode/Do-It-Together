@@ -34,10 +34,10 @@ const FormField: React.FC<FormFieldProps> = ({
 
   return (
     <div className={`form-field ${hasError ? 'error' : ''} ${isValid ? 'valid' : ''}`}>
-      <IonItem className="form-item">
-        <IonLabel position="stacked" className="form-label">
-          {label} {required && <span className="required">*</span>}
-        </IonLabel>
+      <div className="custom-label">
+        {label} {required && <span className="required">*</span>}
+      </div>
+      <IonItem className="form-item" lines="none">
         {type === 'textarea' ? (
           <IonTextarea
             value={value}

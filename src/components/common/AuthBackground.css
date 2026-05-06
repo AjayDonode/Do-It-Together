@@ -22,7 +22,6 @@
   opacity: 0;
   z-index: 1;
   animation: imageAnimation 24s linear infinite 0s;
-  /* Smooth scale effect while fading */
   transform: scale(1.05);
 }
 
@@ -37,7 +36,8 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%);
+  /* Keeping a slightly lighter overlay to let the glass effect pop */
+  background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 100%);
   z-index: 2;
 }
 
