@@ -171,7 +171,7 @@ const EditProProfileModal: React.FC<Props> = ({ isOpen, onClose, currentUserId, 
       <IonModal isOpen={isOpen} onDidDismiss={onClose}>
         <IonHeader>
           <IonToolbar>
-            <IonTitle>Edit Business Profile</IonTitle>
+            <IonTitle className="ion-text-center" style={{ color: '#1a1a1a', fontWeight: 'bold' }}>Edit Business Profile</IonTitle>
             <IonButton slot="end" fill="clear" onClick={onClose}>
               <IonIcon icon={close} />
             </IonButton>
@@ -324,10 +324,10 @@ const EditProProfileModal: React.FC<Props> = ({ isOpen, onClose, currentUserId, 
 
         <IonFooter>
           <div style={{ padding: '12px 16px', display: 'flex', gap: '12px' }}>
-            <IonButton expand="block" fill="outline" color="medium" onClick={onClose} style={{ flex: 1 }}>
+            <IonButton expand="block" fill="outline" className="modal-cancel-btn" onClick={onClose} style={{ flex: 1 }}>
               Cancel
             </IonButton>
-            <IonButton expand="block" color="primary" onClick={handleSave} disabled={saving} style={{ flex: 2 }}>
+            <IonButton expand="block" className="modal-save-btn" onClick={handleSave} disabled={saving} style={{ flex: 2 }}>
               {saving ? <IonSpinner name="dots" style={{ width: 20, height: 20 }} /> : 'Save Changes'}
             </IonButton>
           </div>

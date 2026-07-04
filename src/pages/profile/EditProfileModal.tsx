@@ -1,30 +1,10 @@
-// src/components/EditProfileModal.tsx (Updated with improved autocomplete dropdown for state)
 import React, { useState, useEffect } from 'react';
-import {
-  IonModal,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButton,
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonRow,
-  IonCol,
-  IonGrid,
-  IonFooter,
-  IonText, // For displaying error messages
-  IonList,
-  IonIcon, // For state suggestions dropdown
-} from '@ionic/react';
-import { User } from 'firebase/auth'; // Import Firebase User type
-import { UserProfile, Address } from '../../models/UserProfile'; // Your custom types (NOTE: Update Address to have zip as string if possible)
-import { usStates } from '../../common/AppConstant'; // Moved to common constants file
+import { IonModal } from '@ionic/react';
+import { User } from 'firebase/auth';
+import { UserProfile, Address } from '../../models/UserProfile';
+import { usStates } from '../../common/AppConstant';
 import './EditProfileModal.css';
-import { closeOutline } from 'ionicons/icons';
 
-// Updated Props Interface: Make currentUser nullable
 export interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -40,62 +20,56 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   profileData,
   handleSave,
 }) => {
-  // State for editable fields (initialize from profileData)
-  const [address, setAddress] = useState<Address>(profileData.address || { street: '', city: '', state: '', zip: '' }); // CHANGED: zip to string (update model if needed)
+  const [address, setAddress] = useState<Address>(
+    profileData.address || { street: '', city: '', state: '', zip: '' }
+  );
   const [phoneNumber, setPhoneNumber] = useState(profileData.phoneNumber || '');
-
-  // State for validation errors (added state error)
   const [errors, setErrors] = useState<{ phoneNumber?: string; zip?: string; state?: string }>({});
 
-  // States for autocomplete
   const [stateQuery, setStateQuery] = useState(profileData.address?.state || '');
   const [filteredStates, setFilteredStates] = useState<string[]>([]);
-  const [showDropdown, setShowDropdown] = useState(false); // NEW: Control dropdown visibility
+  const [showDropdown, setShowDropdown] = useState(false);
 
-  // Use useEffect to sync state whenever profileData changes (e.g., on modal load or prop updates)
   useEffect(() => {
     setAddress(profileData.address || { street: '', city: '', state: '', zip: '' });
     setPhoneNumber(profileData.phoneNumber || '');
     setStateQuery(profileData.address?.state || '');
     setFilteredStates([]);
     setShowDropdown(false);
-    setErrors({}); // Clear errors on load
+    setErrors({});
   }, [profileData]);
 
-  // Non-editable values
   const username = currentUser?.displayName || 'Guest User';
   const userEmail = currentUser?.email || 'Not provided';
 
-  // Validation functions (added state validation)
-  const validatePhoneNumber = (value: string): string | undefined => {
-    const phoneRegex = /^\d{3}-\d{3}-\d{4}$/; // Enforces format like 888-888-8888
+  const validatePhoneNumber = (value: string) => {
+    const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
     if (!value) return 'Phone number is required';
-    if (!phoneRegex.test(value)) return 'Invalid phone number format (use 888-888-8888)';
+    if (!phoneRegex.test(value)) return 'Use format 888-888-8888';
     return undefined;
   };
 
-  const validateZip = (value: string): string | undefined => {
-    const zipRegex = /^\d{5}$/; // 5 digits only
+  const validateZip = (value: string) => {
+    const zipRegex = /^\d{5}$/;
     if (!value) return 'Zip code is required';
-    if (!zipRegex.test(value)) return 'Invalid zip code (must be 5 digits)';
+    if (!zipRegex.test(value)) return 'Must be 5 digits';
     return undefined;
   };
 
-  const validateState = (value: string): string | undefined => {
+  const validateState = (value: string) => {
     if (!value) return 'State is required';
-    if (!usStates.includes(value.toUpperCase())) return 'Invalid state (must be a valid US state abbreviation)';
+    if (!usStates.includes(value.toUpperCase())) return 'Enter a valid US state (e.g. CA)';
     return undefined;
   };
 
-  // Handle save with validation (added state validation)
   const onSave = async () => {
     const phoneError = validatePhoneNumber(phoneNumber);
-    const zipError = validateZip(address.zip.toString()); // Convert to string for validation
+    const zipError = validateZip(address.zip.toString());
     const stateError = validateState(address.state);
 
     if (phoneError || zipError || stateError) {
       setErrors({ phoneNumber: phoneError, zip: zipError, state: stateError });
-      return; // Don't save if there are errors
+      return;
     }
 
     const updatedProfile: UserProfile = {
@@ -107,22 +81,20 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     onClose();
   };
 
-  // Handle state input change for autocomplete
   const handleStateChange = (query: string) => {
     setStateQuery(query);
     const upperQuery = query.toUpperCase();
     if (upperQuery) {
-      const matches = usStates.filter((state) => state.startsWith(upperQuery)).slice(0, 5); // Limit to top 5 suggestions
+      const matches = usStates.filter((s) => s.startsWith(upperQuery)).slice(0, 6);
       setFilteredStates(matches);
-      setShowDropdown(matches.length > 0); // Show dropdown if there are matches
+      setShowDropdown(matches.length > 0);
     } else {
       setFilteredStates([]);
       setShowDropdown(false);
     }
-    setErrors((prev) => ({ ...prev, state: undefined })); // Clear error on change
+    setErrors((prev) => ({ ...prev, state: undefined }));
   };
 
-  // Handle selecting a state from dropdown
   const selectState = (selectedState: string) => {
     setStateQuery(selectedState);
     setAddress({ ...address, state: selectedState });
@@ -130,185 +102,176 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     setShowDropdown(false);
   };
 
-  // Handle focus to show full list if no query
   const handleStateFocus = () => {
     if (!stateQuery) {
-      setFilteredStates(usStates.slice(0, 10)); // Show top 10 states or all if preferred
+      setFilteredStates(usStates.slice(0, 8));
       setShowDropdown(true);
     }
   };
 
-  // Handle blur for state (validate and hide dropdown)
   const handleStateBlur = () => {
-    setTimeout(() => { // Delay to allow click on suggestion
+    setTimeout(() => {
       const upperQuery = stateQuery.toUpperCase();
       if (usStates.includes(upperQuery)) {
         setAddress({ ...address, state: upperQuery });
         setStateQuery(upperQuery);
         setErrors((prev) => ({ ...prev, state: undefined }));
       } else if (stateQuery) {
-        setErrors((prev) => ({ ...prev, state: 'Invalid state (select from dropdown or enter valid abbreviation)' }));
+        setErrors((prev) => ({ ...prev, state: 'Enter a valid US state (e.g. CA)' }));
       }
       setShowDropdown(false);
-    }, 200); // Short delay for click handling
+    }, 200);
   };
 
-  // Null guard: If no currentUser, show a message (with button in IonFooter for consistency)
   if (!currentUser) {
     return (
-      <IonModal isOpen={isOpen} onDidDismiss={onClose}>
-        <IonHeader>
-          <IonToolbar>
-            
-            <IonTitle>Edit Profile</IonTitle>
-            <IonButton slot="start" fill="clear" onClick={onClose} >
-                        <IonIcon icon={closeOutline} style={{ fontSize: '20px', marginRight: '8px' }} />
-                      </IonButton>
-          </IonToolbar>
-          
-        </IonHeader>
-        <IonContent> 
-          <p style={{ textAlign: 'center', margin: '20px' }}>Please log in to edit your profile.</p>
-        </IonContent>
-        <IonFooter>
-          <IonToolbar>
-            <IonButton expand="block" onClick={onClose}>Close</IonButton>
-          </IonToolbar>
-        </IonFooter>
+      <IonModal isOpen={isOpen} onDidDismiss={onClose} className="edit-profile-modal">
+        <div className="ep-sheet">
+          <div className="ep-header">
+            <p className="ep-header-title">Edit Profile</p>
+            <button className="ep-close-btn" onClick={onClose} aria-label="Close">✕</button>
+          </div>
+          <div className="ep-body">
+            <p style={{ textAlign: 'center', color: '#666', margin: '24px 0' }}>
+              Please log in to edit your profile.
+            </p>
+          </div>
+          <div className="ep-footer">
+            <button className="ep-cancel-btn" style={{ flex: 1 }} onClick={onClose}>Close</button>
+          </div>
+        </div>
       </IonModal>
     );
   }
 
   return (
-    <IonModal isOpen={isOpen} onDidDismiss={onClose}>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle className="ion-text-left" style={{ color: '#ff385c', fontWeight: 'bold' }} >Edit Profile</IonTitle>
-          <IonButton slot="end" fill="clear" onClick={onClose}>
-                        <IonIcon icon={closeOutline} style={{ fontSize: '20px', marginRight: '8px' }} />
-                      </IonButton>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="no-padding-content">
-        {/* Non-editable Username */}
-        <IonItem>
-          <IonLabel position="floating">Username</IonLabel>
-          <IonInput value={username} disabled className="form-input" />
-        </IonItem>
+    <IonModal isOpen={isOpen} onDidDismiss={onClose} className="edit-profile-modal">
+      <div className="ep-sheet">
+        {/* ── Header ── */}
+        <div className="ep-header">
+          <p className="ep-header-title">Edit Profile</p>
+          <button className="ep-close-btn" onClick={onClose} aria-label="Close">✕</button>
+        </div>
 
-        {/* Non-editable User Email (only one email field) */}
-        <IonItem>
-          <IonLabel position="floating">Email</IonLabel>
-          <IonInput value={userEmail} disabled className="form-input" />
-        </IonItem>
+        {/* ── Scrollable Body ── */}
+        <div className="ep-body">
 
-        {/* Phone Number */}
-        <IonItem>
-          <IonLabel position="floating">Phone Number</IonLabel>
-          <IonInput
-            type="tel"
-            placeholder="888-888-8888"
-            value={phoneNumber}
-            onIonChange={(e) => {
-              setPhoneNumber(e.detail.value!);
-              setErrors((prev) => ({ ...prev, phoneNumber: undefined })); // Clear error on change
-            }}
-            className="form-input"
-          />
-        </IonItem>
-        {errors.phoneNumber && <IonText color="danger" style={{ paddingLeft: '16px', fontSize: 'small' }}>{errors.phoneNumber}</IonText>}
+          {/* Account Section */}
+          <p className="ep-section-label">Account Info</p>
 
-        {/* Address fields: Separate inputs */}
-        <IonItem>
-          <IonLabel position="floating">Street</IonLabel>
-          <IonInput
-            value={address.street}
-            onIonChange={(e) => setAddress({ ...address, street: e.detail.value! })}
-            placeholder="Enter street address"
-            className="form-input"
-          />
-        </IonItem>
-        <IonItem>
-          <IonLabel position="floating">City</IonLabel>
-          <IonInput
-            value={address.city}
-            onIonChange={(e) => setAddress({ ...address, city: e.detail.value! })}
-            placeholder="Enter city"
-            className="form-input"
-          />
-        </IonItem>
+          <div className="ep-field">
+            <label htmlFor="ep-username">
+              Username <span className="ep-disabled-badge">read-only</span>
+            </label>
+            <input id="ep-username" value={username} disabled />
+          </div>
 
-        {/* State (autocomplete input with dropdown) and Zip (same line) */}
-        <IonRow>
-          <IonCol size="6" style={{ position: 'relative' }}> {/* Relative positioning for dropdown */}
-            <IonItem>
-              <IonLabel position="floating">State</IonLabel>
-              <IonInput
-                value={stateQuery}
-                onIonChange={(e) => handleStateChange(e.detail.value!)}
-                onIonFocus={handleStateFocus}
-                onIonBlur={handleStateBlur} // Validate and hide on blur
-                placeholder="Enter state (e.g., CA)"
-                className="form-input"
-                maxlength={2} // Limit to 2 characters for abbreviations
-              />
-            </IonItem>
-            {showDropdown && (
-              <IonList style={{ 
-                position: 'absolute', 
-                zIndex: 10, 
-                background: 'white', 
-                border: '1px solid #ccc', 
-                maxHeight: '200px', 
-                overflowY: 'auto', 
-                width: '100%' 
-              }}>
-                {filteredStates.map((state) => (
-                  <IonItem key={state} button onClick={() => selectState(state)}>
-                    {state}
-                  </IonItem>
-                ))}
-              </IonList>
-            )}
-          </IonCol>
-          <IonCol size="6">
-            <IonItem>
-              <IonLabel position="floating">Zip Code</IonLabel>
-              <IonInput
-                type="tel" // CHANGED: To tel for numeric keyboard without spinners
+          <div className="ep-field">
+            <label htmlFor="ep-email">
+              Email <span className="ep-disabled-badge">read-only</span>
+            </label>
+            <input id="ep-email" type="email" value={userEmail} disabled />
+          </div>
+
+          <div className="ep-field">
+            <label htmlFor="ep-phone">Phone Number</label>
+            <input
+              id="ep-phone"
+              type="tel"
+              placeholder="888-888-8888"
+              value={phoneNumber}
+              className={errors.phoneNumber ? 'has-error' : ''}
+              onChange={(e) => {
+                setPhoneNumber(e.target.value);
+                setErrors((prev) => ({ ...prev, phoneNumber: undefined }));
+              }}
+            />
+            {errors.phoneNumber && <span className="ep-error">{errors.phoneNumber}</span>}
+          </div>
+
+          {/* Address Section */}
+          <div className="ep-divider" />
+          <p className="ep-section-label">Address</p>
+
+          <div className="ep-field">
+            <label htmlFor="ep-street">Street</label>
+            <input
+              id="ep-street"
+              placeholder="1234 Main St"
+              value={address.street}
+              onChange={(e) => setAddress({ ...address, street: e.target.value })}
+            />
+          </div>
+
+          <div className="ep-field">
+            <label htmlFor="ep-city">City</label>
+            <input
+              id="ep-city"
+              placeholder="San Francisco"
+              value={address.city}
+              onChange={(e) => setAddress({ ...address, city: e.target.value })}
+            />
+          </div>
+
+          <div className="ep-row">
+            {/* State with autocomplete */}
+            <div className="ep-field">
+              <label htmlFor="ep-state">State</label>
+              <div className="ep-state-wrapper">
+                <input
+                  id="ep-state"
+                  placeholder="CA"
+                  value={stateQuery}
+                  maxLength={2}
+                  className={errors.state ? 'has-error' : ''}
+                  onChange={(e) => handleStateChange(e.target.value)}
+                  onFocus={handleStateFocus}
+                  onBlur={handleStateBlur}
+                />
+                {showDropdown && (
+                  <div className="ep-dropdown">
+                    {filteredStates.map((state) => (
+                      <div
+                        key={state}
+                        className="ep-dropdown-item"
+                        onMouseDown={() => selectState(state)}
+                      >
+                        {state}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {errors.state && <span className="ep-error">{errors.state}</span>}
+            </div>
+
+            {/* Zip */}
+            <div className="ep-field">
+              <label htmlFor="ep-zip">Zip Code</label>
+              <input
+                id="ep-zip"
+                type="tel"
+                placeholder="95391"
                 value={address.zip}
-                onIonChange={(e) => {
-                  setAddress({ ...address, zip: e.detail.value! });
-                  setErrors((prev) => ({ ...prev, zip: undefined })); // Clear error on change
+                maxLength={5}
+                className={errors.zip ? 'has-error' : ''}
+                onChange={(e) => {
+                  setAddress({ ...address, zip: e.target.value });
+                  setErrors((prev) => ({ ...prev, zip: undefined }));
                 }}
-                placeholder="Enter zip code"
-                className="form-input"
-                maxlength={5} // Limit to 5 characters
               />
-            </IonItem>
-          </IonCol>
-        </IonRow>
-        {errors.state && <IonText color="danger" style={{ paddingLeft: '16px', fontSize: 'small' }}>{errors.state}</IonText>}
-        {errors.zip && <IonText color="danger" style={{ paddingLeft: '16px', fontSize: 'small' }}>{errors.zip}</IonText>}
-      </IonContent>
-      <IonFooter>
-        <IonToolbar>
-          <IonGrid>
-            <IonRow>
-              <IonCol>
-                <IonButton expand="block" color="success" onClick={onSave}>
-                  Save
-                </IonButton>
-              </IonCol>
-              <IonCol>
-                <IonButton expand="block" color="danger" onClick={onClose}>
-                  Cancel
-                </IonButton>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
-        </IonToolbar>
-      </IonFooter>
+              {errors.zip && <span className="ep-error">{errors.zip}</span>}
+            </div>
+          </div>
+
+        </div>
+
+        {/* ── Footer ── */}
+        <div className="ep-footer">
+          <button className="ep-cancel-btn" onClick={onClose}>Cancel</button>
+          <button className="ep-save-btn" onClick={onSave}>Save</button>
+        </div>
+      </div>
     </IonModal>
   );
 };

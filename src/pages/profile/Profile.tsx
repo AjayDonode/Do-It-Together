@@ -193,10 +193,10 @@ const Profile: React.FC = () => {
 
       <IonContent className="no-padding-content">
         <IonGrid>
-          <IonRow>
+          <IonRow className="equal-height-row" style={{ display: 'flex', alignItems: 'stretch' }}>
             {/* Left Section: Profile Card (1/3 on md+, full width on mobile) */}
-            <IonCol size="12" size-md="4" >
-              <IonCard className="profile-card no-padding-card">
+            <IonCol size="12" size-md="4" style={{ display: 'flex', flexDirection: 'column' }}>
+              <IonCard className="profile-card no-padding-card" style={{ flex: 1, margin: 0 }}>
                 <div className="banner-avatar-container">
                   <input type="file" id="banner-upload" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageUpload(e, 'banner')} />
                   <input type="file" id="avatar-upload" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageUpload(e, 'avatar')} />
@@ -282,9 +282,9 @@ const Profile: React.FC = () => {
               </IonCard>
             </IonCol>
 
-            <IonCol size="12" size-md="8">
-              <IonCard className="right-section-card">
-                <IonCardContent>
+            <IonCol size="12" size-md="8" style={{ display: 'flex', flexDirection: 'column' }}>
+              <div className="right-section-card" style={{ flex: 1 }}>
+                <div style={{ padding: '16px' }}>
                   {profileData.role === 'pro' && profileData.proDetails ? (
                     // ── Business Profile Panel ──
                     <div>
@@ -363,17 +363,16 @@ const Profile: React.FC = () => {
                       </div>
                     </div>
                   ) : (
-                    // ── Regular user CTA ──
-                    <>
-                      <IonCardTitle>Additional Profile Information</IonCardTitle>
-                      <p style={{ color: '#666', marginTop: '8px' }}>Grow your business by registering as a Pro. Unlock your business profile, get discovered by customers, and manage service bookings.</p>
+                    <div>
+                      <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1a1a1a', margin: '0 0 8px' }}>Additional Profile Information</h2>
+                      <p style={{ color: '#666', marginTop: '8px', lineHeight: 1.6 }}>Grow your business by registering as a Pro. Unlock your business profile, get discovered by customers, and manage service bookings.</p>
                       <IonButton color="secondary" size="small" fill="solid" style={{ marginTop: '16px' }} onClick={handleOpenJoinPro}>
                         ✦ Register as Business
                       </IonButton>
-                    </>
+                    </div>
                   )}
-                </IonCardContent>
-              </IonCard>
+                </div>
+              </div>
             </IonCol>
           </IonRow>
         </IonGrid>

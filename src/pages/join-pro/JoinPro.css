@@ -9,18 +9,21 @@
 }
 
 .joinpro-card {
-  background: white;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    max-width: 500px; /* Prevent overflow */
-    width: 100%; /* Responsive width */
-    box-sizing: border-box;
-    margin: auto; /* Ensure centering within flex container */
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-radius: 32px;
+  padding: var(--spacing-3xl) var(--spacing-2xl);
+  box-shadow: var(--glass-shadow);
+  max-width: 500px; /* Prevent overflow */
+  width: 100%; /* Responsive width */
+  box-sizing: border-box;
+  margin: auto; /* Ensure centering within flex container */
+  border: 1px solid var(--glass-border);
 }
 
 .login-content {
-    --background: #f5f5f5;
+    --background: transparent;
     height: 100vh; /* Full viewport height */
     display: flex;
     justify-content: center;
@@ -30,14 +33,17 @@
 }
 
 .auth-card {
-    background: white;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    max-width: 500px; /* Prevent overflow */
-    width: 100%; /* Responsive width */
-    box-sizing: border-box;
-    margin: auto; /* Ensure centering within flex container */
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-radius: 32px;
+  padding: var(--spacing-3xl) var(--spacing-2xl);
+  box-shadow: var(--glass-shadow);
+  max-width: 500px; /* Prevent overflow */
+  width: 100%; /* Responsive width */
+  box-sizing: border-box;
+  margin: auto; /* Ensure centering within flex container */
+  border: 1px solid var(--glass-border);
 }
 
 
@@ -127,11 +133,11 @@ ion-label {
         border-radius: 12px;
         margin: 0 auto;
         box-shadow: none;
-        border: 1px solid #eee;
+        border: 1px solid var(--glass-border);
     }
 
     .login-content {
-        --background: white;
+        --background: transparent;
         padding: 8px;
     }
 }

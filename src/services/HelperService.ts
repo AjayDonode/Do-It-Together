@@ -33,6 +33,20 @@ export const getHelperById = async (id: string): Promise<Helper | null> => {
   }
 };
 
+export const getHelpers = async (): Promise<Helper[]> => {
+  try {
+    const querySnapshot = await getDocs(helperCollection);
+    const helpers: Helper[] = [];
+    querySnapshot.forEach((doc) => {
+      helpers.push({ ...(doc.data() as Helper), id: doc.id });
+    });
+    return helpers;
+  } catch (error) {
+    console.error('Error fetching helpers:', error);
+    return [];
+  }
+};
+
 export const getDistinctCategories = async (): Promise<string[]> => {
   try {
     const querySnapshot = await getDocs(helperCollection);

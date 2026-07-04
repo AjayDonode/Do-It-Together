@@ -3,6 +3,17 @@
   --spacing: 20px;
 }
 
+/* ── Equal-height two-column layout ── */
+ion-grid .equal-height-row {
+  display: flex;
+  align-items: stretch;
+}
+
+ion-grid .equal-height-row > ion-col {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Container for centering on smaller screens if needed */
 .profile-container {
   display: flex;
@@ -16,15 +27,27 @@
 /* Limit the width of the left profile card (optional, adjust as needed) */
 .profile-card {
   max-width: 600px;
-  /* Kept for left card; adjust or remove for full expansion */
   width: 100%;
+  flex: 1;
+  margin: 0;
+  --background: transparent;
+  background: var(--glass-bg, rgba(255, 255, 255, 0.25));
+  backdrop-filter: blur(var(--glass-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px));
+  box-shadow: var(--glass-shadow, 0 8px 32px 0 rgba(0, 0, 0, 0.37));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+  border-radius: 32px;
 }
 
 /* New: Style for the right section card */
 .right-section-card {
-  height: 100%;
-  /* Make it fill the available height */
-  /* width: 100%; */
+  flex: 1;
+  margin: 0;
+  background: var(--ion-card-background, #ffffff);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 32px;
+  overflow: hidden;
 }
 
 /* Header image styling */

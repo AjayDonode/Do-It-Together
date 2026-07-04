@@ -10,6 +10,8 @@ import HelperProfilePage from '../pages/helperprofile/HelperProfilePage';
 import JoinProPage from '../pages/join-pro/JoinProPage';
 import ChatPage from '../pages/chat/ChatPage';
 import AIFinder from '../pages/AIFinder';
+import DIYAdvisorPage from '../pages/diy/DIYAdvisorPage';
+import DIYReportView from '../pages/diy/DIYReportView';
 
 const TabsLayout: React.FC = () => {
   return (
@@ -18,6 +20,8 @@ const TabsLayout: React.FC = () => {
         <Route exact path="/tabs/home" component={Home} />
         <Route exact path="/tabs/magic" component={MagicSearch} />
         <Route exact path="/tabs/ai-finder" component={AIFinder} />
+        <Route exact path="/tabs/diy-advisor" component={DIYAdvisorPage} />
+        <Route path="/tabs/diy-report/:reportId" component={DIYReportView} />
         <Route exact path="/tabs/profile" component={Profile} />
         <Route exact path="/tabs/mycards" component={MyCards} />
         <Route exact path="/tabs/join-pro" component={JoinProPage} />

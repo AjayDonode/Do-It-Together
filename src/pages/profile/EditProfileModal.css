@@ -1,58 +1,264 @@
-ion-modal {
-  --width: 100%; /* Full width on phones/small screens */
-  --max-width: 800px; /* Max width on laptops to prevent it from being too wide */
-  --height: 80%; /* Auto height to fit content */
-  --border-radius: 8px; /* Soften edges */
-  --border-width: 1px; /* Add border width */
-  --border-style: solid; /* Solid border style */
-  --border-color: rgb(184, 184, 184); /* Gray border color */
-  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
-  
+/* ── Edit Profile Modal ── */
+ion-modal.edit-profile-modal {
+  --width: 100%;
+  --max-width: 520px;
+  --height: 90%;
+  --border-radius: 24px;
+  --box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  --background: #ffffff;
+  --backdrop-opacity: 0.5;
 }
 
-
-/* Removed .container as it's only used in null guard and flex isn't needed there; simplified to basic centering if required */
-
-/* Removed .title as it's not used (inline styles are applied instead) */
-
-.form-input {
-  width: 100%; /* Full width of parent */
-  box-sizing: border-box; /* Include padding/borders in width */
-  margin: 0; /* Remove any extra margins */
-}
-
-/* Optional: Add no-padding-content if needed (assuming it removes padding) */
-.no-padding-content {
-  --padding-start: 0;
-  --padding-end: 0;
-  --padding-top: 0;
-  --padding-bottom: 0;
-}
-
-.container {
+/* Full-height flex column that fills the modal */
+.ep-sheet {
   display: flex;
-  border-radius: 20px;
-  border: 1px solid rgb(184, 184, 184);
-  /* Changed to add a gray border */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 1200px;
-  width: 80%;
-  margin: 0 auto;
+  flex-direction: column;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 24px;
+  overflow: hidden;
 }
 
- .title {
-    color: #ff385c;
-    font-weight: bold;
-    text-align: center;
-  }
-
-  .form-input {
-  width: 100%; /* Full width of parent */
-  box-sizing: border-box; /* Include padding/borders in width */
-  margin: 0; /* Remove any extra margins */
+/* ── Header ── */
+.ep-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 18px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
 }
 
-.state-dropdown {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.ep-header-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.ep-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f4f4f5;
+  border: none;
+  color: #888;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.ep-close-btn:hover {
+  background: #e8e8e8;
+  color: #333;
+}
+
+/* ── Scrollable Body ── */
+.ep-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 24px 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Section Labels ── */
+.ep-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #aaa;
+  margin: 0 0 14px;
+}
+
+/* ── Field ── */
+.ep-field {
+  margin-bottom: 16px;
+}
+
+.ep-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 6px;
+  letter-spacing: 0.1px;
+}
+
+.ep-field input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 46px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #111;
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+}
+
+.ep-field input:focus {
+  border-color: #f59e0b;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+
+.ep-field input:disabled {
+  background: #f4f4f5;
+  color: #9ca3af;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.ep-field input::placeholder {
+  color: #c0c0c0;
+  font-weight: 400;
+}
+
+.ep-field input.has-error {
+  border-color: #ef4444;
+  background: #fff8f8;
+}
+
+.ep-field input.has-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.ep-error {
+  display: block;
+  font-size: 11.5px;
+  color: #ef4444;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+/* ── Read-only badge ── */
+.ep-disabled-badge {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #aaa;
+  background: #f0f0f0;
   border-radius: 4px;
+  padding: 2px 6px;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+/* ── Side by side row ── */
+.ep-row {
+  display: flex;
+  gap: 12px;
+}
+
+.ep-row .ep-field {
+  flex: 1;
+}
+
+/* ── State dropdown ── */
+.ep-state-wrapper {
+  position: relative;
+}
+
+.ep-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.ep-dropdown-item {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #222;
+  cursor: pointer;
+  transition: background 0.1s;
+  font-family: inherit;
+}
+
+.ep-dropdown-item:hover {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ── Divider ── */
+.ep-divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: 4px 0 22px;
+}
+
+/* ── Footer ── */
+.ep-footer {
+  display: flex;
+  gap: 10px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.ep-cancel-btn {
+  flex: 1;
+  height: 48px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  background: transparent;
+  color: #555;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: inherit;
+}
+
+.ep-cancel-btn:hover {
+  background: #f5f5f5;
+  border-color: #d1d5db;
+}
+
+.ep-save-btn {
+  flex: 1;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: #1a1a1a;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.2px;
+  font-family: inherit;
+}
+
+.ep-save-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.ep-save-btn:active {
+  transform: translateY(0);
 }

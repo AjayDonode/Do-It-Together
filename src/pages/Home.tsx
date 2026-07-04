@@ -62,6 +62,10 @@ const Home: React.FC = () => {
     router.push('/tabs/ai-finder');
   };
 
+  const openDIYAdvisor = () => {
+    router.push('/tabs/diy-advisor');
+  };
+
   const firstName = currentUser?.displayName?.split(' ')[0] || 'there';
 
   return (
@@ -90,6 +94,17 @@ const Home: React.FC = () => {
             </div>
             <div className="ai-chat-icon-wrap">
               <IonIcon icon={chatbubblesOutline} className="ai-chat-icon" />
+            </div>
+          </div>
+
+          {/* ── DIY Advisor CTA ── */}
+          <div className="diy-advisor-banner" onClick={openDIYAdvisor}>
+            <div className="diy-advisor-text">
+              <span className="diy-advisor-label">🔧 DIY Advisor</span>
+              <p>Get AI-powered plans, designs & tool lists to do it yourself.</p>
+            </div>
+            <div className="diy-icon-wrap">
+              <span className="diy-banner-emoji">🏠</span>
             </div>
           </div>
 
