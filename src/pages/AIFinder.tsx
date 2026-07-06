@@ -10,6 +10,7 @@ import {
   useIonRouter,
 } from '@ionic/react';
 import { sendOutline, arrowBackOutline, sparklesOutline, locationOutline, timeOutline } from 'ionicons/icons';
+import { useLocation } from 'react-router-dom';
 import './AIFinder.css';
 import { geminiChat, GeminiMessage } from '../services/GeminiService';
 import * as HelperService from '../services/HelperService';
@@ -67,8 +68,14 @@ function normalizeCategory(raw: string, categories: string[]): string {
 ──────────────────────────────────────────────────────────── */
 const AIFinder: React.FC = () => {
   const router = useIonRouter();
+  const location = useLocation();
   const contentRef = useRef<HTMLIonContentElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Parse context passed from DIY report ("Hire a Pro Instead")
+  const searchParams = new URLSearchParams(location.search);
+  const ctxProblem = searchParams.get('problem') ?? '';
+  const ctxZip = searchParams.get('zip') ?? '';
 
   // Live categories fetched from Firestore
   const [categories, setCategories] = useState<string[]>([]);
@@ -85,15 +92,81 @@ const AIFinder: React.FC = () => {
   // Derived: system prompt built from live categories
   const systemPrompt = buildSystemPrompt(categories);
 
+  // Initial greeting — personalised if context was passed
+  const initGreeting = ctxProblem
+    ? `Got it! 👋 I can see you were working on **"${ctxProblem}"** and decided to bring in a pro. Let me find the best local experts near ${ctxZip ? `zip **${ctxZip}**` : 'your area'} for you!`
+    : "Hi! 👋 I'm your AI helper finder. Tell me what you need help with and your ZIP code, and I'll find the best local pros for you!";
+
   // UI messages (what the user sees)
   const [messages, setMessages] = useState<ChatMessage[]>([{
     id: 'init',
     role: 'bot',
-    text: "Hi! 👋 I'm your AI helper finder. Tell me what you need help with and your ZIP code, and I'll find the best local pros for you!",
+    text: initGreeting,
   }]);
 
   // Gemini conversation history (role: user | model)
   const [geminiHistory, setGeminiHistory] = useState<GeminiMessage[]>([]);
+
+  // If context was passed, immediately trigger an auto-search after categories load
+  const [autoSearchDone, setAutoSearchDone] = useState(false);
+  useEffect(() => {
+    if (!ctxProblem || !ctxZip || categoriesLoading || autoSearchDone || categories.length === 0) return;
+    setAutoSearchDone(true);
+
+    // Silently inject context into Gemini history so it knows zip + problem
+    const contextMsg = `The user was trying to do a DIY project: "${ctxProblem}". They decided to hire a professional instead. Their ZIP code is ${ctxZip}. Please find the most relevant service category from your list and immediately output the [SEARCH zip=${ctxZip} category=CATEGORY] trigger. Then tell them you're searching.`;
+    const seedHistory: GeminiMessage[] = [
+      { role: 'user', parts: [{ text: contextMsg }] },
+    ];
+
+    setMessages(prev => [...prev, { id: 'searching', role: 'bot', text: `🔍 Searching for pros near **${ctxZip}**…` }]);
+    setIsThinking(true);
+
+    geminiChat(seedHistory, systemPrompt)
+      .then(async (rawReply) => {
+        const intent = parseSearchIntent(rawReply);
+        const displayText = stripSearchMarker(rawReply);
+
+        if (intent) {
+          const resolvedCategory = normalizeCategory(intent.category, categories);
+          const results = await HelperService.searchHelpers(resolvedCategory, intent.zip);
+          let followUpText = '';
+          let helpersToShow: Helper[] = [];
+
+          if (results.length === 0) {
+            const noResultsCtx = `[SYSTEM: 0 results for "${resolvedCategory}" near ${intent.zip}. Tell the user and offer alternatives.]`;
+            const followUp = await geminiChat([...seedHistory, { role: 'model', parts: [{ text: rawReply }] }, { role: 'user', parts: [{ text: noResultsCtx }] }], systemPrompt);
+            followUpText = followUp;
+          } else {
+            helpersToShow = results.slice(0, 8);
+            const summary = helpersToShow.map((h, i) => `${i + 1}. ${h.name} — ${h.category}, rating: ${h.rating?.toFixed(1) ?? 'N/A'}`).join('\n');
+            const ctx = `[SYSTEM: Found ${results.length} ${resolvedCategory} helpers near ${intent.zip}. Top results:\n${summary}\nWrite a warm 2-sentence summary.]`;
+            const followUp = await geminiChat([...seedHistory, { role: 'model', parts: [{ text: rawReply }] }, { role: 'user', parts: [{ text: ctx }] }], systemPrompt);
+            followUpText = followUp;
+          }
+
+          setMessages(prev => [
+            ...prev.filter(m => m.id !== 'searching'),
+            { id: `res-${Date.now()}`, role: 'bot', text: followUpText, helpers: helpersToShow },
+          ]);
+          setGeminiHistory([...seedHistory, { role: 'model', parts: [{ text: rawReply }] }]);
+        } else {
+          setMessages(prev => [
+            ...prev.filter(m => m.id !== 'searching'),
+            { id: `bot-${Date.now()}`, role: 'bot', text: displayText },
+          ]);
+          setGeminiHistory([...seedHistory, { role: 'model', parts: [{ text: rawReply }] }]);
+        }
+      })
+      .catch(err => {
+        setMessages(prev => [
+          ...prev.filter(m => m.id !== 'searching'),
+          { id: `err-${Date.now()}`, role: 'bot', text: `⚠️ ${err?.message ?? 'Error searching. Please try manually.'}`, isError: true },
+        ]);
+      })
+      .finally(() => setIsThinking(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoriesLoading, categories]);
 
   const [inputText, setInputText] = useState('');
   const [isThinking, setIsThinking] = useState(false);

@@ -7,7 +7,7 @@ import {
 import { arrowBackOutline, sendOutline, hammerOutline, locationOutline } from 'ionicons/icons';
 import { useAuth } from '../../context/AuthContext';
 import { geminiChat, geminiStructured, geminiGenerateImage, GeminiMessage } from '../../services/GeminiService';
-import { DIYPlan } from '../../models/DIYReport';
+import { DIYPlan, WoodDiagram } from '../../models/DIYReport';
 import * as DIYService from '../../services/DIYService';
 import UserProfileService from '../../services/UserProfileService';
 import './DIYAdvisorPage.css';
@@ -75,6 +75,60 @@ Rules:
 - All prices in USD format like "$12-$18".`;
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Wood diagram generation system prompt
+// ─────────────────────────────────────────────────────────────────────────────
+const WOOD_DIAGRAM_SYSTEM = `You are an expert woodworking engineer. Output ONLY valid JSON — no markdown, no prose.
+
+Return this exact structure:
+{
+  "overallNotes": "one sentence about lumber selection or grain direction",
+  "pieces": [
+    {
+      "label": "short name e.g. Seat Top",
+      "woodType": "e.g. Pine 2x4, 3/4\" Plywood, MDF",
+      "thicknessIn": 1.5,
+      "widthIn": 12,
+      "lengthIn": 24,
+      "quantity": 1,
+      "notes": "optional tip e.g. Sand edges smooth"
+    }
+  ],
+  "assemblySteps": [
+    {
+      "step": 1,
+      "description": "one clear sentence describing what to join",
+      "pieces": ["Seat Top", "Front Apron"],
+      "hardwareNeeded": "e.g. 2\" wood screws × 8, wood glue"
+    }
+  ]
+}
+
+Rules:
+- Max 12 pieces, max 8 assembly steps.
+- All dimensions in inches as numbers (no units in the number fields).
+- piece labels in assemblySteps MUST exactly match labels in pieces array.
+- woodType should specify standard store lumber, e.g. \"Pine 2×4\", \"3/4\" Sanded Plywood\", \"1×6 Pine Board\".`;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Detect whether a project uses wood materials
+// ─────────────────────────────────────────────────────────────────────────────
+function isWoodProject(plan: DIYPlan, problem: string): boolean {
+  const WOOD_KEYWORDS = [
+    'wood', 'plywood', 'mdf', 'lumber', 'pine', 'oak', 'birch', 'cedar',
+    'hardwood', 'softwood', 'board', 'plank', 'stool', 'shelf', 'shelving',
+    'cabinet', 'entertainment', 'bookcase', 'bench', 'table', 'desk',
+    'drawer', 'frame', 'box', 'crate', 'deck', 'pergola', 'fence',
+  ];
+  const haystack = [
+    plan.title,
+    problem,
+    ...plan.materials.map(m => m.name + ' ' + m.searchQuery),
+  ].join(' ').toLowerCase();
+
+  return WOOD_KEYWORDS.some(kw => haystack.includes(kw));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Chat message type (UI only)
 // ─────────────────────────────────────────────────────────────────────────────
 interface ChatMsg {
@@ -94,6 +148,7 @@ const GEN_STEPS = [
   { icon: '📋', label: 'Building step-by-step plan…' },
   { icon: '🛠️', label: 'Selecting tools & materials…' },
   { icon: '💰', label: 'Estimating costs…' },
+  { icon: '🪚', label: 'Generating cut list & assembly diagram…' },
   { icon: '🎨', label: 'Generating design mockup…' },
   { icon: '✅', label: 'Finalising your plan…' },
 ];
@@ -245,6 +300,30 @@ Include realistic Home Depot pricing. Make steps actionable.`;
 
       const plan = await geminiStructured<DIYPlan>(planPrompt, PLAN_SYSTEM);
 
+      // ── If this is a wood project, generate cut list & assembly diagram ──
+      if (isWoodProject(plan, intake.problem)) {
+        setGenStep('wood');
+        try {
+          const woodPrompt = `Generate a precise cut list and assembly diagram for this woodworking project:
+Project: ${plan.title}
+Problem: ${intake.problem}
+Skill level: ${intake.skill}
+
+Materials already selected:
+${plan.materials.map(m => `- ${m.name} (${m.quantity} ${m.unit})`).join('\n')}
+
+Steps already planned:
+${plan.steps.map(s => `${s.step}. ${s.title}: ${s.description}`).join('\n')}
+
+Provide exact cut dimensions for every wood piece needed. Use standard store lumber sizes.`;
+          const woodDiagram = await geminiStructured<WoodDiagram>(woodPrompt, WOOD_DIAGRAM_SYSTEM);
+          plan.woodDiagram = woodDiagram;
+          console.debug('[DIY] Wood diagram generated:', woodDiagram.pieces.length, 'pieces');
+        } catch (woodErr) {
+          console.warn('[DIY] Wood diagram skipped:', woodErr);
+        }
+      }
+
       setGenStep('saving');
       const reportId = await DIYService.createReport({
         userId: currentUser.uid,
@@ -263,9 +342,11 @@ Include realistic Home Depot pricing. Make steps actionable.`;
         const dataUri = await geminiGenerateImage(imagePrompt);
         const imageUrl = await DIYService.uploadDesignImage(reportId, dataUri);
         await DIYService.updateReportImage(reportId, imageUrl);
-      } catch (imgErr) {
-        console.warn('[DIY] Image generation skipped:', imgErr);
-        await DIYService.updateReportImage(reportId, '');
+      } catch (imgErr: any) {
+        const reason = imgErr?.message ?? 'Unknown image error';
+        console.error('[DIY] Image generation failed:', reason);
+        // Save empty URL but store the error reason for display
+        await DIYService.updateReportImage(reportId, '', reason);
       }
 
       setGenStep('done');

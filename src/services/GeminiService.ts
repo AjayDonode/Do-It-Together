@@ -7,7 +7,7 @@
  */
 
 const CHAT_MODEL = 'gemini-2.5-flash';
-const IMAGE_MODEL = 'gemini-2.0-flash-preview-image-generation';
+const IMAGE_MODEL = 'gemini-2.5-flash-image';
 
 /** Build URL fresh on every call so hot-reload env changes are picked up */
 function geminiUrl(model: string): string {
@@ -140,11 +140,12 @@ export async function geminiGenerateImage(prompt: string): Promise<string> {
       parts: [{ text: prompt }],
     }],
     generationConfig: {
-      responseModalities: ['IMAGE', 'TEXT'],
+      responseModalities: ['TEXT', 'IMAGE'],
     },
   };
 
-  console.debug('[Gemini Image] → generating image');
+  console.debug('[Gemini Image] → generating image with model:', IMAGE_MODEL);
+  console.debug('[Gemini Image] prompt:', prompt.slice(0, 120));
 
   const res = await fetch(url, {
     method: 'POST',
@@ -164,17 +165,24 @@ export async function geminiGenerateImage(prompt: string): Promise<string> {
   }
 
   const data = await res.json();
+  console.debug('[Gemini Image] raw response keys:', Object.keys(data));
+
   const parts = data?.candidates?.[0]?.content?.parts ?? [];
+  console.debug('[Gemini Image] parts received:', parts.length, parts.map((p: any) => Object.keys(p)));
 
   // Find the inline image part
   const imagePart = parts.find((p: any) => p.inlineData?.mimeType?.startsWith('image/'));
   if (!imagePart?.inlineData?.data) {
-    throw new Error('No image returned from Gemini');
+    // Log full response to help debug model/quota issues
+    console.error('[Gemini Image] No image part found. Full response:', JSON.stringify(data, null, 2));
+    const textPart = parts.find((p: any) => p.text);
+    const hint = textPart?.text ? ` Model said: "${textPart.text.slice(0, 200)}"` : '';
+    throw new Error(`No image returned from Gemini.${hint}`);
   }
 
   const mimeType = imagePart.inlineData.mimeType;
   const base64 = imagePart.inlineData.data;
-  console.debug('[Gemini Image] ← received image');
+  console.debug('[Gemini Image] ← received image, mime:', mimeType, 'size:', base64.length, 'chars');
 
   return `data:${mimeType};base64,${base64}`;
 }

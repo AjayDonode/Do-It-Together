@@ -25,11 +25,13 @@ export async function getReport(reportId: string): Promise<DIYReport | null> {
 }
 
 /** Update a report's design image URL and mark it complete. */
-export async function updateReportImage(reportId: string, imageUrl: string): Promise<void> {
-  await updateDoc(doc(db, COL, reportId), {
+export async function updateReportImage(reportId: string, imageUrl: string, imageError?: string): Promise<void> {
+  const update: Record<string, any> = {
     designImageUrl: imageUrl,
     status: 'complete',
-  });
+  };
+  if (imageError) update.imageError = imageError;
+  await updateDoc(doc(db, COL, reportId), update);
 }
 
 /** Mark a report as errored. */

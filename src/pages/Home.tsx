@@ -10,7 +10,7 @@ import {
   useIonRouter,
   IonToast,
 } from '@ionic/react';
-import { chatbubblesOutline, warning } from 'ionicons/icons';
+import { chatbubblesOutline, warning, sparklesOutline } from 'ionicons/icons';
 import './Home.css';
 import { useHistory } from 'react-router';
 import { useAuth } from '../context/AuthContext';
@@ -86,25 +86,28 @@ const Home: React.FC = () => {
             <p>Find trusted helpers in your neighborhood.</p>
           </div>
 
-          {/* ── AI Finder CTA ── */}
-          <div className="ai-finder-banner" onClick={openAIFinder}>
-            <div className="ai-finder-text">
-              <span className="ai-finder-label">✨ AI Finder</span>
-              <p>Tell us what you need — we'll find the perfect helper.</p>
+          {/* ── AI Banners Row ── */}
+          <div className="ai-banners-row">
+            {/* Find a Pro */}
+            <div className="ai-banner-card pro-card" onClick={openAIFinder}>
+              <div className="ai-banner-icon-wrap pro-icon">
+                <IonIcon icon={sparklesOutline} />
+              </div>
+              <div className="ai-banner-body">
+                <span className="ai-banner-label">Find a Pro</span>
+                <p>Find the perfect local helper.</p>
+              </div>
             </div>
-            <div className="ai-chat-icon-wrap">
-              <IonIcon icon={chatbubblesOutline} className="ai-chat-icon" />
-            </div>
-          </div>
 
-          {/* ── DIY Advisor CTA ── */}
-          <div className="diy-advisor-banner" onClick={openDIYAdvisor}>
-            <div className="diy-advisor-text">
-              <span className="diy-advisor-label">🔧 DIY Advisor</span>
-              <p>Get AI-powered plans, designs & tool lists to do it yourself.</p>
-            </div>
-            <div className="diy-icon-wrap">
-              <span className="diy-banner-emoji">🏠</span>
+            {/* DIY Advisor */}
+            <div className="ai-banner-card diy-card" onClick={openDIYAdvisor}>
+              <div className="ai-banner-icon-wrap diy-icon">
+                <span>🔧</span>
+              </div>
+              <div className="ai-banner-body">
+                <span className="ai-banner-label">DIY Advisor</span>
+                <p>Get AI plans &amp; tool lists.</p>
+              </div>
             </div>
           </div>
 

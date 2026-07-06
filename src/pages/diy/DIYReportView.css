@@ -22,53 +22,117 @@
   --background: #f5f5f5;
 }
 
-/* ── Hero image ── */
-.rpt-hero-image-wrap {
+/* ── Design mockup card (contained, no clipping) ── */
+.rpt-design-card {
   position: relative;
-  width: 100%;
-  height: 240px;
+  background: #f9fafb;
+  border-radius: 18px;
   overflow: hidden;
+  margin-bottom: 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
 }
 
-.rpt-hero-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.rpt-design-img {
   display: block;
+  width: 100%;
+  max-height: 340px;
+  object-fit: contain;  /* show full image, no cropping */
+  background: #f9fafb;
+  padding: 8px;
 }
 
-.rpt-hero-badge {
+.rpt-design-badge {
   position: absolute;
-  bottom: 12px;
+  top: 12px;
   right: 12px;
   display: flex;
   align-items: center;
   gap: 5px;
   background: rgba(0, 0, 0, 0.55);
   color: #fff;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  padding: 5px 10px;
+  padding: 4px 10px;
   border-radius: 20px;
   backdrop-filter: blur(6px);
 }
 
-.rpt-hero-placeholder {
+.rpt-design-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 120px;
+  height: 100px;
   background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-radius: 18px;
   color: #92400e;
   font-size: 14px;
   font-weight: 500;
+  margin-bottom: 20px;
+  padding: 16px;
 }
 
-.rpt-hero-placeholder ion-icon {
-  font-size: 32px;
+.rpt-design-placeholder ion-icon {
+  font-size: 28px;
 }
+
+.rpt-design-error {
+  font-size: 11px;
+  opacity: 0.75;
+  max-width: 280px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ── PDF download button in toolbar ── */
+.rpt-pdf-btn {
+  --color: #f59e0b;
+}
+
+/* ── PDF CTA card ── */
+.rpt-pdf-cta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, #1e3a5f, #0f2340);
+  color: #fff;
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+}
+
+.rpt-pdf-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+.rpt-pdf-cta:active { transform: scale(0.98); }
+
+.rpt-pdf-cta ion-icon {
+  font-size: 28px;
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.rpt-pdf-cta div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rpt-pdf-cta-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.rpt-pdf-cta-sub {
+  font-size: 12px;
+  opacity: 0.75;
+  line-height: 1.4;
+}
+
+
 
 /* ── Body ── */
 .rpt-body {
@@ -472,3 +536,208 @@
   font-size: 48px;
   color: #ef4444;
 }
+
+/* ── Wood Cut List ── */
+.rpt-wood-section {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border-radius: 18px;
+  padding: 18px;
+  border: 1.5px solid #fde68a;
+  margin-bottom: 24px;
+}
+
+.rpt-wood-notes {
+  font-size: 13px;
+  color: #78350f;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+  border-left: 3px solid #f59e0b;
+}
+
+.rpt-cut-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.rpt-cut-piece {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-top: 3px solid #f59e0b;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+
+.rpt-cut-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1.2;
+}
+
+.rpt-cut-wood-type {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 600;
+  background: #f3f4f6;
+  padding: 2px 7px;
+  border-radius: 20px;
+  align-self: flex-start;
+}
+
+/* SVG diagram wrapper for each piece */
+.rpt-cut-svg-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.rpt-cut-svg-wrap svg {
+  width: 100%;
+  max-width: 140px;
+  height: auto;
+  overflow: visible;
+}
+
+.rpt-cut-dims {
+  font-size: 10px;
+  font-weight: 700;
+  color: #374151;
+  text-align: center;
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 4px 6px;
+  letter-spacing: 0.2px;
+}
+
+.rpt-cut-qty-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: #1a1a1a;
+  font-size: 11px;
+  font-weight: 800;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rpt-cut-notes {
+  font-size: 11px;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 7px;
+  padding: 4px 8px;
+  line-height: 1.4;
+}
+
+/* ── Assembly Diagram ── */
+.rpt-assembly-section {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border-radius: 18px;
+  padding: 18px;
+  border: 1.5px solid #bae6fd;
+  margin-bottom: 24px;
+}
+
+.rpt-assembly-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.rpt-asm-step {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  position: relative;
+}
+
+.rpt-asm-connector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  color: #0ea5e9;
+  font-size: 18px;
+  line-height: 1;
+  user-select: none;
+}
+
+.rpt-asm-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.rpt-asm-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.rpt-asm-desc {
+  font-size: 13px;
+  color: #1e3a5f;
+  line-height: 1.55;
+  font-weight: 500;
+  flex: 1;
+}
+
+.rpt-asm-pieces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.rpt-asm-piece-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0369a1;
+  background: #e0f2fe;
+  border-radius: 20px;
+  padding: 3px 9px;
+}
+
+.rpt-asm-hardware {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #374151;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #e2e8f0;
+}
+
+.rpt-asm-hardware::before {
+  content: '🔩';
+  font-size: 13px;
+}
+
